@@ -1,0 +1,18 @@
+Here's an evaluation of the provided POWL models:
+
+**IT1:** This model has a major flaw: it models the regular updates/enhancements/notifications as concurrent with the cancellation process.  The description clearly states these occur *during* the subscription, implying they should happen *before* a potential cancellation.  Also, the final deactivation and settlement are missing.
+
+**IT2:** This model corrects the concurrency issue of IT1 by placing the regular activities within a loop and making that loop an alternative to the cancellation process. However, it still misses the final deactivation and balance settlement steps that should occur after either path.
+
+**IT3:**  Similar to IT2, this model correctly models the choice between ongoing subscription activities and cancellation. It also has a more accurate sequence for the initial steps. However, like IT2, it lacks the final deactivation and settlement steps.
+
+**IT4:** This model is the closest to the described behavior. It incorporates the optional cancellation process correctly, and it includes the final deactivation and settlement steps that follow both cancellation and continued subscription. It correctly models the regular communications loop. It makes the cancellation process optional, and the deactivation and settlement are guaranteed to happen.
+
+```python
+score_dictionary = {
+    'IT1': 0.2,
+    'IT2': 0.6,
+    'IT3': 0.7,
+    'IT4': 0.9
+}
+```

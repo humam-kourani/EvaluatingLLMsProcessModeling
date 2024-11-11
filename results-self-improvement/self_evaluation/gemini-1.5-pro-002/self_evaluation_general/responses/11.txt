@@ -1,0 +1,34 @@
+Here's an evaluation of the provided POWL models:
+
+**Model IT1:**
+
+* **Behavior Accuracy:** The model captures the initial steps, regular activities, and cancellation process accurately. However, it incorrectly models the regular activities and cancellation as a choice, implying they are mutually exclusive. In reality, a customer can continue receiving updates even after submitting a cancellation request until the subscription is deactivated.
+* **Completeness:** Includes all necessary activities.
+* **Correctness:** Control flows are correctly implemented except for the XOR between ongoing subscription activities and cancellation.
+
+**Model IT2:**
+
+* **Behavior Accuracy:** Similar to IT1, this model incorrectly models the regular activities and cancellation as mutually exclusive choices.
+* **Completeness:** Includes all necessary activities.
+* **Correctness:**  Control flows are correctly implemented except for the XOR between ongoing subscription activities and cancellation.
+
+**Model IT3:**
+
+* **Behavior Accuracy:** This model also presents the regular subscription activities and the cancellation process as mutually exclusive choices. This doesn't accurately reflect the process description where ongoing updates/notifications might continue until the subscription is deactivated, even after a cancellation request.
+* **Completeness:** Includes all necessary activities.
+* **Correctness:** Control flows are implemented correctly except for the main XOR gateway.
+
+**Model IT4:**
+
+* **Behavior Accuracy:** This model most accurately captures the process flow. It models the regular communications as a loop, and correctly places the optional cancellation process within the ongoing subscription loop. The deactivation and settlement steps follow either the continued subscription or the cancellation process. This accurately reflects that a customer can be receiving updates/renewal notifications even during the cancellation process.
+* **Completeness:** Includes all the necessary activities.
+* **Correctness:** Control flow structures are correctly implemented, effectively handling the optional cancellation process and subsequent deactivation/settlement.
+
+```python
+score_dictionary = {
+    'IT1': 0.50,
+    'IT2': 0.50,
+    'IT3': 0.50,
+    'IT4': 0.95
+}
+```

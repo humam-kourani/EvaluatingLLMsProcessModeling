@@ -1,0 +1,32 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+schedule_audit = gen.activity('Schedule compliance audit')
+prepare_documentation = gen.activity('Prepare documentation')
+gather_evidence = gen.activity('Gather evidence')
+conduct_self_assessment = gen.activity('Conduct self-assessment')
+conduct_external_audit = gen.activity('Conduct external audit')
+identify_gaps_or_issues = gen.activity('Identify gaps or issues')
+make_necessary_corrections = gen.activity('Make necessary corrections or improvements')
+conduct_final_audit = gen.activity('Conduct final audit')
+award_certification = gen.activity('Award certification')
+issue_official_documents = gen.activity('Issue official documents')
+
+prepare_gather_assess = gen.partial_order(dependencies=[(prepare_documentation,), (gather_evidence,), (conduct_self_assessment,)])
+
+pre_audit_activities = gen.partial_order(dependencies=[(schedule_audit, prepare_gather_assess), (prepare_gather_assess, conduct_external_audit)])
+
+# Create a copy of conduct_external_audit to avoid reusing the same node
+conduct_external_audit_copy = conduct_external_audit.copy()
+
+post_external_audit = gen.partial_order(dependencies=[(conduct_external_audit_copy, identify_gaps_or_issues), (identify_gaps_or_issues, make_necessary_corrections), (make_necessary_corrections, conduct_final_audit)])
+
+# Create a copy of conduct_final_audit to avoid reusing the same node
+conduct_final_audit_copy = conduct_final_audit.copy()
+
+post_final_audit = gen.partial_order(dependencies=[(conduct_final_audit_copy, award_certification), (award_certification, issue_official_documents)])
+
+
+
+final_model = gen.partial_order(dependencies=[(pre_audit_activities, post_external_audit), (post_external_audit, post_final_audit)])

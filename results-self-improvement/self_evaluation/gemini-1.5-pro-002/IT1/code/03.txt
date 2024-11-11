@@ -1,0 +1,45 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial inventory check can be automated or manual
+send_automated_alert = gen.activity('Send an automated alert')
+send_manual_alert = gen.activity('Send a manual alert')
+check_current_inventory_level = gen.activity('Check current inventory level')
+
+initial_check = gen.xor(send_automated_alert, send_manual_alert)
+
+check_inventory = gen.partial_order(dependencies=[(check_current_inventory_level, initial_check)])
+
+
+# Placing an order with suppliers
+place_order_with_suppliers = gen.activity('Place order with suppliers')
+
+# Update inventory system with expected delivery dates
+update_inventory_system_with_expected_delivery_dates = gen.activity(
+    'Update inventory system with expected delivery dates')
+
+order_process = gen.partial_order(dependencies=[(place_order_with_suppliers, update_inventory_system_with_expected_delivery_dates)])
+
+# Receiving, inspecting, and storing stock
+receive_stock = gen.activity('Receive stock')
+inspect_stock_for_quality = gen.activity('Inspect stock for quality')
+record_stock_in_system = gen.activity('Record stock in system')
+place_stock_on_shelves = gen.activity('Place stock on shelves')
+place_stock_in_storage = gen.activity('Place stock in storage')
+
+# Shelves or storage are mutually exclusive choices for placement.
+place_stock = gen.xor(place_stock_on_shelves, place_stock_in_storage)
+
+stock_handling = gen.partial_order(dependencies=[(receive_stock, inspect_stock_for_quality),
+                                               (inspect_stock_for_quality, record_stock_in_system),
+                                               (record_stock_in_system, place_stock)])
+
+
+# Update inventory levels
+update_inventory_levels = gen.activity('Update inventory levels')
+
+# Combine all sub-processes
+final_model = gen.partial_order(dependencies=[(check_inventory, order_process),
+                                            (order_process, stock_handling),
+                                            (stock_handling, update_inventory_levels)])

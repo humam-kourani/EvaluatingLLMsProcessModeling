@@ -1,0 +1,51 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+guest_calls = gen.activity('Guest calls room service')
+manager_takes_order = gen.activity('Manager takes down the order')
+manager_submits_kitchen_order = gen.activity('Manager submits order ticket to kitchen')
+manager_gives_sommelier_order = gen.activity('Manager gives order to sommelier')
+manager_assigns_waiter = gen.activity('Manager assigns order to waiter')
+kitchen_prepares_food = gen.activity('Kitchen prepares food')
+sommelier_fetches_wine = gen.activity('Sommelier fetches wine and prepare alcoholic beverages')
+waiter_readies_cart = gen.activity('Waiter readies cart')
+waiter_prepares_drinks = gen.activity('Waiter prepares nonalcoholic drinks')
+waiter_delivers_order = gen.activity('Waiter delivers order to guest\'s room')
+waiter_returns = gen.activity('Waiter returns to room-service station')
+waiter_debits_account = gen.activity('Waiter debits guest\'s account')
+waiter_waits_debiting = gen.activity('Waiter waits/delays debiting')
+
+
+# Sommelier activities are optional (80% of the time)
+optional_sommelier = gen.xor(sommelier_fetches_wine, None)
+
+# Manager activities
+manager_activities = gen.partial_order(dependencies=[
+    (manager_takes_order, manager_submits_kitchen_order),
+    (manager_takes_order, manager_gives_sommelier_order),
+    (manager_takes_order, manager_assigns_waiter)
+])
+
+# Waiter cart and drinks preparation can happen concurrently
+waiter_prepare = gen.partial_order(dependencies=[(waiter_readies_cart,), (waiter_prepares_drinks,)])
+
+# Kitchen, sommelier, and waiter preparation happen concurrently
+prepare_order = gen.partial_order(dependencies=[
+    (kitchen_prepares_food,), (optional_sommelier,), (waiter_prepare,)
+])
+
+# Waiter debiting can be delayed/repeated
+debit_or_wait = gen.loop(do=waiter_debits_account, redo=waiter_waits_debiting)
+
+
+
+# Combine all parts of the process
+final_model = gen.partial_order(dependencies=[
+    (guest_calls, manager_activities),
+    (manager_activities, prepare_order),
+    (prepare_order, waiter_delivers_order),
+    (waiter_delivers_order, waiter_returns), # Fixed: Added dependency here
+    (waiter_returns, debit_or_wait)
+])

@@ -1,0 +1,105 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial steps
+submit_application = gen.activity('Submit application online')
+review_application = gen.activity('Review application and documents')
+notify_missing_docs = gen.activity('Notify applicant of missing documents')
+provide_missing_docs = gen.activity('Provide missing documents')
+missing_docs_loop = gen.loop(do=None, redo=gen.partial_order(dependencies=[(notify_missing_docs, provide_missing_docs)]))
+evaluate_application = gen.activity('Evaluate application by admissions committee')
+process_fees = gen.activity('Process fees or waivers')
+
+initial_steps = gen.partial_order(dependencies=[
+    (submit_application, review_application),
+    (review_application, missing_docs_loop),
+    (missing_docs_loop, evaluate_application)])
+
+# Acceptance and rejection path
+send_acceptance = gen.activity('Send acceptance letter')
+send_rejection = gen.activity('Send rejection letter')
+acceptance_choice = gen.xor(send_acceptance, send_rejection)
+
+# Fix: Create copies to avoid reuse
+evaluate_application_copy = evaluate_application.copy()
+initial_steps_copy = initial_steps.copy()
+
+application_process = gen.partial_order(dependencies=[
+    (initial_steps_copy, process_fees),
+    (initial_steps_copy, evaluate_application_copy),
+    (process_fees, acceptance_choice),
+    (evaluate_application_copy, acceptance_choice)
+    ])
+
+
+
+# Post-acceptance steps
+confirm_enrollment = gen.activity('Confirm enrollment')
+cancel_application = gen.activity('Cancel application')
+enrollment_choice = gen.xor(confirm_enrollment, cancel_application)
+send_orientation = gen.activity('Send orientation materials')
+setup_it = gen.activity('Set up IT accounts')
+assist_visa = gen.activity('Assist with visa processing')
+obtain_id = gen.activity('Obtain student ID card')
+meet_advisor = gen.activity('Meet with academic advisor')
+select_courses = gen.activity('Select courses')
+resolve_conflicts = gen.activity('Resolve schedule conflicts')
+
+# Fix: Create copies of all activities used in post_acceptance
+send_acceptance_copy = send_acceptance.copy()
+confirm_enrollment_copy = confirm_enrollment.copy()
+
+post_acceptance = gen.partial_order(dependencies=[
+    (send_acceptance_copy, enrollment_choice),
+    (confirm_enrollment_copy, send_orientation),
+    (confirm_enrollment_copy, setup_it),
+    (confirm_enrollment_copy, assist_visa),  # Visa processing is concurrent
+    (confirm_enrollment_copy, obtain_id),
+    (obtain_id, meet_advisor),
+    (meet_advisor, select_courses),
+    (select_courses, resolve_conflicts)
+])
+
+
+# Semester loop
+begin_classes = gen.activity('Begin attending classes')
+add_drop = gen.activity('Add/drop courses')
+post_grades = gen.activity('Post grades')
+review_grades = gen.activity('Review grades online')
+submit_appeal = gen.activity('Submit appeal form')
+meet_appeal_committee = gen.activity('Meet with appeals committee')
+await_decision = gen.activity('Await decision')
+appeal_process = gen.partial_order(dependencies=[(submit_appeal, meet_appeal_committee), (meet_appeal_committee, await_decision)])
+optional_appeal = gen.xor(appeal_process, None)
+
+
+resolve_conflicts_copy = resolve_conflicts.copy() # Create a copy to avoid reuse inside the loop
+
+semester_loop = gen.loop(
+    do=gen.partial_order(dependencies=[
+        (resolve_conflicts_copy, begin_classes),
+        (begin_classes, add_drop),
+        (add_drop, post_grades),
+        (post_grades, review_grades),
+        (review_grades, optional_appeal)]),
+    redo=None
+    )
+
+
+graduate = gen.activity('Graduate')
+withdraw = gen.activity('Withdraw')
+
+#Fix: Using copies to prevent reuse of post_acceptance and application_process
+post_acceptance_copy = post_acceptance.copy()
+after_acceptance_full = gen.partial_order(dependencies=[(post_acceptance_copy, semester_loop)])
+application_process_copy = application_process.copy()
+
+final_model = gen.partial_order(dependencies=[(application_process_copy, after_acceptance_full)])
+
+
+final_model = gen.xor(final_model, None) # Making the whole process optional
+
+final_model = gen.loop(do = final_model, redo=None) # Allowing the whole process to repeat
+
+final_model = gen.partial_order(dependencies=[(final_model, gen.xor(graduate, withdraw))]) # Graduate/withdraw after any number of repetitions

@@ -1,0 +1,55 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial search
+customer_searches_for_ticket = gen.activity('Customer searches for ticket')
+
+# Route, date, and time selection
+select_route = gen.activity('Select route')
+select_date_and_time = gen.activity('Select date and time')
+route_date_time_selection = gen.partial_order(dependencies=[(select_route,), (select_date_and_time,)])
+
+
+# Information and payment
+provide_personal_information = gen.activity('Provide personal information')
+provide_payment_details = gen.activity('Provide payment details')
+information_payment = gen.partial_order(dependencies=[(provide_personal_information,), (provide_payment_details,)])
+
+# Ticket generation and sending
+generate_ticket = gen.activity('Generate ticket')
+send_ticket_via_email = gen.activity('Send ticket via email')
+send_ticket_via_sms = gen.activity('Send ticket via SMS')
+send_ticket = gen.xor(send_ticket_via_email, send_ticket_via_sms)
+
+# Inventory update
+update_seat_inventory = gen.activity('Update seat inventory')
+
+# Pre-travel reminders and instructions
+send_reminder = gen.activity('Send reminder')
+send_instructions = gen.activity('Send instructions')
+pre_travel_communications = gen.partial_order(dependencies=[(send_reminder,), (send_instructions,)])
+optional_pre_travel_communications = gen.xor(pre_travel_communications, None)
+
+
+# Journey completion
+customer_completes_journey = gen.activity('Customer completes journey')
+
+# Post-travel feedback
+post_travel_feedback_or_services = gen.activity('Post-travel feedback or services')
+optional_post_travel = gen.xor(post_travel_feedback_or_services, None)
+
+# Constructing the main process flow
+booking_process = gen.partial_order(dependencies=[
+    (customer_searches_for_ticket, route_date_time_selection),
+    (route_date_time_selection, information_payment),
+    (information_payment, generate_ticket),
+    (generate_ticket, send_ticket),
+    (generate_ticket, update_seat_inventory),
+    (send_ticket, optional_pre_travel_communications),
+    (optional_pre_travel_communications, customer_completes_journey),
+    (customer_completes_journey, optional_post_travel)])
+
+
+
+final_model = booking_process

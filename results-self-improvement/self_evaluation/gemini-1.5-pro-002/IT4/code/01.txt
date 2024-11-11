@@ -1,0 +1,23 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+receive_inquiry = gen.activity('Receive customer inquiry')
+collect_info = gen.activity('Collect customer information')
+address_concerns = gen.activity('Address customer concerns or questions')
+guide_customer = gen.activity('Guide customer in selecting product/service')
+provide_quote = gen.activity('Provide quote')
+place_order = gen.activity('Place order')
+record_order = gen.activity('Record order in system')
+send_confirmation = gen.activity('Send order confirmation to customer')
+
+# Initial steps: receiving inquiry, collecting info, and addressing concerns
+initial_steps = gen.partial_order(dependencies=[(receive_inquiry, collect_info), (collect_info, address_concerns)])
+
+# Guiding the customer and providing a quote after initial steps
+guide_quote = gen.partial_order(dependencies=[(initial_steps, guide_customer), (guide_customer, provide_quote)])
+
+# Placing, recording, and confirming the order after the quote is approved
+order_process = gen.partial_order(dependencies=[(guide_quote, place_order), (place_order, record_order), (record_order, send_confirmation)])
+
+final_model = order_process

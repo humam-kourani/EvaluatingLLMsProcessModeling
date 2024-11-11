@@ -1,0 +1,48 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+schedule_audit = gen.activity('Schedule compliance audit')
+prepare_documentation = gen.activity('Prepare documentation')
+gather_evidence = gen.activity('Gather evidence')
+conduct_self_assessment = gen.activity('Conduct self-assessment')
+conduct_external_audit = gen.activity('Conduct external audit')
+identify_gaps_or_issues = gen.activity('Identify gaps or issues')
+make_necessary_corrections_or_improvements = gen.activity(
+    'Make necessary corrections or improvements')
+conduct_final_audit = gen.activity('Conduct final audit')
+award_certification = gen.activity('Award certification')
+issue_official_documents = gen.activity('Issue official documents')
+
+preparation_activities = gen.partial_order(
+    dependencies=[(prepare_documentation,), (gather_evidence,),
+                  (conduct_self_assessment,)])
+
+internal_external_audit = gen.partial_order(dependencies=[
+    (preparation_activities, conduct_external_audit),
+    (conduct_external_audit, identify_gaps_or_issues)
+])
+
+# Create a copy to avoid reuse error
+identify_gaps_or_issues_copy = identify_gaps_or_issues.copy()
+
+
+corrective_actions = gen.partial_order(dependencies=[(
+    identify_gaps_or_issues_copy,  # Use the copy here
+    make_necessary_corrections_or_improvements)])
+
+
+# Create another copy to avoid reuse error
+make_necessary_corrections_or_improvements_copy = make_necessary_corrections_or_improvements.copy()
+
+final_steps = gen.partial_order(dependencies=[(
+    make_necessary_corrections_or_improvements_copy, conduct_final_audit), # Use copy here
+                                             (conduct_final_audit,
+                                              award_certification),
+                                             (award_certification,
+                                              issue_official_documents)])
+
+final_model = gen.partial_order(
+    dependencies=[(schedule_audit, internal_external_audit),
+                  (internal_external_audit, corrective_actions),
+                  (corrective_actions, final_steps)])

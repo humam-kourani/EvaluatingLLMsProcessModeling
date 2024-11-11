@@ -1,0 +1,37 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+identify_idea = gen.activity('Identify idea for new product or improvement')
+conduct_initial_research = gen.activity('Conduct initial research')
+conduct_feasibility_studies = gen.activity('Conduct feasibility studies')
+draft_design_concepts = gen.activity('Draft design concepts')
+select_promising_design = gen.activity('Select promising design')
+build_prototype = gen.activity('Build prototype')
+test_functionality = gen.activity('Test functionality')
+test_safety = gen.activity('Test safety')
+test_market_potential = gen.activity('Test market potential')
+collect_feedback = gen.activity('Collect feedback from testing phase')
+refine_prototype = gen.activity('Refine prototype')
+approve_prototype = gen.activity('Approve prototype for further development')
+discard_prototype = gen.activity('Discard prototype')
+
+
+testing_phase = gen.partial_order(dependencies=[(test_functionality,), (test_safety,), (test_market_potential,)])
+
+prototype_loop = gen.loop(do=testing_phase, redo=collect_feedback)
+
+refinement_loop = gen.loop(do=prototype_loop.copy(), redo=refine_prototype)
+
+
+
+final_choice = gen.xor(approve_prototype, discard_prototype)
+
+final_model = gen.partial_order(dependencies=[
+    (identify_idea, conduct_initial_research),
+    (conduct_initial_research, conduct_feasibility_studies),
+    (conduct_feasibility_studies, draft_design_concepts),
+    (draft_design_concepts, select_promising_design),
+    (select_promising_design, build_prototype),
+    (build_prototype, refinement_loop),
+    (refinement_loop, final_choice)])

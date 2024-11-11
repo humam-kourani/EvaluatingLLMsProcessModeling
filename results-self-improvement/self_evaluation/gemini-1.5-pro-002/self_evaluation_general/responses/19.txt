@@ -1,0 +1,24 @@
+The process description specifies the following key aspects:
+
+1. **Sequential dependency:** Login must precede all other activities.
+2. **Concurrency:** "Select items" and "Set payment method" occur concurrently after login.
+3. **Choice:** After "Select items" and "Set payment method", the user either "Pays" or completes an "Installment agreement".
+4. **Conditional dependency:** "Select free reward" occurs after "Select items" but is independent of the payment activities.
+5. **Loop:** After delivery, the user can repeatedly "Return items" followed by another "Deliver items".
+
+Let's evaluate each model:
+
+**IT1:** This model has some flaws. While it correctly models the initial concurrency and the choice between payment methods, it models "Select free reward" incorrectly. "Select free reward" should happen after "Select items" but independently of the payment.  The model captures most of the described behavior, but the dependency error lowers its score.
+
+**IT2, IT3:** These models are identical and accurately capture all described behavior. They correctly represent the concurrency between "Select items" and "Set payment method", the choice of payment, the conditional dependency of "Select free reward", and the loop for returns and deliveries.
+
+**IT4:** This model captures all aspects correctly, just like IT2 and IT3.  The order of dependencies within the partial order doesn't affect the modeled behavior in this case.
+
+```python
+score_dictionary = {
+    'IT1': 0.7,
+    'IT2': 1.0,
+    'IT3': 1.0,
+    'IT4': 1.0
+}
+```

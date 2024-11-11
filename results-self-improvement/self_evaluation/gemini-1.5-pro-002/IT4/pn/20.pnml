@@ -1,0 +1,210 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml>
+  <net id="imdf_net_1729167487.3600197" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <name>
+      <text>imdf_net_1729167487.3600197</text>
+    </name>
+    <page id="n0">
+      <place id="p_15">
+        <name>
+          <text>p_15</text>
+        </name>
+      </place>
+      <place id="p_39">
+        <name>
+          <text>p_39</text>
+        </name>
+      </place>
+      <place id="source">
+        <name>
+          <text>source</text>
+        </name>
+        <initialMarking>
+          <text>1</text>
+        </initialMarking>
+      </place>
+      <place id="p_8">
+        <name>
+          <text>p_8</text>
+        </name>
+      </place>
+      <place id="p_12">
+        <name>
+          <text>p_12</text>
+        </name>
+      </place>
+      <place id="p_27">
+        <name>
+          <text>p_27</text>
+        </name>
+      </place>
+      <place id="p_33">
+        <name>
+          <text>p_33</text>
+        </name>
+      </place>
+      <place id="sink">
+        <name>
+          <text>sink</text>
+        </name>
+      </place>
+      <place id="p_31">
+        <name>
+          <text>p_31</text>
+        </name>
+      </place>
+      <place id="p_20">
+        <name>
+          <text>p_20</text>
+        </name>
+      </place>
+      <place id="p_30">
+        <name>
+          <text>p_30</text>
+        </name>
+      </place>
+      <place id="p_26">
+        <name>
+          <text>p_26</text>
+        </name>
+      </place>
+      <place id="p_42">
+        <name>
+          <text>p_42</text>
+        </name>
+      </place>
+      <place id="p_37">
+        <name>
+          <text>p_37</text>
+        </name>
+      </place>
+      <place id="p_10">
+        <name>
+          <text>p_10</text>
+        </name>
+      </place>
+      <place id="p_14">
+        <name>
+          <text>p_14</text>
+        </name>
+      </place>
+      <place id="p_52">
+        <name>
+          <text>p_52</text>
+        </name>
+      </place>
+      <transition id="228b5d5c-1fa5-4670-b3ca-d4f7026ffb25">
+        <name>
+          <text>Guest calls room service</text>
+        </name>
+      </transition>
+      <transition id="5c7719c6-2884-4ec8-b201-8410456547bf">
+        <name>
+          <text>Waiter debits guest's account</text>
+        </name>
+      </transition>
+      <transition id="skip_21">
+        <name>
+          <text>skip_21</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="de0ad4c5-3666-4fe5-a3f7-682b8a2b24fb"/>
+      </transition>
+      <transition id="5343d358-8fcc-43a8-8b90-274f2c790b82">
+        <name>
+          <text>Manager submits order ticket to kitchen</text>
+        </name>
+      </transition>
+      <transition id="06d116d5-175e-4fa9-896e-64b45ff772f0">
+        <name>
+          <text>Manager gives order to sommelier</text>
+        </name>
+      </transition>
+      <transition id="36e93261-d96c-4851-8b81-5509dd67c4bd">
+        <name>
+          <text>Waiter prepares nonalcoholic drinks</text>
+        </name>
+      </transition>
+      <transition id="73680c5d-0ad1-4ca3-8acb-6d43d063d85f">
+        <name>
+          <text>Kitchen prepares food</text>
+        </name>
+      </transition>
+      <transition id="add6d7ba-e48a-4cd2-b89c-23a0a05add3f">
+        <name>
+          <text>Manager takes down the order</text>
+        </name>
+      </transition>
+      <transition id="8f02ac11-2887-4e3c-8cd6-81da986e2cbc">
+        <name>
+          <text>Sommelier fetches wine and prepare alcoholic beverages</text>
+        </name>
+      </transition>
+      <transition id="e6326b7f-bee6-4b64-a1e0-d45e28a1e5f3">
+        <name>
+          <text>Waiter readies cart</text>
+        </name>
+      </transition>
+      <transition id="be26e0ea-0824-495b-90cb-b063ad279227">
+        <name>
+          <text>Waiter delivers order to guest's room</text>
+        </name>
+      </transition>
+      <transition id="c6bbc46f-0b2a-4b43-b75b-663b9266e9e4">
+        <name>
+          <text>Manager assigns order to waiter</text>
+        </name>
+      </transition>
+      <transition id="64afdca7-d717-47cb-8484-796a810e08a5">
+        <name>
+          <text>Waiter returns to room-service station</text>
+        </name>
+      </transition>
+      <transition id="9cda0115-6f74-4ec3-99a5-fca047b514e4">
+        <name>
+          <text>Waiter waits/delays debiting</text>
+        </name>
+      </transition>
+      <arc id="3106911499264" source="5c7719c6-2884-4ec8-b201-8410456547bf" target="p_42"/>
+      <arc id="3106911493648" source="add6d7ba-e48a-4cd2-b89c-23a0a05add3f" target="p_12"/>
+      <arc id="3106911489040" source="p_26" target="be26e0ea-0824-495b-90cb-b063ad279227"/>
+      <arc id="3106911486496" source="p_30" target="be26e0ea-0824-495b-90cb-b063ad279227"/>
+      <arc id="3106986561584" source="p_20" target="8f02ac11-2887-4e3c-8cd6-81da986e2cbc"/>
+      <arc id="3106911490096" source="8f02ac11-2887-4e3c-8cd6-81da986e2cbc" target="p_15"/>
+      <arc id="3106922118208" source="p_10" target="c6bbc46f-0b2a-4b43-b75b-663b9266e9e4"/>
+      <arc id="3106911499840" source="p_15" target="be26e0ea-0824-495b-90cb-b063ad279227"/>
+      <arc id="3106957092432" source="skip_21" target="p_15"/>
+      <arc id="3106986558560" source="p_39" target="5c7719c6-2884-4ec8-b201-8410456547bf"/>
+      <arc id="3106911491200" source="73680c5d-0ad1-4ca3-8acb-6d43d063d85f" target="p_52"/>
+      <arc id="3106904020624" source="p_14" target="skip_21"/>
+      <arc id="3106911491728" source="64afdca7-d717-47cb-8484-796a810e08a5" target="p_39"/>
+      <arc id="3106986563744" source="p_42" target="9cda0115-6f74-4ec3-99a5-fca047b514e4"/>
+      <arc id="3106911498400" source="36e93261-d96c-4851-8b81-5509dd67c4bd" target="p_30"/>
+      <arc id="3106911490768" source="c6bbc46f-0b2a-4b43-b75b-663b9266e9e4" target="p_31"/>
+      <arc id="3106922115808" source="p_8" target="add6d7ba-e48a-4cd2-b89c-23a0a05add3f"/>
+      <arc id="3106911493360" source="228b5d5c-1fa5-4670-b3ca-d4f7026ffb25" target="p_8"/>
+      <arc id="3106911496432" source="add6d7ba-e48a-4cd2-b89c-23a0a05add3f" target="p_10"/>
+      <arc id="3106986560768" source="p_27" target="e6326b7f-bee6-4b64-a1e0-d45e28a1e5f3"/>
+      <arc id="3106911486736" source="p_14" target="06d116d5-175e-4fa9-896e-64b45ff772f0"/>
+      <arc id="3106911488272" source="source" target="228b5d5c-1fa5-4670-b3ca-d4f7026ffb25"/>
+      <arc id="3106911502096" source="c6bbc46f-0b2a-4b43-b75b-663b9266e9e4" target="p_27"/>
+      <arc id="3106904020768" source="p_12" target="5343d358-8fcc-43a8-8b90-274f2c790b82"/>
+      <arc id="3106911491872" source="9cda0115-6f74-4ec3-99a5-fca047b514e4" target="sink"/>
+      <arc id="3106911502144" source="be26e0ea-0824-495b-90cb-b063ad279227" target="p_37"/>
+      <arc id="3106986559328" source="p_31" target="36e93261-d96c-4851-8b81-5509dd67c4bd"/>
+      <arc id="3106986562400" source="p_37" target="64afdca7-d717-47cb-8484-796a810e08a5"/>
+      <arc id="3106911489376" source="p_52" target="be26e0ea-0824-495b-90cb-b063ad279227"/>
+      <arc id="3106911492448" source="add6d7ba-e48a-4cd2-b89c-23a0a05add3f" target="p_14"/>
+      <arc id="3106911486880" source="06d116d5-175e-4fa9-896e-64b45ff772f0" target="p_20"/>
+      <arc id="3106911496096" source="5343d358-8fcc-43a8-8b90-274f2c790b82" target="p_33"/>
+      <arc id="3106986561968" source="p_33" target="73680c5d-0ad1-4ca3-8acb-6d43d063d85f"/>
+      <arc id="3106911487456" source="e6326b7f-bee6-4b64-a1e0-d45e28a1e5f3" target="p_26"/>
+    </page>
+    <finalmarkings>
+      <marking>
+        <place idref="sink">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
+  </net>
+</pnml>

@@ -1,0 +1,30 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+define_objectives = gen.activity('Define campaign objectives')
+create_content = gen.activity('Create content')
+design_visuals = gen.activity('Design visuals')
+select_channels = gen.activity('Select promotion channels')
+launch_campaign = gen.activity('Launch campaign')
+track_performance = gen.activity('Track performance in real-time')
+collect_leads = gen.activity('Collect leads in CRM system')
+sales_follow_up = gen.activity('Sales teams follows up on leads')
+campaign_ends = gen.activity('Campaign period ends')
+analyze_performance = gen.activity('Analyze performance for future optimization')
+
+
+content_visuals_channels = gen.partial_order(dependencies=[(create_content,), (design_visuals,), (select_channels,)])
+
+pre_launch = gen.partial_order(dependencies=[(define_objectives, content_visuals_channels), (content_visuals_channels, launch_campaign)])
+
+# Create a copy of launch_campaign
+launch_campaign_copy = launch_campaign.copy()
+
+during_campaign = gen.partial_order(dependencies=[(launch_campaign_copy, track_performance), (track_performance, collect_leads), (collect_leads, sales_follow_up)])
+
+
+post_campaign = gen.partial_order(dependencies=[(campaign_ends, analyze_performance)])
+
+
+final_model = gen.partial_order(dependencies=[(pre_launch, during_campaign), (during_campaign, post_campaign)])

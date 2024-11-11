@@ -1,0 +1,37 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+submit_request = gen.activity('Submit IT solution request')
+assess_compatibility = gen.activity('Assess compatibility')
+evaluate_cost = gen.activity('Evaluate cost and resource needs')
+
+approval_choice = gen.xor(None, gen.partial_order(dependencies=[(assess_compatibility,), (evaluate_cost,)])) # Approval is implicit
+
+procure_tools = gen.activity('Procure necessary tools or licenses')
+install_solution = gen.activity('Install the solution')
+test_solution = gen.activity('Test solution')
+
+roll_out_solution = gen.activity('Roll out solution to requesting department')
+provide_training = gen.activity('Provide training')
+provide_support = gen.activity('Provide support for troubleshooting')
+
+# Model the optional training
+optional_training = gen.xor(provide_training, None)
+
+# Model the main process flow after approval
+post_approval_process = gen.partial_order(dependencies=[
+    (procure_tools, install_solution),
+    (install_solution, test_solution),
+    (test_solution, roll_out_solution),
+    (roll_out_solution, optional_training),
+    (optional_training, provide_support)
+])
+
+
+
+# Combine approval choice with post-approval process
+main_process_after_assessment = gen.partial_order(dependencies=[(approval_choice, post_approval_process)])
+# combine assessment and main process
+
+final_model = gen.partial_order(dependencies=[(submit_request, main_process_after_assessment)])

@@ -1,0 +1,32 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+receive_inquiry = gen.activity('Receive customer inquiry')
+collect_information = gen.activity('Collect customer information')
+address_concerns = gen.activity('Address customer concerns or questions')
+
+information_gathering = gen.partial_order(dependencies=[(collect_information,), (address_concerns,)])
+
+guide_customer = gen.activity('Guide customer in selecting product/service')
+provide_quote = gen.activity('Provide quote')
+place_order = gen.activity('Place order')
+record_order = gen.activity('Record order in system')
+send_confirmation = gen.activity('Send order confirmation to customer')
+
+interested_customer_process = gen.partial_order(dependencies=[
+    (guide_customer, provide_quote),
+    (provide_quote, place_order),
+    (place_order, record_order),
+    (record_order, send_confirmation)
+])
+
+not_interested = gen.activity('Customer not interested') # implicit activity
+
+choice_interested = gen.xor(interested_customer_process, not_interested)
+
+
+final_model = gen.partial_order(dependencies=[
+    (receive_inquiry, information_gathering),
+    (information_gathering, choice_interested)
+])

@@ -1,0 +1,18 @@
+```python
+score_dictionary = {
+    'IT1': 0.9,
+    'IT2': 0.95,
+    'IT3': 0.7,
+    'IT4': 0.85
+}
+```
+
+**Explanation of Scores:**
+
+* **IT1:** This model correctly captures most of the process flow. It accurately models the optional sommelier activity, the concurrent preparation tasks, and the waiter's ability to delay debiting. However, it uses a partial order between "Manager assigns order to waiter" and the "preparation" block, suggesting they are concurrent. While the manager *assigns* the waiter before preparation begins, the waiter's tasks are part of the preparation phase.  This slight inaccuracy reduces the score.
+
+* **IT2:** This model improves upon IT1 by correctly sequencing the manager's actions. It also maintains the correct concurrency and optional elements. This model makes a small ordering mistake by having the manager assign the waiter before submitting the order to the kitchen and the sommelier. Although the order of these three actions is not explicitly stated, the context suggests the assignment to the waiter likely happens after informing the kitchen and sommelier.
+
+* **IT3:** This model attempts to simplify the structure by using a single partial order. However, it introduces several inaccuracies. It imposes a sequential dependency between readying the cart and preparing non-alcoholic drinks, which should be concurrent.  More importantly, it models direct dependencies between the manager's actions (submitting kitchen order, giving sommelier order) and the execution of those actions (kitchen prepares food, sommelier fetches wine). This removes the role of the waiter and kitchen/sommelier staff in choosing when to start their tasks after being notified by the manager, thus misrepresenting the process flow.
+
+* **IT4:** This model reverts to a more accurate representation of concurrency and optional elements. It fixes the issue in IT3 by keeping the optional sommelier process as a single unit within the main partial order. However, this model uses nested partial orders and incorrectly models a sequential dependency from 'waiter_debits_account' to 'waiter_waits_debiting'. The waiter *may* delay debiting, but it's not mandatory. It should be a loop. This reduces the score.

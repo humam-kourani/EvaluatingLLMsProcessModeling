@@ -1,0 +1,43 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+guest_calls = gen.activity('Guest calls room service')
+manager_takes_order = gen.activity('Manager takes down the order')
+manager_submits_kitchen_order = gen.activity('Manager submits order ticket to kitchen')
+kitchen_prepares_food = gen.activity('Kitchen prepares food')
+manager_gives_sommelier_order = gen.activity('Manager gives order to sommelier')
+sommelier_fetches_wine = gen.activity('Sommelier fetches wine and prepare alcoholic beverages')
+manager_assigns_waiter = gen.activity('Manager assigns order to waiter')
+waiter_readies_cart = gen.activity('Waiter readies cart')
+waiter_prepares_drinks = gen.activity('Waiter prepares nonalcoholic drinks')
+waiter_delivers_order = gen.activity('Waiter delivers order to guest\'s room')
+waiter_returns = gen.activity('Waiter returns to room-service station')
+waiter_debits_account = gen.activity('Waiter debits guest\'s account')
+waiter_waits_debiting = gen.activity('Waiter waits/delays debiting')
+
+
+# Sommelier part is optional (80% of cases)
+sommelier_process = gen.partial_order(dependencies=[(manager_gives_sommelier_order, sommelier_fetches_wine)])
+optional_sommelier_process = gen.xor(sommelier_process, None)
+
+# Waiter activities before delivery
+waiter_pre_delivery = gen.partial_order(dependencies=[(waiter_readies_cart,), (waiter_prepares_drinks,)])
+
+
+
+# Main process flow (No nested partial order for kitchen/sommelier/waiter)
+final_model = gen.partial_order(
+    dependencies=[(guest_calls, manager_takes_order),
+                  (manager_takes_order, manager_assigns_waiter),
+                  (manager_takes_order, manager_submits_kitchen_order),
+                  (manager_takes_order, optional_sommelier_process), # optional_sommelier_process used directly
+                  (manager_assigns_waiter, waiter_pre_delivery),
+                  (manager_submits_kitchen_order, kitchen_prepares_food),
+                  (kitchen_prepares_food, waiter_delivers_order),
+                  (optional_sommelier_process, waiter_delivers_order), #Correctly placed dependency
+                  (waiter_pre_delivery, waiter_delivers_order),
+                  (waiter_delivers_order, waiter_returns),
+                  (waiter_returns, waiter_debits_account),
+                  (waiter_debits_account, waiter_waits_debiting)])

@@ -1,0 +1,18 @@
+```python
+score_dictionary = {
+    'IT1': 0.7,
+    'IT2': 0.8,
+    'IT3': 0.6,
+    'IT4': 0.7
+}
+```
+
+**Evaluation Details:**
+
+* **IT1:** This model captures the main flow and the iterative review process. However, the concurrent activities within the loop (provide feedback, adjust plan, document and approve) are not strictly sequential as described (adjustments should be documented and approved *after* adjustments). Also, providing feedback is optional.
+
+* **IT2:** This model improves upon IT1 by enforcing the correct sequence within the review loop.  Providing feedback is optional and can be repeated along with "adjust plan" and "document and approve adjustments".
+
+* **IT3:** This model introduces unnecessary complexity by separating the review process into multiple partial orders, and misrepresents the relationship between feedback and adjustment. It also incorrectly models the review and adjustment as a do-redo loop, which suggests "Adjust Plan" always follows "Provide feedback". Moreover, "Provide feedback" should be optional. 
+
+* **IT4:** This model is similar to IT1 but uses a slightly different activity name, which doesn't fully align with the requested labels. It shares the same issue with concurrency within the loop.  Also, providing feedback is optional.

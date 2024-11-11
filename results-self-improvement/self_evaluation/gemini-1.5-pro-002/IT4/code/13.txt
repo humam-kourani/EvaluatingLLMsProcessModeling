@@ -1,0 +1,32 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+file_complaint = gen.activity('File complaint')
+log_complaint = gen.activity('Log complaint')
+assign_complaint = gen.activity('Assign complaint to relevant department')
+review_complaint_details = gen.activity('Review complaint details')
+approve_and_notify_customer = gen.activity('Approve and notify customer')
+reject_and_notify_customer = gen.activity('Reject and notify customer')
+process_reimbursement = gen.activity('Process reimbursement')
+resolve_complaint = gen.activity('Resolve complaint')
+provide_feedback = gen.activity('Provide feedback')
+
+notification_choice = gen.xor(approve_and_notify_customer, reject_and_notify_customer)
+
+# Create a copy of the activities to avoid reuse
+approve_and_notify_customer_copy = approve_and_notify_customer.copy()
+resolve_complaint_copy1 = resolve_complaint.copy()
+reject_and_notify_customer_copy = reject_and_notify_customer.copy()
+resolve_complaint_copy2 = resolve_complaint.copy()
+
+
+refund_process = gen.partial_order(dependencies=[(approve_and_notify_customer_copy, process_reimbursement), (process_reimbursement, resolve_complaint_copy1)])
+
+reject_process = gen.partial_order(dependencies=[(reject_and_notify_customer_copy, resolve_complaint_copy2)])
+
+resolution_choice = gen.xor(refund_process, reject_process)
+
+
+
+final_model = gen.partial_order(dependencies=[(file_complaint, log_complaint), (log_complaint, assign_complaint), (assign_complaint, review_complaint_details), (review_complaint_details, notification_choice), (notification_choice, resolution_choice), (resolution_choice, provide_feedback)])

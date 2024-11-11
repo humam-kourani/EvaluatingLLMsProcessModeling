@@ -1,0 +1,121 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml>
+  <net id="imdf_net_1729166866.642779" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <name>
+      <text>imdf_net_1729166866.642779</text>
+    </name>
+    <page id="n0">
+      <place id="p_24">
+        <name>
+          <text>p_24</text>
+        </name>
+      </place>
+      <place id="source">
+        <name>
+          <text>source</text>
+        </name>
+        <initialMarking>
+          <text>1</text>
+        </initialMarking>
+      </place>
+      <place id="p_30">
+        <name>
+          <text>p_30</text>
+        </name>
+      </place>
+      <place id="p_33">
+        <name>
+          <text>p_33</text>
+        </name>
+      </place>
+      <place id="p_17">
+        <name>
+          <text>p_17</text>
+        </name>
+      </place>
+      <place id="p_28">
+        <name>
+          <text>p_28</text>
+        </name>
+      </place>
+      <place id="sink">
+        <name>
+          <text>sink</text>
+        </name>
+      </place>
+      <place id="p_14">
+        <name>
+          <text>p_14</text>
+        </name>
+      </place>
+      <place id="p_21">
+        <name>
+          <text>p_21</text>
+        </name>
+      </place>
+      <transition id="3ade8bfe-0646-4100-b463-8251ff82404f">
+        <name>
+          <text>Record order in system</text>
+        </name>
+      </transition>
+      <transition id="8aff7d20-32ee-41e6-923c-af34ebf1c7c2">
+        <name>
+          <text>Send order confirmation to customer</text>
+        </name>
+      </transition>
+      <transition id="f5e13483-3ce3-4983-80ce-066be84e6745">
+        <name>
+          <text>Place order</text>
+        </name>
+      </transition>
+      <transition id="f7b92f16-0d6c-4d43-8e4e-7ee81d0ac353">
+        <name>
+          <text>Collect customer information</text>
+        </name>
+      </transition>
+      <transition id="9e4d2a20-31d6-437a-97bd-5023b2eee621">
+        <name>
+          <text>Address customer concerns or questions</text>
+        </name>
+      </transition>
+      <transition id="c64966f4-c034-48d3-ac3c-a7a3f607dbce">
+        <name>
+          <text>Guide customer in selecting product/service</text>
+        </name>
+      </transition>
+      <transition id="877297b3-516b-4ac7-b0a3-adabbcddac40">
+        <name>
+          <text>Provide quote</text>
+        </name>
+      </transition>
+      <transition id="fb65347f-a76c-4a08-9417-28bd2c9a47d8">
+        <name>
+          <text>Receive customer inquiry</text>
+        </name>
+      </transition>
+      <arc id="3106908716048" source="p_14" target="f7b92f16-0d6c-4d43-8e4e-7ee81d0ac353"/>
+      <arc id="3106908710672" source="9e4d2a20-31d6-437a-97bd-5023b2eee621" target="p_21"/>
+      <arc id="3106908709376" source="f5e13483-3ce3-4983-80ce-066be84e6745" target="p_30"/>
+      <arc id="3106908715232" source="877297b3-516b-4ac7-b0a3-adabbcddac40" target="p_28"/>
+      <arc id="3106908715424" source="8aff7d20-32ee-41e6-923c-af34ebf1c7c2" target="sink"/>
+      <arc id="3106908985648" source="f7b92f16-0d6c-4d43-8e4e-7ee81d0ac353" target="p_17"/>
+      <arc id="3106908979504" source="p_21" target="c64966f4-c034-48d3-ac3c-a7a3f607dbce"/>
+      <arc id="3106908980656" source="p_24" target="877297b3-516b-4ac7-b0a3-adabbcddac40"/>
+      <arc id="3106908982864" source="p_30" target="3ade8bfe-0646-4100-b463-8251ff82404f"/>
+      <arc id="3106908984016" source="p_33" target="8aff7d20-32ee-41e6-923c-af34ebf1c7c2"/>
+      <arc id="3106908710240" source="fb65347f-a76c-4a08-9417-28bd2c9a47d8" target="p_14"/>
+      <arc id="3106908716720" source="c64966f4-c034-48d3-ac3c-a7a3f607dbce" target="p_24"/>
+      <arc id="3106908714992" source="p_17" target="9e4d2a20-31d6-437a-97bd-5023b2eee621"/>
+      <arc id="3106908982000" source="p_28" target="f5e13483-3ce3-4983-80ce-066be84e6745"/>
+      <arc id="3106908980464" source="source" target="fb65347f-a76c-4a08-9417-28bd2c9a47d8"/>
+      <arc id="3106908712448" source="3ade8bfe-0646-4100-b463-8251ff82404f" target="p_33"/>
+    </page>
+    <finalmarkings>
+      <marking>
+        <place idref="sink">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
+  </net>
+</pnml>

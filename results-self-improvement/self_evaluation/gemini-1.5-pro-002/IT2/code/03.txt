@@ -1,0 +1,43 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Start with checking inventory levels
+check_inventory = gen.activity('Check current inventory level')
+
+# Trigger for reordering: automated alert or manual check
+send_automated_alert = gen.activity('Send an automated alert')
+send_manual_alert = gen.activity('Send a manual alert')
+reorder_trigger = gen.xor(send_automated_alert, send_manual_alert)
+
+# Placing an order with suppliers
+place_order = gen.activity('Place order with suppliers')
+
+# Updating the inventory system with expected delivery dates
+update_inventory_system = gen.activity('Update inventory system with expected delivery dates')
+
+# Receiving and inspecting the stock
+receive_stock = gen.activity('Receive stock')
+inspect_stock = gen.activity('Inspect stock for quality')
+
+# Recording the stock and placing it in storage or on shelves
+record_stock = gen.activity('Record stock in system')
+place_stock_storage = gen.activity('Place stock in storage')
+place_stock_shelves = gen.activity('Place stock on shelves')
+stock_placement = gen.xor(place_stock_storage, place_stock_shelves)
+
+
+# Updating inventory levels after restocking
+update_inventory_levels = gen.activity('Update inventory levels')
+
+# Define the partial order dependencies
+final_model = gen.partial_order(dependencies=[
+    (check_inventory, reorder_trigger),
+    (reorder_trigger, place_order),
+    (place_order, update_inventory_system),
+    (update_inventory_system, receive_stock),
+    (receive_stock, inspect_stock),
+    (inspect_stock, record_stock),
+    (record_stock, stock_placement),
+    (stock_placement, update_inventory_levels)
+])

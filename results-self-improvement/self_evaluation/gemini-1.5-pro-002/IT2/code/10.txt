@@ -1,0 +1,30 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+submit_request = gen.activity('Submit IT solution request')
+assess_compatibility = gen.activity('Assess compatibility')
+evaluate_cost = gen.activity('Evaluate cost and resource needs')
+
+assess_request = gen.partial_order(dependencies=[(assess_compatibility, ), (evaluate_cost, )])
+
+procure_tools = gen.activity('Procure necessary tools or licenses')
+install_solution = gen.activity('Install the solution')
+test_solution = gen.activity('Test solution')
+
+implement_solution = gen.partial_order(dependencies=[(procure_tools, install_solution), (install_solution, test_solution)])
+
+roll_out_solution = gen.activity('Roll out solution to requesting department')
+provide_training = gen.activity('Provide training')
+provide_support = gen.activity('Provide support for troubleshooting')
+
+post_implementation = gen.partial_order(dependencies=[(provide_training, ), (provide_support, )])
+
+approved_path = gen.partial_order(dependencies=[(implement_solution, roll_out_solution), (roll_out_solution, post_implementation)])
+
+rejected_path = gen.activity('Reject request') # Implicit activity added for completeness
+
+
+request_decision = gen.xor(approved_path, rejected_path)
+
+final_model = gen.partial_order(dependencies=[(submit_request, assess_request), (assess_request, request_decision)])

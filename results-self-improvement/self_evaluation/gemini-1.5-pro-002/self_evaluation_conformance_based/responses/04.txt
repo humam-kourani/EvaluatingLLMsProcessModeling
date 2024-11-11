@@ -1,0 +1,19 @@
+The process description outlines a largely sequential marketing campaign process, with a few concurrent activities during content creation and real-time tracking and lead collection during campaign execution.  Let's evaluate the models:
+
+**IT1:** This model gets the core sequence correct and models the concurrency of content creation, design, and channel selection well. It also correctly separates 'Sales teams follows up on leads' from the concurrent activities related to 'Track performance in real-time' and 'Collect leads in CRM system', as following up occurs afterwards. However, making a copy of `collect_leads` might seem slightly redundant. Nevertheless, it captures the described behavior correctly.
+
+**IT2:**  This model tries to break the process down into pre-launch, during campaign, and post-campaign phases. While conceptually sound, the model unnecessarily copies `launch_campaign`. Also, it makes the dependency between campaign end and analysis too strict. The campaign analysis could start before the campaign period officially ends.  This impacts precision. Furthermore, real-time tracking, lead collection, and sales follow-up are all concurrent/partially ordered in this model whereas the description implies more sequentiality in these activities. The sales teams follow up *after* leads are collected.
+
+**IT3:** Similar to IT2, this model introduces unnecessary complexity and inaccuracies. It models track_performance, collect_leads, and sales_follow_up as concurrent when the description suggests a sequential flow from tracking performance to collecting leads and then sales follow-up. This reduces both fitness and precision. It also uses a copy of launch_campaign which isn't necessary.
+
+**IT4:** This model captures the process flow and concurrency accurately. The concurrent activities of content creation and the sequential flow of campaign execution, leading to the campaign end and analysis, are well represented. It avoids unnecessary node copies and maintains the correct sequential dependency between tracking, collecting leads, and sales follow-up. This model maintains a good balance of fitness and precision.
+
+
+```python
+score_dictionary = {
+    'IT1': 0.95,
+    'IT2': 0.65,
+    'IT3': 0.60,
+    'IT4': 1.0
+}
+```

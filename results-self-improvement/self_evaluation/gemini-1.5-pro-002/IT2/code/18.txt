@@ -1,0 +1,100 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial steps
+submit_application = gen.activity('Submit application online')
+review_application = gen.activity('Review application and documents')
+notify_missing_docs = gen.activity('Notify applicant of missing documents')
+provide_missing_docs = gen.activity('Provide missing documents')
+missing_docs_loop = gen.loop(do=None, redo=gen.partial_order(dependencies=[(notify_missing_docs, provide_missing_docs)]))
+evaluate_application = gen.activity('Evaluate application by admissions committee')
+process_fees = gen.activity('Process fees or waivers')
+
+initial_steps = gen.partial_order(dependencies=[
+    (submit_application, review_application),
+    (review_application, missing_docs_loop),
+    (missing_docs_loop, evaluate_application)
+])
+
+concurrent_initial_steps = gen.partial_order(dependencies=[(initial_steps,), (process_fees,)])
+
+# Acceptance/Rejection
+send_acceptance = gen.activity('Send acceptance letter')
+send_rejection = gen.activity('Send rejection letter')
+acceptance_choice = gen.xor(send_acceptance, send_rejection)
+
+# Post-acceptance steps
+confirm_enrollment = gen.activity('Confirm enrollment')
+cancel_application = gen.activity('Cancel application')
+enrollment_choice = gen.xor(confirm_enrollment, cancel_application)
+
+send_orientation = gen.activity('Send orientation materials')
+setup_it = gen.activity('Set up IT accounts')
+assist_visa = gen.activity('Assist with visa processing')
+obtain_id = gen.activity('Obtain student ID card')
+meet_advisor = gen.activity('Meet with academic advisor')
+select_courses = gen.activity('Select courses')
+resolve_conflicts = gen.activity('Resolve schedule conflicts')
+
+# FIX: Create a copy of confirm_enrollment for use in the post_acceptance_poset
+confirm_enrollment_copy = confirm_enrollment.copy()
+
+# Correctly handle optional visa processing *after* other post-acceptance activities
+post_acceptance_dependencies = [
+    (confirm_enrollment_copy, send_orientation),  # Use the copy here
+    (confirm_enrollment_copy, setup_it),  # Use the copy here
+    (confirm_enrollment_copy, obtain_id),  # Use the copy here
+    (obtain_id, meet_advisor),
+    (meet_advisor, select_courses),
+    (select_courses, resolve_conflicts)
+]
+
+optional_visa = gen.xor(assist_visa, None)
+
+post_acceptance_poset = gen.partial_order(dependencies=post_acceptance_dependencies + [(optional_visa,)])
+
+
+# Semester loop
+begin_classes = gen.activity('Begin attending classes')
+add_drop_courses = gen.activity('Add/drop courses')
+post_grades = gen.activity('Post grades')
+review_grades = gen.activity('Review grades online')
+
+submit_appeal = gen.activity('Submit appeal form')
+meet_appeals = gen.activity('Meet with appeals committee')
+await_decision = gen.activity('Await decision')
+appeal_process = gen.partial_order(dependencies=[(submit_appeal, meet_appeals), (meet_appeals, await_decision)])
+optional_appeal = gen.xor(appeal_process, None)
+
+semester_dependencies = [
+    (begin_classes, add_drop_courses),
+    (add_drop_courses, post_grades),
+    (post_grades, review_grades),
+    (review_grades, optional_appeal)
+
+]
+semester_poset = gen.partial_order(dependencies=semester_dependencies)
+
+
+
+semester_loop = gen.loop(do=semester_poset, redo=None)
+
+withdraw = gen.activity('Withdraw')
+graduate = gen.activity('Graduate')
+end_choice = gen.xor(withdraw, graduate)
+
+# Combine all parts, ensuring correct dependencies and handling rejections/cancellations
+# FIX: Create a copy of send_rejection and cancel_application since they are used in xor and partial_order
+send_rejection_copy = send_rejection.copy()
+cancel_application_copy = cancel_application.copy()
+
+final_model = gen.partial_order(dependencies=[
+    (concurrent_initial_steps, acceptance_choice),
+    (acceptance_choice, enrollment_choice),
+    (send_rejection_copy, None),  # End process after rejection
+    (enrollment_choice, post_acceptance_poset),
+    (cancel_application_copy, None),  # End process after cancellation
+    (post_acceptance_poset, semester_loop),  # Semester loop starts after post-acceptance
+    (semester_loop, end_choice)  # Graduate/Withdraw after semester loop
+])

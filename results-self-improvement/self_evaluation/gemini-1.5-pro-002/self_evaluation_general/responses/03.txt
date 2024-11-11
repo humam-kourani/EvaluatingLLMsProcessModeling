@@ -1,0 +1,18 @@
+```python
+score_dictionary = {
+    'IT1': 0.5,
+    'IT2': 0.9,
+    'IT3': 1.0,
+    'IT4': 1.0
+}
+```
+
+**Explanation of Scores:**
+
+* **IT1 (0.5):** This model has some structural issues. It models the initial check (automated or manual alert) as happening *after* the inventory level check.  This is incorrect according to the description. Additionally, it places "Check current inventory level" before the choice of alerts which is not correct. The rest of the process flow is reasonably accurate, but the initial part is flawed, significantly lowering the score.
+
+* **IT2 (0.9):** This model is largely correct but misrepresents a crucial step.  The trigger (automated/manual) should occur *after* checking inventory levels. The model incorrectly places the trigger *before* placing the order. This is logically incorrect. Aside from this misstep, the model correctly represents the rest of the process. Because it mostly gets the flow correct it has a reasonable score.
+
+* **IT3 (1.0):** This model accurately represents the described process. It correctly models the choice between automated and manual alerts after checking the inventory level. The subsequent steps of placing an order, updating the system, receiving, inspecting, recording, placing (with a choice of location), and updating inventory levels are all correctly sequenced.
+
+* **IT4 (1.0):**  Like IT3, this model is a correct representation of the described process and there are no flaws in the logic or activity sequencing.  It uses slightly different variable names (e.g., `shelving_storage` instead of `place_stock`), but the overall structure and functionality remain accurate and complete.

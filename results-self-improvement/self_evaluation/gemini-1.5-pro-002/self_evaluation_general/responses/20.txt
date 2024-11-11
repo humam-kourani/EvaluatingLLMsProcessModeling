@@ -1,0 +1,18 @@
+```python
+score_dictionary = {
+    'IT1': 0.9,
+    'IT2': 0.8,
+    'IT3': 0.5,
+    'IT4': 0.95
+}
+```
+
+**Evaluation Details:**
+
+* **IT1:** This model accurately represents most of the process flow. It correctly models the optional sommelier task, the concurrent preparation activities, and the waiter's ability to delay debiting.  It loses a few points due to a minor imprecision:  The model suggests the manager gives the order to the sommelier *after* submitting the order to the kitchen. The description doesn't specify this order, implying these could happen concurrently. However, this is a very minor inaccuracy and therefore this model scores very high.
+
+* **IT2:** This model makes the same concurrency error as IT1 by placing "manager_gives_sommelier_order" after "manager_submits_kitchen_order". Additionally, it incorrectly nests partial orders, which might lead to unintended dependencies. For example, placing "waiter_prepare" inside the `prepare_order` partial order is not necessary and adds an implicit sequential dependency on the kitchen activities. While it models most of the process correctly and improves slightly on the concurrency of the manager's tasks, this nesting issue impacts the accuracy of the model.
+
+* **IT3:** This model has a significantly lower score because it models almost all dependencies sequentially. It models all steps from taking the order to delivering it as a sequence, ignoring the concurrency between kitchen, sommelier, and waiter's initial tasks.  While it correctly models the optional sommelier and the waiter's debiting loop, the sequential structure heavily deviates from the described concurrent behavior. Therefore, the sequential nature of the dependencies makes it an inaccurate representation of the process.
+
+* **IT4:** This model is very precise and correctly captures all aspects of the process description. It accurately models the optional sommelier process, the concurrent preparation activities of the kitchen, sommelier, and waiter, and the waiter's option to delay debiting. The structure is correct, avoiding nested partial orders and accurately representing the concurrency between tasks.

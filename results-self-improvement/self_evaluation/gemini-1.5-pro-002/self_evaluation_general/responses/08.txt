@@ -1,0 +1,19 @@
+Here's an evaluation of the provided POWL models:
+
+**Model IT1:** This model represents a sequential process flow, capturing the main steps accurately. However, it models an exclusive choice between 'Report incident' by an employee or a customer, which is not explicitly mentioned in the description.  The implementation solutions are modeled as an XOR, which is incorrect; it should be concurrent.
+
+**Model IT2:** This model corrects the reporting incident part and correctly models the concurrency between the implementation solutions using a partial order. 
+
+**Model IT3:**  This model is almost identical to IT2 with very minor syntactical changes.
+
+**Model IT4:** This model is identical to IT3.
+
+
+```python
+score_dictionary = {
+    'IT1': 0.5,
+    'IT2': 0.95,
+    'IT3': 0.95,
+    'IT4': 0.95
+}
+```

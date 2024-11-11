@@ -1,0 +1,55 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial steps
+identify_need = gen.activity('Identify need for new hire')
+create_job_description = gen.activity('Create job description')
+post_job_description = gen.activity('Post job description')
+
+# Resume and initial interview phase
+collect_resumes = gen.activity('Collect resumes')
+screen_resumes = gen.activity('Screen resumes')
+conduct_initial_phone_interviews = gen.activity('Conduct initial phone interviews')
+
+# Interview phase
+invite_candidates_for_interviews = gen.activity('Invite candidates for interviews')
+conduct_in_person_interview = gen.activity('Conduct an in-person interview')
+conduct_virtual_interview = gen.activity('Conduct a virtual interview')
+interview_choice = gen.xor(conduct_in_person_interview, conduct_virtual_interview)
+interview_process = gen.partial_order(dependencies=[(invite_candidates_for_interviews, interview_choice)])
+
+
+# Selection and offer phase
+choose_candidate = gen.activity('Choose candidate')
+extend_offer = gen.activity('Extend offer')
+negotiate_salary = gen.activity('Negotiate salary')
+negotiate_salary_optional = gen.xor(negotiate_salary, None)
+
+# Onboarding phase
+begin_onboarding_process = gen.activity('Begin onboarding process')
+complete_paperwork = gen.activity('Complete paperwork')
+complete_orientation = gen.activity('Complete orientation')
+complete_training = gen.activity('Complete training')
+
+# Combine onboarding activities in a partial order to ensure they all happen but allow flexibility
+onboarding_activities = gen.partial_order(dependencies=[(complete_paperwork,), (complete_orientation,), (complete_training,)])
+
+
+# Combine all phases into the final model
+
+final_model = gen.partial_order(
+    dependencies=[
+        (identify_need, create_job_description),
+        (create_job_description, post_job_description),
+        (post_job_description, collect_resumes),
+        (collect_resumes, screen_resumes),
+        (screen_resumes, conduct_initial_phone_interviews),
+        (conduct_initial_phone_interviews, interview_process),
+        (interview_process, choose_candidate),
+        (choose_candidate, extend_offer),
+        (extend_offer, negotiate_salary_optional),
+        (negotiate_salary_optional, begin_onboarding_process),
+        (begin_onboarding_process, onboarding_activities)
+    ]
+)

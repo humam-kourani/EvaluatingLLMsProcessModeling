@@ -1,0 +1,19 @@
+Here's an evaluation of the provided POWL models:
+
+**IT1:** This model attempts to capture the concurrency of the preparation activities and the sequence of the audit process. However, it overuses partial orders and introduces unnecessary copies of activities. The core sequence is captured correctly, but the structure is overly complex.
+
+**IT2:**  Similar to IT1, this model uses excessive partial orders and copies. While the sequence is generally correct, the unnecessary nesting of partial orders makes the model less readable and harder to analyze.
+
+**IT3:** This model simplifies the structure compared to IT1 and IT2, and it correctly captures the core sequence of the process. However, it introduces an unnecessary dependency between "Gather evidence" and "Conduct self-assessment". These activities should be concurrent with "Prepare documentation".
+
+**IT4:** This model presents the most accurate and concise representation of the process. It correctly models the concurrent preparation activities and the subsequent sequential steps. It avoids unnecessary nesting of partial orders and activity copies, resulting in a clear and understandable model.
+
+
+```python
+score_dictionary = {
+    'IT1': 0.70,
+    'IT2': 0.65,
+    'IT3': 0.80,
+    'IT4': 0.95
+}
+```

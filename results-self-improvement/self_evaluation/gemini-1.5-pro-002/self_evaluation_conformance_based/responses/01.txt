@@ -1,0 +1,17 @@
+```python
+score_dictionary = {
+    'IT1': 0.9,
+    'IT2': 0.8,
+    'IT3': 0.5,
+    'IT4': 0.7
+}
+```
+**Explanation of Scores:**
+
+* **IT1:** This model correctly captures the main flow and the optional nature of the customer proceeding after the initial inquiry. Collecting information and addressing concerns are modeled as concurrent, which is a reasonable interpretation. The optional path after information gathering is also correctly modeled.  The score is slightly reduced because the prompt mentions customer approval before order placement, which is not explicitly modeled.
+
+* **IT2:** Similar to IT1, this model captures the main flow and optional customer interest. However, creating a separate "Customer not interested" activity is unnecessary and makes the model slightly less precise than IT1.  The customer approval step is also missing here.
+
+* **IT3:** This model has significant flaws. It models a sequence where 'record order' and 'send confirmation' happen *after* handling customer interest, regardless of whether the customer is interested or not.  This is incorrect according to the description. Additionally, it models a sequential dependency from `address_concerns` to `handle_interest` which is not precise as the description doesn't state this.
+
+* **IT4:** This model fails to capture the optional nature of the process after the initial inquiry. It assumes the customer is always interested and proceeds with the order placement. The sequential ordering of the initial steps is more restrictive than necessary.  It also misses the customer approval step.

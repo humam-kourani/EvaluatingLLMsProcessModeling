@@ -1,0 +1,45 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+identify_need = gen.activity('Identify need for new supplier or vendor')
+issue_rfp = gen.activity('Issue request for proposals (RFP)')
+receive_proposals = gen.activity('Receive supplier proposals')
+evaluate_proposal = gen.activity('Evaluate proposal')
+conduct_interview = gen.activity('Conduct interview')
+conduct_site_visit = gen.activity('Conduct site visit')
+select_supplier = gen.activity('Select supplier')
+begin_negotiations = gen.activity('Begin contract negotiations')
+sign_contract = gen.activity('Sign contract')
+onboard_supplier = gen.activity('Onboard supplier')
+execute_contract = gen.activity('Execute contract')
+
+
+# Subprocesses
+
+# Evaluation process (can include both interview and site visit, or just one, or none)
+optional_interview = gen.xor(conduct_interview, None)
+optional_site_visit = gen.xor(conduct_site_visit, None)
+evaluation_process = gen.partial_order(dependencies=[(evaluate_proposal,), (optional_interview,), (optional_site_visit,)])
+
+
+
+# Negotiation and signing
+negotiation_and_signing = gen.partial_order(dependencies=[(begin_negotiations, sign_contract)])
+
+# Onboarding and execution
+onboarding_and_execution = gen.partial_order(dependencies=[(onboard_supplier, execute_contract)])
+
+
+# Main process flow
+final_model = gen.partial_order(
+    dependencies=[
+        (identify_need, issue_rfp),
+        (issue_rfp, receive_proposals),
+        (receive_proposals, evaluation_process),
+        (evaluation_process, select_supplier),
+        (select_supplier, negotiation_and_signing), # Use the partial order here
+        (negotiation_and_signing, onboarding_and_execution)
+    ]
+)

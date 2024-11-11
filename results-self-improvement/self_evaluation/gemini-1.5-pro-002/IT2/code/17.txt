@@ -1,0 +1,69 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+record_order_details = gen.activity('Record order details')
+process_payment = gen.activity('Process payment')
+notify_about_failed_payment = gen.activity('Notify about failed payment')
+check_stock_availability = gen.activity('Check stock availability')
+initiate_back_order = gen.activity('Initiate back-order')
+inform_customer_about_delay = gen.activity('Inform customer about delay')
+receive_back_order = gen.activity('Receive back-order')
+pick_items_from_warehouse = gen.activity('Pick items from warehouse')
+perform_quality_control_checks = gen.activity('Perform quality control checks')
+package_items = gen.activity('Package items')
+gift_wrap_items = gen.xor(gen.activity('Gift wrap items'), None)  # Optional gift wrapping
+prepare_shipping_documents_and_labels = gen.activity('Prepare shipping documents and labels')
+prepare_documentation_for_international_orders = gen.xor(gen.activity('Prepare documentation for international orders'),
+                                                        None)  # Conditional international documentation
+dispatch_order = gen.activity('Dispatch order')
+send_shipping_confirmation_to_customer = gen.activity('Send shipping confirmation to customer')
+update_inventory_levels = gen.activity('Update inventory levels')
+confirm_delivery = gen.activity("Confirm delivery")
+send_follow_up_email = gen.activity('Send follow-up email')
+customer_reports_issue = gen.activity('Customer reports issue')
+send_return_shipping_label = gen.activity('Send return shipping label')
+receive_returned_items = gen.activity('Receive returned items')
+inspect_returned_items = gen.activity('Inspect returned items')
+process_refund = gen.activity('Process refund')
+process_replacement = gen.activity('Process replacement')
+
+# Back-order handling loop
+back_order_process = gen.partial_order(
+    dependencies=[(initiate_back_order, inform_customer_about_delay),
+                  (inform_customer_about_delay, receive_back_order)])
+back_order_loop = gen.loop(do=None, redo=back_order_process)  # Can skip if items are in stock
+
+# Returns process
+returns_process = gen.partial_order(
+    dependencies=[(customer_reports_issue, send_return_shipping_label),
+                  (send_return_shipping_label, receive_returned_items),
+                  (receive_returned_items, inspect_returned_items),
+                  (inspect_returned_items, process_refund),
+                  (inspect_returned_items, process_replacement)])
+optional_returns_process = gen.xor(returns_process, None)
+
+
+
+# Main order fulfillment process AFTER successful payment
+main_process_after_payment = gen.partial_order(
+    dependencies=[
+        (check_stock_availability, back_order_loop),
+        (back_order_loop, pick_items_from_warehouse),
+        (pick_items_from_warehouse, perform_quality_control_checks),
+        (perform_quality_control_checks, package_items),
+        (package_items, gift_wrap_items),
+        (gift_wrap_items, prepare_shipping_documents_and_labels),
+        (prepare_shipping_documents_and_labels, prepare_documentation_for_international_orders),
+        (prepare_documentation_for_international_orders, dispatch_order),
+        (dispatch_order, send_shipping_confirmation_to_customer),
+        (send_shipping_confirmation_to_customer, confirm_delivery),
+        (confirm_delivery, send_follow_up_email),
+        (send_follow_up_email, optional_returns_process),
+        (dispatch_order, update_inventory_levels)])  # this happens regardless of the returns process
+
+
+# Main process structure
+final_model = gen.partial_order(dependencies=[(record_order_details, process_payment),
+                                            (process_payment, gen.xor(notify_about_failed_payment,
+                                                                    main_process_after_payment))])

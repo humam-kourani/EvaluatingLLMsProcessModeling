@@ -1,0 +1,45 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+file_complaint = gen.activity('File complaint')
+log_complaint = gen.activity('Log complaint')
+assign_complaint = gen.activity('Assign complaint to relevant department')
+review_complaint_details = gen.activity('Review complaint details')
+
+
+# Approve Branch (completely independent copies)
+approve_and_notify_customer_approve = gen.activity('Approve and notify customer')
+process_reimbursement_approve = gen.activity('Process reimbursement')
+resolve_complaint_approve = gen.activity('Resolve complaint')
+
+approve_path = gen.partial_order(dependencies=[
+    (approve_and_notify_customer_approve, process_reimbursement_approve),
+    (process_reimbursement_approve, resolve_complaint_approve)
+])
+
+
+# Reject Branch (completely independent copies)
+reject_and_notify_customer_reject = gen.activity('Reject and notify customer')
+resolve_complaint_reject = gen.activity('Resolve complaint')
+
+reject_path = gen.partial_order(dependencies=[
+    (reject_and_notify_customer_reject, resolve_complaint_reject)
+])
+
+# Now the XOR
+xor_approve_reject = gen.xor(approve_path, reject_path)
+
+
+# Feedback (after the XOR)
+provide_feedback = gen.activity('Provide feedback')
+
+
+
+final_model = gen.partial_order(dependencies=[
+    (file_complaint, log_complaint),
+    (log_complaint, assign_complaint),
+    (assign_complaint, review_complaint_details),
+    (review_complaint_details, xor_approve_reject),
+    (xor_approve_reject, provide_feedback)
+])

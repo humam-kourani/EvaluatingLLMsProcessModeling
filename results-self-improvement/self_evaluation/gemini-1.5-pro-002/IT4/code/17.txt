@@ -1,0 +1,115 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial steps
+place_order = gen.activity('Place order')
+record_order_details = gen.activity('Record order details')
+process_payment = gen.activity('Process payment')
+notify_about_failed_payment = gen.activity('Notify about failed payment')
+
+# Stock and back-order handling
+check_stock_availability = gen.activity('Check stock availability')
+initiate_back_order = gen.activity('Initiate back-order')
+inform_customer_about_delay = gen.activity('Inform customer about delay')
+receive_back_order = gen.activity('Receive back-order')
+
+# Order processing
+pick_items_from_warehouse = gen.activity('Pick items from warehouse')
+perform_quality_control_checks = gen.activity('Perform quality control checks')
+package_items = gen.activity('Package items')
+gift_wrap_items = gen.activity('Gift wrap items')
+prepare_shipping_documents_and_labels = gen.activity('Prepare shipping documents and labels')
+prepare_documentation_for_international_orders = gen.activity(
+    'Prepare documentation for international orders')
+
+# Shipping and confirmation
+dispatch_order = gen.activity('Dispatch order')
+send_shipping_confirmation_to_customer = gen.activity('Send shipping confirmation to customer')
+update_inventory_levels = gen.activity('Update inventory levels')
+
+#order fullfilment
+confirm_delivery = gen.activity('Confirm delivery')
+
+# Feedback and returns
+send_follow_up_email = gen.activity('Send follow-up email')
+customer_reports_issue = gen.activity('Customer reports issue')
+send_return_shipping_label = gen.activity('Send return shipping label')
+receive_returned_items = gen.activity('Receive returned items')
+inspect_returned_items = gen.activity('Inspect returned items')
+process_refund = gen.activity('Process refund')
+process_replacement = gen.activity('Process replacement')
+
+# Construct the model
+
+# Payment handling
+successful_payment = gen.partial_order(dependencies=[(check_stock_availability,)])
+payment_handling = gen.xor(successful_payment, notify_about_failed_payment)
+
+
+
+# Back-order handling
+back_order_process = gen.partial_order(
+    dependencies=[(initiate_back_order, inform_customer_about_delay),
+                  (inform_customer_about_delay, receive_back_order)])
+back_order_handling = gen.xor(back_order_process, None) # Optional back-order
+
+
+#Crucially: create a copy to avoid reusing the same node
+check_stock_availability_copy = check_stock_availability.copy()
+stock_check_with_backorder = gen.partial_order(dependencies=[(check_stock_availability_copy,back_order_handling), (back_order_handling, pick_items_from_warehouse)])
+
+# Packaging and shipping documents
+gift_wrapping = gen.xor(gift_wrap_items, None)  # Optional gift wrapping
+packaging = gen.partial_order(dependencies=[(package_items, gift_wrapping)])
+
+international_docs = gen.xor(prepare_documentation_for_international_orders, None) #International or not
+
+shipping_docs = gen.partial_order(dependencies=[(prepare_shipping_documents_and_labels, international_docs)])
+
+# Create copies to avoid reusing nodes in partial_order
+pick_items_from_warehouse_copy = pick_items_from_warehouse.copy()
+packaging_copy = packaging.copy()
+shipping_docs_copy = shipping_docs.copy()
+
+packaging_and_shipping = gen.partial_order(dependencies=[(pick_items_from_warehouse_copy, perform_quality_control_checks),(perform_quality_control_checks, packaging_copy), (packaging_copy,), (shipping_docs_copy,)])
+
+
+# Dispatch and confirmation
+dispatch_and_inventory = gen.partial_order(dependencies=[(dispatch_order, send_shipping_confirmation_to_customer),
+                                              (send_shipping_confirmation_to_customer, update_inventory_levels)])
+
+#Corrected: packaging_and_shipping_copy
+
+packaging_and_shipping_copy = packaging_and_shipping.copy()
+
+order_dispatch = gen.partial_order(dependencies=[(packaging_and_shipping_copy, dispatch_and_inventory)])
+
+
+
+
+# Returns handling
+returns_process = gen.partial_order(
+    dependencies=[(send_return_shipping_label, receive_returned_items),
+                  (receive_returned_items, inspect_returned_items),
+                  (inspect_returned_items, process_refund),
+                  (inspect_returned_items, process_replacement)])
+returns_handling = gen.xor(returns_process, None)  # Optional returns process
+
+# Feedback and returns
+feedback = gen.partial_order(dependencies=[(send_follow_up_email, customer_reports_issue), (customer_reports_issue, returns_handling)])
+
+# Correct: Create a copy for update_inventory_levels
+update_inventory_levels_copy = update_inventory_levels.copy()
+post_dispatch = gen.partial_order(dependencies=[(update_inventory_levels_copy, confirm_delivery),(confirm_delivery, feedback)])
+
+
+
+# Main process flow
+main_process = gen.partial_order(
+    dependencies=[(place_order, record_order_details), (record_order_details, process_payment),
+                  (process_payment, payment_handling), (payment_handling, stock_check_with_backorder), (stock_check_with_backorder, order_dispatch),
+                 (order_dispatch, post_dispatch)])
+
+
+final_model = main_process

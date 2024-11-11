@@ -1,0 +1,82 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial activities
+send_notification = gen.activity('Send notification')
+prepare_financial_statements = gen.activity('Prepare financial statements')
+gather_necessary_documents = gen.activity('Gather necessary documents')
+check_regulatory_updates = gen.activity('Check regulatory updates')
+
+# Document submission and review
+submit_documents = gen.activity('Submit documents')
+review_submission = gen.activity('Review submission')
+request_clarifications = gen.activity('Request clarifications of discrepancies')
+receive_clarifications = gen.activity('Receive clarifications')
+
+# Risk assessment
+evaluate_financial_risks = gen.activity('Evaluate financial risks')
+evaluate_operational_risks = gen.activity('Evaluate operational risks')
+evaluate_compliance_risks = gen.activity('Evaluate compliance risks')
+
+# Investigation (optional)
+launch_detailed_investigation = gen.activity('Launch detailed investigation')
+conduct_data_analysis = gen.activity('Conduct data analysis')
+conduct_interviews = gen.activity('Conduct interviews')
+perform_site_visits = gen.activity('Perform site visits')
+optional_site_visits = gen.xor(perform_site_visits, None)
+
+
+# Reporting and finalization
+compile_audit_report = gen.activity('Compile audit report')
+review_report = gen.activity('Review report by audit director')
+approve_report = gen.activity('Approve report')
+send_report_for_revision = gen.activity('Send report for revision')
+update_and_resubmit_report = gen.activity('Update and resubmit report')
+distribute_final_report = gen.activity('Distribute final report')
+archive_report = gen.activity('Archive report')
+close_audit_process = gen.activity('Close audit process')
+
+
+# Subprocesses
+
+# Initial preparation and compliance check
+initial_activities = gen.partial_order(dependencies=[(prepare_financial_statements, ), (gather_necessary_documents, ), (check_regulatory_updates, )])
+prepare_and_submit = gen.partial_order(dependencies=[(initial_activities, submit_documents)])
+
+# Clarification loop
+clarification_loop = gen.loop(do=None, redo=gen.partial_order(dependencies=[(request_clarifications, receive_clarifications)]))
+
+# Risk Assessment
+risk_assessment_activities = gen.partial_order(dependencies=[(evaluate_financial_risks,), (evaluate_operational_risks,), (evaluate_compliance_risks,)])
+complete_risk_assessment = gen.activity('Complete risk assessment/mitigation')  # Represents completion of all risks
+risk_assessment = gen.partial_order(dependencies=[(risk_assessment_activities, complete_risk_assessment)])
+
+# Detailed Investigation (optional)
+investigation_activities = gen.partial_order(dependencies=[(conduct_data_analysis,), (conduct_interviews,), (optional_site_visits,)])
+
+optional_investigation = gen.xor(gen.partial_order(dependencies=[(launch_detailed_investigation, investigation_activities)]), None)
+
+# Report review and revision loop
+report_review_loop = gen.loop(do=review_report, redo=gen.partial_order(dependencies=[(send_report_for_revision, update_and_resubmit_report)]))
+
+# Final distribution and archiving
+final_steps = gen.partial_order(dependencies=[(distribute_final_report,), (archive_report,)])
+
+# Main process flow
+main_process = gen.partial_order(
+    dependencies=[
+        (send_notification, prepare_and_submit),
+        (prepare_and_submit, review_submission),
+        (review_submission, clarification_loop),
+        (clarification_loop, risk_assessment),
+        (risk_assessment, optional_investigation),
+        (optional_investigation, compile_audit_report),
+        (compile_audit_report, report_review_loop),
+        (report_review_loop, approve_report),  # approve report action after review loop
+        (approve_report, final_steps),
+        (final_steps, close_audit_process)
+    ]
+)
+
+final_model = main_process

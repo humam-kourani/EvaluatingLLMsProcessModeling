@@ -1,0 +1,50 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial activities
+identify_idea = gen.activity('Identify idea for new product or improvement')
+conduct_initial_research = gen.activity('Conduct initial research')
+conduct_feasibility_studies = gen.activity('Conduct feasibility studies')
+draft_design_concepts = gen.activity('Draft design concepts')
+select_promising_design = gen.activity('Select promising design')
+
+# Prototype development and testing
+build_prototype = gen.activity('Build prototype')
+test_functionality = gen.activity('Test functionality')
+test_safety = gen.activity('Test safety')
+test_market_potential = gen.activity('Test market potential')
+
+# Feedback and refinement loop
+collect_feedback_from_testing_phase = gen.activity('Collect feedback from testing phase')
+refine_prototype = gen.activity('Refine prototype')
+
+testing_process = gen.partial_order(dependencies=[(build_prototype,), (test_functionality,), (test_safety,), (test_market_potential,)])
+
+# The error was caused by reusing `select_promising_design` after it had been used in `initial_phase`.
+# Create a copy to fix the error.
+select_promising_design_copy = select_promising_design.copy()
+
+
+test_and_refine_loop = gen.loop(do=testing_process, redo=collect_feedback_from_testing_phase)
+
+
+
+# Final decision
+approve_prototype_for_further_development = gen.activity('Approve prototype for further development')
+discard_prototype = gen.activity('Discard prototype')
+
+final_decision = gen.xor(approve_prototype_for_further_development, discard_prototype)
+
+
+# Combine all parts of the process
+initial_phase = gen.partial_order(dependencies=[
+    (identify_idea, conduct_initial_research),
+    (conduct_initial_research, conduct_feasibility_studies),
+    (conduct_feasibility_studies, draft_design_concepts),
+    (draft_design_concepts, select_promising_design)
+])
+
+development_phase = gen.partial_order(dependencies=[(select_promising_design_copy, test_and_refine_loop), (test_and_refine_loop, final_decision)])
+
+final_model = gen.partial_order(dependencies=[(initial_phase, development_phase)])

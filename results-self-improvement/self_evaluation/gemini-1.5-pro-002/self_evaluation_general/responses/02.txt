@@ -1,0 +1,19 @@
+Here's an evaluation of the provided POWL models:
+
+**IT1:** This model represents a mostly sequential process.  While it correctly models the optional salary negotiation, it fails to capture the concurrency within the onboarding process (paperwork, orientation, and training can likely happen concurrently or with some flexibility). The model also does not reflect the fact that the different types of interviews take place after the invitation stage.
+
+**IT2:**  This model improves upon IT1 by modeling the onboarding steps as concurrent within a partial order. However, the same main issues persists. The interview types are still incorrectly modeled.
+
+
+**IT3:** This model introduces a major structural flaw by nesting partial orders. This can lead to unintentional dependencies and misrepresent the actual process flow. While it attempts to capture some concurrency, the nested structure makes it difficult to interpret and analyze. Additionally, the model does not reflect the fact that the different types of interviews take place after the invitation stage.
+
+**IT4:** This model effectively captures both the sequential and concurrent aspects of the process. The initial steps, resume collection, and offer/negotiation phases are modeled sequentially, while the onboarding activities are correctly represented as concurrent within a partial order. This model also reflects the fact that the different types of interviews take place after the invitation stage and models it correctly. The optional salary negotiation is also handled correctly. This is the best model among the four.
+
+```python
+score_dictionary = {
+    'IT1': 0.50,
+    'IT2': 0.55,
+    'IT3': 0.3,  # penalized further due to the nested partial orders.
+    'IT4': 0.95
+}
+```

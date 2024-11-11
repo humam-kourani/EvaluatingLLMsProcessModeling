@@ -1,0 +1,54 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial steps
+identify_need = gen.activity('Identify need for new hire')
+create_job_description = gen.activity('Create job description')
+post_job_description = gen.activity('Post job description')
+
+# Resume and interview process
+collect_resumes = gen.activity('Collect resumes')
+screen_resumes = gen.activity('Screen resumes')
+conduct_phone_interviews = gen.activity('Conduct initial phone interviews')
+invite_candidates = gen.activity('Invite candidates for interviews')
+
+# Interview types
+in_person_interview = gen.activity('Conduct an in-person interview')
+virtual_interview = gen.activity('Conduct a virtual interview')
+interview_choice = gen.xor(in_person_interview, virtual_interview)
+
+
+# Offer and negotiation
+choose_candidate = gen.activity('Choose candidate')
+extend_offer = gen.activity('Extend offer')
+negotiate_salary = gen.xor(gen.activity('Negotiate salary'), None)  # Negotiation is optional
+
+# Onboarding
+begin_onboarding = gen.activity('Begin onboarding process')
+complete_paperwork = gen.activity('Complete paperwork')
+complete_orientation = gen.activity('Complete orientation')
+complete_training = gen.activity('Complete training')
+
+# Combine onboarding steps in a partial order to allow flexibility
+onboarding_steps = gen.partial_order(dependencies=[
+    (begin_onboarding, complete_paperwork),
+    (begin_onboarding, complete_orientation),
+    (begin_onboarding, complete_training)
+])
+
+
+# Combine all submodels
+final_model = gen.partial_order(dependencies=[
+    (identify_need, create_job_description),
+    (create_job_description, post_job_description),
+    (post_job_description, collect_resumes),
+    (collect_resumes, screen_resumes),
+    (screen_resumes, conduct_phone_interviews),
+    (conduct_phone_interviews, invite_candidates),
+    (invite_candidates, interview_choice),
+    (interview_choice, choose_candidate),
+    (choose_candidate, extend_offer),
+    (extend_offer, negotiate_salary),
+    (negotiate_salary, onboarding_steps)
+])

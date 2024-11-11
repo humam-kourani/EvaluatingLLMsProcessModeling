@@ -1,0 +1,39 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+phone_order = gen.activity('Customer places order over the phone')
+online_order = gen.activity('Customer places order online')
+generate_label = gen.activity('Generate shipping label')
+successful_delivery = gen.activity('Successful delivery')
+hand_over = gen.activity('Hand over order to logistics provider')
+order_confirmation = gen.activity('Generate and send order confirmation')
+feedback_return = gen.activity('Process customer feedback or returns')
+pick_pack = gen.activity('Pick and pack items')
+monitor_shipment = gen.activity('Monitor shipment')
+send_tracking = gen.activity('Send tracking information to customer')
+
+# Order Placement
+order_placement = gen.xor(phone_order, online_order)
+
+# Main process flow
+main_process = gen.partial_order(dependencies=[
+    (order_placement, order_confirmation),
+    (order_confirmation, pick_pack),
+    (pick_pack, generate_label),
+    (generate_label, hand_over),
+    (hand_over, send_tracking),
+    (send_tracking, monitor_shipment),
+    (monitor_shipment, successful_delivery)
+])
+
+# Optional feedback/return handling after successful delivery
+optional_feedback = gen.xor(feedback_return, None)
+
+# Create a copy of successful_delivery to avoid reusing the same node
+successful_delivery_copy = successful_delivery.copy()
+
+final_process = gen.partial_order(dependencies=[(main_process, successful_delivery_copy), (successful_delivery_copy, optional_feedback)])
+
+final_model = final_process

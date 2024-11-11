@@ -1,0 +1,14 @@
+```python
+score_dictionary = {
+    'IT1': 0.5,
+    'IT2': 1.0,
+    'IT3': 1.0,
+    'IT4': 1.0
+}
+```
+
+**Explanation of Scores:**
+
+* **IT1:** This model has a major flaw. It models a parallel execution of 'Check current inventory level' and the choice between 'Send an automated alert' or 'Send a manual alert'.  According to the process description, the check should *precede* the alerts, not happen concurrently.  The rest of the model is correct, but this initial concurrency significantly lowers the fitness.
+
+* **IT2, IT3, IT4:** These models accurately represent the process description. They correctly model the sequence of activities and the exclusive choice between placing stock on shelves or in storage.  They also correctly capture the triggering event for reordering (either automated alert or manual check). Therefore, they receive a perfect score.

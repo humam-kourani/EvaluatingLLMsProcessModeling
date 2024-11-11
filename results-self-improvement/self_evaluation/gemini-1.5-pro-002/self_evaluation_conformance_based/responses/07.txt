@@ -1,0 +1,17 @@
+```python
+score_dictionary = {
+    'IT1': 0.9,
+    'IT2': 0.7,
+    'IT3': 0.8,
+    'IT4': 0.95
+}
+```
+**Explanation of Scores:**
+
+* **IT1 (0.9):** This model accurately represents most of the process flow. It correctly models the parallel execution of route, date, and time selection, as well as personal information and payment details. The optional pre and post-travel activities are also well-handled. However, sending the ticket and updating the seat inventory are modeled as sequential, whereas the description suggests they could be concurrent.  This minor deviation slightly lowers the score.
+
+* **IT2 (0.7):** While this model captures the main flow, it makes route selection, date/time selection, and the booking process sequential, contradicting the description's implication of some concurrency. Also, providing personal info and payment details happen sequentially which is not accurate.  These deviations reduce the score.
+
+* **IT3 (0.8):** This model is closer to the description than IT2. It correctly models the email/SMS choice and the optional post-travel activities. However, it models route and date/time selection, personal info and payment details sequentially. This reduces the score. It also adds unnecessary None dependencies within the pre-travel communications which are not impacting correctness but is stylistically unfavorable.
+
+* **IT4 (0.95):** This model best reflects the described process. It accurately captures the initial steps, the booking process, pre-travel communications (allowing concurrency), and the optional post-travel steps.  The sequential dependencies are correctly modeled, and the optional nature of pre-travel communications and post-travel services is well-represented.
