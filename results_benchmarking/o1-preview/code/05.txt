@@ -1,0 +1,61 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+identify_need = gen.activity('Identify need for new supplier or vendor')
+issue_rfp = gen.activity('Issue request for proposals (RFP)')
+receive_proposals = gen.activity('Receive supplier proposals')
+evaluate_proposals = gen.activity('Evaluate proposal')
+conduct_site_visit = gen.activity('Conduct site visit')
+conduct_interview = gen.activity('Conduct interview')
+select_supplier = gen.activity('Select supplier')
+begin_negotiations = gen.activity('Begin contract negotiations')
+sign_contract = gen.activity('Sign contract')
+onboard_supplier = gen.activity('Onboard supplier')
+execute_contract = gen.activity('Execute contract')
+
+# Option 1: Proceed directly to select supplier
+option1_select_supplier = select_supplier.copy()
+
+# Option 2: Conduct site visit then select supplier
+option2_conduct_site_visit = conduct_site_visit.copy()
+option2_select_supplier = select_supplier.copy()
+option2_sequence = gen.partial_order(dependencies=[
+    (option2_conduct_site_visit, option2_select_supplier)
+])
+
+# Option 3: Conduct interview then select supplier
+option3_conduct_interview = conduct_interview.copy()
+option3_select_supplier = select_supplier.copy()
+option3_sequence = gen.partial_order(dependencies=[
+    (option3_conduct_interview, option3_select_supplier)
+])
+
+# Option 4: Conduct site visit and interview in any order, then select supplier
+option4_conduct_site_visit = conduct_site_visit.copy()
+option4_conduct_interview = conduct_interview.copy()
+option4_select_supplier = select_supplier.copy()
+option4_poset = gen.partial_order(dependencies=[
+    (option4_conduct_site_visit, option4_select_supplier),
+    (option4_conduct_interview, option4_select_supplier)
+])
+
+# XOR between the options
+choices_after_evaluate = gen.xor(
+    option1_select_supplier,
+    option2_sequence,
+    option3_sequence,
+    option4_poset
+)
+
+# Final process model
+final_model = gen.partial_order(dependencies=[
+    (identify_need, issue_rfp),
+    (issue_rfp, receive_proposals),
+    (receive_proposals, evaluate_proposals),
+    (evaluate_proposals, choices_after_evaluate),
+    (choices_after_evaluate, begin_negotiations),
+    (begin_negotiations, sign_contract),
+    (sign_contract, onboard_supplier),
+    (onboard_supplier, execute_contract)
+])

@@ -1,0 +1,49 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities for the subscription service process
+customer_signs_up = gen.activity('Customer signs up')
+generate_account = gen.activity('Generate account')
+assign_access = gen.activity('Assign access')
+set_automatic_triggers_for_billing_cycles = gen.activity('Set automatic triggers for billing cycles')
+send_regular_updates = gen.activity('Send regular updates')
+send_product_enhancements = gen.activity('Send product enhancements')
+send_renewal_notifications = gen.activity('Send renewal notifications')
+customer_submits_cancellation_request = gen.activity('Customer submits cancellation request')
+deactivate_subscription = gen.activity('Deactivate subscription')
+apply_refund = gen.activity('apply refund')
+apply_charges = gen.activity('apply charges')
+settle_final_account_balance = gen.activity('Settle final account balance')
+
+# Subscription management path
+subscription_management = gen.partial_order(
+    dependencies=[(generate_account, assign_access), 
+                  (assign_access, set_automatic_triggers_for_billing_cycles)])
+
+# Loop for sending regular updates, product enhancements, or renewal notifications
+notification_loop = gen.loop(do=gen.partial_order(dependencies=[(send_regular_updates,), 
+                                                                   (send_product_enhancements,), 
+                                                                   (send_renewal_notifications,)]), 
+                              redo=None)
+
+# Process cancellation request
+process_cancellation_request = gen.partial_order(
+    dependencies=[(customer_submits_cancellation_request, apply_refund), 
+                  (customer_submits_cancellation_request, apply_charges)])
+
+# Create copies of apply_refund and apply_charges to avoid reuse
+apply_refund_copy = apply_refund.copy()
+apply_charges_copy = apply_charges.copy()
+
+# Main process
+main_process = gen.partial_order(
+    dependencies=[(customer_signs_up, subscription_management), 
+                  (subscription_management, notification_loop), 
+                  (notification_loop, process_cancellation_request), 
+                  (apply_refund_copy, deactivate_subscription), 
+                  (apply_charges_copy, deactivate_subscription), 
+                  (deactivate_subscription, settle_final_account_balance)])
+
+# Final model
+final_model = gen.xor(main_process, None)

@@ -1,0 +1,72 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Initialize activities
+send_notification = gen.activity('Send notification')
+prepare_financial_statements = gen.activity('Prepare financial statements')
+gather_necessary_documents = gen.activity('Gather necessary documents')
+check_regulatory_updates = gen.activity('Check regulatory updates')
+submit_documents = gen.activity('Submit documents')
+review_submission = gen.activity('Review submission')
+request_clarifications = gen.activity('Request clarifications of discrepancies')
+request_clarifications_loop = gen.activity('Request clarifications of discrepancies')
+receive_clarifications = gen.activity('Receive clarifications')
+evaluate_financial_risks = gen.activity('Evaluate financial risks')
+evaluate_operational_risks = gen.activity('Evaluate operational risks')
+evaluate_compliance_risks = gen.activity('Evaluate compliance risks')
+complete_risk_assessment = gen.activity('Complete risk assessment/mitigation')
+launch_detailed_investigation = gen.activity('Launch detailed investigation')
+conduct_data_analysis = gen.activity('Conduct data analysis')
+conduct_interviews = gen.activity('Conduct interviews')
+perform_site_visits = gen.activity('Perform site visits')
+compile_audit_report = gen.activity('Compile audit report')
+review_report = gen.activity('Review report by audit director')
+approve_report = gen.activity('Approve report')
+send_report_for_revision = gen.activity('Send report for revision')
+update_and_resubmit_report = gen.activity('Update and resubmit report')
+send_report_for_revision_loop = gen.activity('Send report for revision')
+distribute_final_report = gen.activity('Distribute final report')
+archive_report = gen.activity('Archive report')
+close_audit_process = gen.activity('Close audit process')
+complete_investigation = gen.activity('Complete investigation')
+
+# Define partial orders
+preparation_order = gen.partial_order(dependencies=[(prepare_financial_statements, gather_necessary_documents),
+                                                    (gather_necessary_documents, submit_documents)])
+
+risk_assessment_order = gen.partial_order(dependencies=[(evaluate_financial_risks, complete_risk_assessment),
+                                                        (evaluate_operational_risks, complete_risk_assessment),
+                                                        (evaluate_compliance_risks, complete_risk_assessment)])
+
+investigation_order = gen.partial_order(dependencies=[(conduct_data_analysis, complete_investigation),
+                                                      (conduct_interviews, complete_investigation),
+                                                      (perform_site_visits, complete_investigation)])
+
+# Define exclusive choices
+choice_request_clarifications = gen.xor(request_clarifications, None)
+choice_launch_investigation = gen.xor(launch_detailed_investigation, None)
+choice_send_report_for_revision = gen.xor(send_report_for_revision, approve_report)
+
+# Define loops
+clarifications_loop = gen.loop(do=request_clarifications_loop, redo=receive_clarifications)
+revision_loop = gen.loop(do=send_report_for_revision_loop, redo=update_and_resubmit_report)
+
+# Define the main partial order
+main_order = gen.partial_order(dependencies=[(send_notification, preparation_order),
+                                             (send_notification, check_regulatory_updates),
+                                             (preparation_order, review_submission),
+                                             (review_submission, choice_request_clarifications),
+                                             (choice_request_clarifications, clarifications_loop),
+                                             (clarifications_loop, risk_assessment_order),
+                                             (risk_assessment_order, choice_launch_investigation),
+                                             (choice_launch_investigation, investigation_order),
+                                             (investigation_order, compile_audit_report),
+                                             (compile_audit_report, review_report),
+                                             (review_report, choice_send_report_for_revision),
+                                             (choice_send_report_for_revision, revision_loop),
+                                             (revision_loop, distribute_final_report),
+                                             (distribute_final_report, archive_report),
+                                             (archive_report, close_audit_process)])
+
+# Final model
+final_model = main_order

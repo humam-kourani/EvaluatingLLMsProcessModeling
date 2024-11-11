@@ -1,0 +1,45 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+report_incident = gen.activity('Report incident')
+log_report = gen.activity('Log report into tracking system')
+assign_report = gen.activity('Assign report to appropriate team')
+gather_info = gen.activity('Gather necessary information')
+identify_cause = gen.activity('Identify cause of incident')
+propose_actions = gen.activity('Propose corrective actions')
+implement_fix = gen.activity('Implement fix')
+conduct_training = gen.activity('Conduct training')
+change_policy = gen.activity('Change policy')
+conduct_follow_up = gen.activity('Conduct follow-up')
+close_incident = gen.activity('Close incident report')
+notify_stakeholders = gen.activity('Notify all stakeholders')
+
+# Solution implementation choice (fix, training, or policy change)
+solution_choice = gen.xor(implement_fix, gen.xor(conduct_training, change_policy))
+
+# Incident resolution sequence (starting from gather_info to maintain uniqueness)
+resolution_sequence_dependencies = [
+    (gather_info, identify_cause),
+    (identify_cause, propose_actions),
+    (propose_actions, solution_choice),
+    (solution_choice, conduct_follow_up),
+    (conduct_follow_up, close_incident)
+]
+
+# Initial reporting sequence (up to assign_report)
+initial_reporting_dependencies = [
+    (report_incident, log_report),  # Fix: report_INCIDENT -> report_incident
+    (log_report, assign_report)
+]
+
+# Combine all dependencies for the final model
+final_dependencies = initial_reporting_dependencies + [
+    (assign_report, gather_info),  # Link initial to resolution
+] + resolution_sequence_dependencies + [
+    (close_incident, notify_stakeholders)  # Final notification
+]
+
+# Final model
+final_model = gen.partial_order(dependencies=final_dependencies)

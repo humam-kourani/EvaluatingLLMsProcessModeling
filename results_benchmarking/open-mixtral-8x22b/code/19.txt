@@ -1,0 +1,35 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+login = gen.activity('Login')
+select_items = gen.activity('Select items')
+set_payment_method = gen.activity('Set payment method')
+pay = gen.activity('Pay')
+complete_installment_agreement = gen.activity('Complete installment agreement')
+select_free_reward = gen.activity('Select free reward')
+deliver_items = gen.activity('Deliver items')
+return_items = gen.activity('Return items')
+
+# Define submodels
+select_items_and_set_payment_method = gen.partial_order(dependencies=[(select_items,), (set_payment_method,)])
+deliver_items_copy = deliver_items.copy()
+select_free_reward_and_deliver_items = gen.partial_order(dependencies=[(select_free_reward,), (deliver_items_copy,)])
+payment_options = gen.xor(pay, complete_installment_agreement)
+
+# Define the main model
+main_model = gen.partial_order(
+    dependencies=[
+        (login, select_items_and_set_payment_method),
+        (select_items_and_set_payment_method, payment_options),
+        (select_items_and_set_payment_method, select_free_reward_and_deliver_items),
+        (select_free_reward_and_deliver_items, return_items),
+        (return_items, deliver_items)
+    ]
+)
+
+# Create a copy of the return_items activity
+return_items_copy = return_items.copy()
+
+# Define the final model
+final_model = gen.loop(do=main_model, redo=return_items_copy)

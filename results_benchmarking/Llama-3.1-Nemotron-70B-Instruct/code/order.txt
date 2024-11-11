@@ -1,0 +1,40 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+login = gen.activity('Login')
+select_items = gen.activity('Select items')
+set_payment_method = gen.activity('Set payment method')
+pay = gen.activity('Pay')
+complete_installment_agreement = gen.activity('Complete installment agreement')
+select_free_reward = gen.activity('Select free reward')
+deliver_items = gen.activity('Deliver items')
+return_items = gen.activity('Return items')
+
+# Create a copy of select_items for reward dependency
+select_items_copy = select_items.copy()
+
+# Concurrent selection of items and setting payment method
+concurrent_selection_payment = gen.partial_order(dependencies=[(select_items,), (set_payment_method,)])
+
+# Payment or installment agreement
+payment_choice = gen.xor(pay, complete_installment_agreement)
+
+# Sequential dependency from concurrent selection/payment method to payment choice
+payment_sequence = gen.partial_order(dependencies=[(concurrent_selection_payment, payment_choice)])
+
+# Select free reward (independent of payment, but after item selection)
+reward_dependency = gen.partial_order(dependencies=[(select_items_copy, select_free_reward)])
+
+# Combine payment sequence and reward selection (with concurrency)
+payment_reward_concurrency = gen.partial_order(dependencies=[(payment_sequence,), (reward_dependency,)])
+
+# Delivery and potential returns (with loop for repeated returns)
+delivery_return_loop = gen.loop(do=gen.partial_order(dependencies=[(deliver_items, return_items)]), redo=None)
+
+# Final model with login, payment/reward concurrency, and delivery/return loop
+final_model = gen.partial_order(
+    dependencies=[(login, payment_reward_concurrency), 
+                  (payment_reward_concurrency, delivery_return_loop)]
+)

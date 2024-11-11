@@ -1,0 +1,33 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+file_complaint = gen.activity('File complaint')
+log_complaint = gen.activity('Log complaint')
+assign_complaint = gen.activity('Assign complaint to relevant department')
+review_details = gen.activity('Review complaint details')
+approve_notify = gen.activity('Approve and notify customer')
+reject_notify = gen.activity('Reject and notify customer')
+process_reimbursement = gen.activity('Process reimbursement')
+resolve_complaint = gen.activity('Resolve complaint')
+provide_feedback = gen.activity('Provide feedback')
+
+# Exclusive choice between approving and rejecting the refund
+choice_approve_reject = gen.xor(approve_notify, reject_notify)
+
+# Process reimbursement only if refund is approved
+approve_and_reimburse = gen.partial_order(dependencies=[(approve_notify.copy(), process_reimbursement)])
+
+# Partial order for resolving the complaint
+resolve_poset_approve = gen.partial_order(dependencies=[(approve_and_reimburse, resolve_complaint.copy())])
+resolve_poset_reject = gen.partial_order(dependencies=[(reject_notify.copy(), resolve_complaint.copy())])
+
+# Final choice
+final_choice = gen.xor(resolve_poset_approve, resolve_poset_reject)
+
+# Partial order for initial activities
+initial_poset = gen.partial_order(dependencies=[(file_complaint, log_complaint), (log_complaint, assign_complaint), (assign_complaint, review_details)])
+
+# Final model
+final_model = gen.partial_order(dependencies=[(initial_poset, choice_approve_reject), (choice_approve_reject, final_choice), (final_choice, provide_feedback)])

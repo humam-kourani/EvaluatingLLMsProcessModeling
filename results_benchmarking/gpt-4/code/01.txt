@@ -1,0 +1,27 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+receive_inquiry = gen.activity('Receive customer inquiry')
+collect_info = gen.activity('Collect customer information')
+address_concerns = gen.activity('Address customer concerns or questions')
+address_concerns_copy = address_concerns.copy()  # Copy for reuse
+guide_selection = gen.activity('Guide customer in selecting product/service')
+guide_selection_copy = guide_selection.copy()  # Copy for reuse in quotation and approval
+provide_quote = gen.activity('Provide quote')
+provide_quote_copy = provide_quote.copy()  # Copy for reuse in order process
+place_order = gen.activity('Place order')
+record_order = gen.activity('Record order in system')
+record_order_copy = record_order.copy()  # Copy for reuse in confirmation process
+send_confirmation = gen.activity('Send order confirmation to customer')
+
+# Model the process
+inquiry_handling = gen.partial_order(dependencies=[(receive_inquiry, collect_info), (collect_info, address_concerns)])
+selection_process = gen.partial_order(dependencies=[(address_concerns_copy, guide_selection)])
+quotation_and_approval = gen.partial_order(dependencies=[(guide_selection_copy, provide_quote)])
+order_process = gen.partial_order(dependencies=[(provide_quote_copy, place_order), (place_order, record_order)])
+confirmation_process = gen.partial_order(dependencies=[(record_order_copy, send_confirmation)])  # Use the copy here
+
+# Combine the subprocesses into the final model
+final_model = gen.partial_order(dependencies=[(inquiry_handling, selection_process), (selection_process, quotation_and_approval), (quotation_and_approval, order_process), (order_process, confirmation_process)])

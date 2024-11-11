@@ -1,0 +1,53 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Activities
+report_incident = gen.activity('Report incident')
+log_report = gen.activity('Log report into tracking system')
+assign_report = gen.activity('Assign report to appropriate team')
+gather_information = gen.activity('Gather necessary information')
+identify_cause = gen.activity('Identify cause of incident')
+propose_corrective_actions = gen.activity('Propose corrective actions')
+implement_fix = gen.activity('Implement fix')
+conduct_training = gen.activity('Conduct training')
+change_policy = gen.activity('Change policy')
+conduct_follow_up = gen.activity('Conduct follow-up')
+notify_stakeholders = gen.activity('Notify all stakeholders')
+close_report = gen.activity('Close incident report')
+
+# Investigation process
+investigation_order = gen.partial_order(
+    dependencies=[
+        (gather_information, identify_cause),
+        (identify_cause, propose_corrective_actions.copy())  # Create a copy for investigation
+    ]
+)
+
+# Implementation process
+propose_corrective_actions_implementation = propose_corrective_actions.copy()  # Create a new copy for implementation
+implementation_order = gen.partial_order(
+    dependencies=[
+        (propose_corrective_actions_implementation, implement_fix),
+        (propose_corrective_actions_implementation, conduct_training),
+        (propose_corrective_actions_implementation, change_policy)
+    ]
+)
+
+# Closure process
+closure_order = gen.partial_order(
+    dependencies=[
+        (conduct_follow_up, notify_stakeholders),
+        (notify_stakeholders, close_report)
+    ]
+)
+
+# Full process model
+final_model = gen.partial_order(
+    dependencies=[
+        (report_incident, log_report),
+        (log_report, assign_report),
+        (assign_report, investigation_order),
+        (investigation_order, implementation_order),
+        (implementation_order, closure_order)
+    ]
+)

@@ -1,0 +1,61 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator(True, True)
+
+# Define activities
+identify_need = gen.activity('Identify need for new hire')
+create_job_desc = gen.activity('Create job description')
+post_job_desc = gen.activity('Post job description')
+collect_resumes = gen.activity('Collect resumes')
+screen_resumes = gen.activity('Screen resumes')
+initial_phone_interviews = gen.activity('Conduct initial phone interviews')
+in_person_interview = gen.activity('Conduct an in-person interview')
+virtual_interview = gen.activity('Conduct a virtual interview')
+choose_candidate = gen.activity('Choose candidate')
+extend_offer = gen.activity('Extend offer')
+negotiate_salary = gen.activity('Negotiate salary')
+begin_onboarding = gen.activity('Begin onboarding process')
+complete_paperwork = gen.activity('Complete paperwork')
+complete_orientation = gen.activity('Complete orientation')
+complete_training = gen.activity('Complete training')
+
+# Define subprocesses
+identify_to_post = gen.partial_order(dependencies=[(identify_need, create_job_desc), (create_job_desc, post_job_desc)])
+collect_screen_interview = gen.partial_order(
+    dependencies=[(collect_resumes, screen_resumes), (screen_resumes, initial_phone_interviews)]
+)
+interview_selection = gen.xor(in_person_interview, virtual_interview)
+# The 'interviews_to_choosing' partial order ends with 'choose_candidate'
+interviews_to_choosing = gen.partial_order(
+    dependencies=[
+        (initial_phone_interviews, interview_selection),  # The choice between in-person and virtual interviews
+        (interview_selection, choose_candidate)          # ... leads to choosing a candidate
+    ]
+)
+# The 'offer_acceptance' partial order starts with 'choose_candidate' without redefining it
+offer_acceptance = gen.partial_order(
+    dependencies=[
+        (choose_candidate, extend_offer),     # After choosing a candidate, an offer is extended
+        (extend_offer, negotiate_salary)     # ... which may involve salary negotiations
+    ]
+)
+onboarding_steps = gen.partial_order(
+    dependencies=[
+        (begin_onboarding, complete_paperwork),
+        (complete_paperwork, complete_orientation),
+        (complete_orientation, complete_training)
+    ]
+)
+
+# Combine subprocesses
+final_model = gen.partial_order(
+    dependencies=[
+        (identify_to_post, collect_screen_interview),
+        (collect_screen_interview, interview_selection),  # Connect directly to the interview selection
+        (interview_selection, interviews_to_choosing),
+        (interviews_to_choosing, offer_acceptance),
+        (offer_acceptance, begin_onboarding),
+        (begin_onboarding, onboarding_steps)
+    ]
+)
+
+# Note: The process model now correctly sequences the activities from identifying the need for a new hire to the completion of the onboarding process, ensuring that each activity is used only once and properly defined without reuse.

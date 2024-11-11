@@ -1,0 +1,74 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator(True, True)
+
+# Define individual activities
+submit_application = gen.activity('Submit application online')
+review_application = gen.activity('Review application and documents')
+notify_missing_docs = gen.activity('Notify applicant of missing documents')
+provide_missing_docs = gen.activity('Provide missing documents')
+evaluate_application = gen.activity('Evaluate application by admissions committee')
+process_fees = gen.activity('Process fees or waivers')
+accept_application = gen.activity('Send acceptance letter')
+reject_application = gen.activity('Send rejection letter')
+cancel_application = gen.activity('Cancel application')
+confirm_enrollment = gen.activity('Confirm enrollment')
+send_orientation_materials_domestic = gen.activity('Send orientation materials')  # For domestic students
+send_orientation_materials_international = send_orientation_materials_domestic.copy()  # For international students
+set_up_it_accounts = gen.activity('Set up IT accounts')
+assist_visa_processing = gen.activity('Assist with visa processing')
+obtain_student_id = gen.activity('Obtain student ID card')
+meet_academic_advisor = gen.activity('Meet with academic advisor')
+select_courses = gen.activity('Select courses')
+resolve_schedule_conflicts = gen.activity('Resolve schedule conflicts')
+begin_attending_classes = gen.activity('Begin attending classes')
+add_drop_courses = gen.activity('Add/drop courses')
+post_grades = gen.activity('Post grades')
+review_grades_semester = gen.activity('Review grades online')  # For semester review
+review_grades_appeals = review_grades_semester.copy()  # For appeals process
+submit_appeal_form = gen.activity('Submit appeal form')
+meet_appeals_committee = gen.activity('Meet with appeals committee')
+await_decision = gen.activity('Await decision')
+graduate = gen.activity('Graduate')
+withdraw = gen.activity('Withdraw')
+
+# Define subprocesses and their dependencies
+application_review_xor = gen.xor(evaluate_application, notify_missing_docs)
+decision_and_process_fees = gen.partial_order(dependencies=[(application_review_xor, process_fees)])
+acceptance_and_confirmation_xor = gen.xor(accept_application, reject_application)
+confirmation_and_orientation = gen.partial_order(dependencies=[(acceptance_and_confirmation_xor, confirm_enrollment), (confirm_enrollment, cancel_application), (confirm_enrollment, send_orientation_materials_domestic)])
+academic_setup = gen.partial_order(dependencies=[(send_orientation_materials_international, set_up_it_accounts), (set_up_it_accounts, obtain_student_id), (obtain_student_id, meet_academic_advisor), (meet_academic_advisor, select_courses), (select_courses, resolve_schedule_conflicts)])
+begin_attending_classes_and_add_drop = gen.loop(do=begin_attending_classes, redo=add_drop_courses)
+semester_review = gen.partial_order(dependencies=[(begin_attending_classes_and_add_drop, post_grades), (post_grades, review_grades_semester)])
+appeals_process_xor = gen.xor(review_grades_appeals, None)  # Review grades is optional for the appeals process
+appeals_process = gen.partial_order(dependencies=[(appeals_process_xor, submit_appeal_form), (submit_appeal_form, meet_appeals_committee), (meet_appeals_committee, await_decision)])
+
+# International students have an additional step
+international_student_xor = gen.xor(assist_visa_processing, None)
+
+# Combine subprocesses into the full enrollment process
+full_enrollment = gen.partial_order(
+    dependencies=[
+        (submit_application, decision_and_process_fees),
+        (decision_and_process_fees, acceptance_and_confirmation_xor),
+        (acceptance_and_confirmation_xor, confirmation_and_orientation),
+        (confirmation_and_orientation, academic_setup),
+        (academic_setup, begin_attending_classes_and_add_drop),
+        (begin_attending_classes_and_add_drop, semester_review),
+        (semester_review, appeals_process_xor),  # Connect to the optional review grades activity
+    ]
+)
+
+# The international student process is concurrent with the main enrollment process
+international_student_concurrent = gen.partial_order(dependencies=[(confirmation_and_orientation, international_student_xor)])
+
+# The final model includes both the full enrollment process and the concurrent international student process
+final_model = gen.partial_order(
+    dependencies=[
+        (full_enrollment,),
+        (international_student_concurrent,)
+    ]
+)
+
+# Note: The process of attending classes, adding/dropping courses, and reviewing grades is repeated each semester.
+# This is represented by the loop 'begin_attending_classes_and_add_drop'. The appeals process can also be repeated if necessary.
+# The graduation or withdrawal is not explicitly modeled in the loop as it represents the end of the repeated cycle.

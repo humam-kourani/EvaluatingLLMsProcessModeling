@@ -1,0 +1,53 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial activities
+guest_call = gen.activity("Guest calls room service")
+manager_takes_order = gen.activity("Manager takes down the order")
+
+# Manager's parallel actions
+submit_to_kitchen = gen.activity("Manager submits order ticket to kitchen")
+order_to_sommelier = gen.activity("Manager gives order to sommelier")
+assign_to_waiter = gen.activity("Manager assigns order to waiter")
+
+# Optional sommelier action
+sommelier_action = gen.activity("Sommelier fetches wine and prepare alcoholic beverages")
+optional_sommelier = gen.xor(sommelier_action, None)
+
+# Kitchen and waiter preparations
+kitchen_prep = gen.activity("Kitchen prepares food")
+waiter_cart = gen.activity("Waiter readies cart")
+waiter_drinks = gen.activity("Waiter prepares nonalcoholic drinks")
+
+# Waiter's concurrent actions
+waiter_prep = gen.partial_order(dependencies=[(waiter_cart,), (waiter_drinks,)])
+
+# Delivery and return
+deliver_order = gen.activity("Waiter delivers order to guest's room")
+return_to_station = gen.activity("Waiter returns to room-service station")
+
+# Billing options
+debit_account = gen.activity("Waiter debits guest's account")
+delay_debit = gen.activity("Waiter waits/delays debiting")
+billing_choice = gen.xor(debit_account, delay_debit)
+
+# Combine all steps
+preparation = gen.partial_order(dependencies=[
+    (submit_to_kitchen, kitchen_prep),
+    (order_to_sommelier, optional_sommelier),
+    (assign_to_waiter, waiter_prep),
+    (kitchen_prep,),
+    (optional_sommelier,),
+    (waiter_prep,)
+])
+
+main_process = gen.partial_order(dependencies=[
+    (guest_call, manager_takes_order),
+    (manager_takes_order, preparation),
+    (preparation, deliver_order),
+    (deliver_order, return_to_station),
+    (return_to_station, billing_choice)
+])
+
+final_model = main_process

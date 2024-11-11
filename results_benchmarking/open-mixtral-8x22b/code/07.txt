@@ -1,0 +1,50 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator(True, True)
+
+# Define activities
+customer_searches = gen.activity('Customer searches for ticket')
+select_route = gen.activity('Select route')
+select_date_time = gen.activity('Select date and time')
+provide_personal_info = gen.activity('Provide personal information')
+provide_payment_details = gen.activity('Provide payment details')
+generate_ticket = gen.activity('Generate ticket')
+send_ticket_email = gen.activity('Send ticket via email')
+send_ticket_sms = gen.activity('Send ticket via SMS')
+update_seat_inventory = gen.activity('Update seat inventory')
+send_reminder = gen.activity('Send reminder')
+send_instructions = gen.activity('Send instructions')
+customer_completes_journey = gen.activity('Customer completes journey')
+post_travel_feedback_services = gen.activity('Post-travel feedback or services')
+
+# Create a copy of the generate_ticket activity
+generate_ticket_copy = generate_ticket.copy()
+
+# Create a copy of the update_seat_inventory activity
+update_seat_inventory_copy = update_seat_inventory.copy()
+
+# Create a copy of the customer_completes_journey activity
+customer_completes_journey_copy = customer_completes_journey.copy()
+
+# Define partial orders
+partial_order_1 = gen.partial_order(dependencies=[(customer_searches, select_route),
+                                                 (select_route, select_date_time),
+                                                 (select_date_time, provide_personal_info),
+                                                 (provide_personal_info, provide_payment_details),
+                                                 (provide_payment_details, generate_ticket)])
+
+partial_order_2 = gen.partial_order(dependencies=[(generate_ticket_copy, send_ticket_email),
+                                                 (send_ticket_email, update_seat_inventory),
+                                                 (generate_ticket_copy, send_ticket_sms),
+                                                 (send_ticket_sms, update_seat_inventory)])
+
+partial_order_3 = gen.partial_order(dependencies=[(update_seat_inventory_copy, send_reminder),
+                                                 (send_reminder, send_instructions),
+                                                 (send_instructions, customer_completes_journey)])
+
+partial_order_4 = gen.partial_order(dependencies=[(customer_completes_journey_copy, post_travel_feedback_services)])
+
+# Combine partial orders into a larger partial order
+final_model = gen.partial_order(dependencies=[(partial_order_1, partial_order_2),
+                                             (partial_order_2, partial_order_3),
+                                             (partial_order_3, customer_completes_journey),
+                                             (customer_completes_journey, partial_order_4)])

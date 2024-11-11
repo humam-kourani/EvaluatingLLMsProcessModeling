@@ -1,0 +1,53 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+activity1 = gen.activity('Identify idea for new product or improvement')
+activity2 = gen.activity('Conduct initial research')
+activity3 = gen.activity('Conduct feasibility studies')
+activity4 = gen.activity('Draft design concepts')
+activity5 = gen.activity('Select promising design')
+activity6 = gen.activity('Build prototype')
+activity7 = gen.activity('Test functionality')
+activity8 = gen.activity('Test safety')
+activity9 = gen.activity('Test market potential')
+activity10 = gen.activity('Collect feedback from testing phase')
+activity11 = gen.activity('Refine prototype')
+activity12 = gen.activity('Approve prototype for further development')
+activity13 = gen.activity('Discard prototype')
+
+# Initial sequence
+initial_sequence = gen.partial_order(dependencies=[
+    (activity1, activity2),
+    (activity2, activity3),
+    (activity3, activity4),
+    (activity4, activity5),
+    (activity5, activity6)
+])
+
+# Testing and feedback phase
+testing_and_feedback = gen.partial_order(dependencies=[
+    (activity7, activity10),
+    (activity8, activity10),
+    (activity9, activity10)
+])
+
+# Optional refine prototype
+optional_refine_prototype = gen.xor(activity11, None)
+
+# Testing and refining phase
+testing_and_refining = gen.partial_order(dependencies=[
+    (testing_and_feedback, optional_refine_prototype)
+])
+
+# Loop over testing and refining
+testing_loop = gen.loop(do=testing_and_refining, redo=None)
+
+# Final decision
+final_decision = gen.xor(activity12, activity13)
+
+# Final model
+final_model = gen.partial_order(dependencies=[
+    (initial_sequence, testing_loop),
+    (testing_loop, final_decision)
+])

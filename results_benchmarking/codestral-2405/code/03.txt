@@ -1,0 +1,24 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+check_inventory = gen.activity('Check current inventory level')
+automated_alert = gen.activity('Send an automated alert')
+manual_alert = gen.activity('Send a manual alert')
+place_order = gen.activity('Place order with suppliers')
+update_delivery_dates = gen.activity('Update inventory system with expected delivery dates')
+receive_stock = gen.activity('Receive stock')
+inspect_stock = gen.activity('Inspect stock for quality')
+record_stock = gen.activity('Record stock in system')
+place_shelves = gen.activity('Place stock on shelves')
+place_storage = gen.activity('Place stock in storage')
+update_levels = gen.activity('Update inventory levels')
+
+# Define alert choice
+alert_choice = gen.xor(automated_alert, manual_alert)
+
+# Define reorder sequence
+reorder_sequence = gen.partial_order(dependencies=[(place_order, update_delivery_dates), (update_delivery_dates, receive_stock), (receive_stock, inspect_stock), (inspect_stock, record_stock), (record_stock, place_shelves), (record_stock, place_storage), (place_shelves, update_levels), (place_storage, update_levels)])
+
+# Define final model
+final_model = gen.partial_order(dependencies=[(check_inventory, alert_choice), (alert_choice, reorder_sequence)])

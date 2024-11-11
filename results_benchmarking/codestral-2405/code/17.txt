@@ -1,0 +1,40 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+record_order_details = gen.activity('Record order details')
+check_stock_availability = gen.activity('Check stock availability')
+update_inventory_levels = gen.activity('Update inventory levels')
+confirm_delivery = gen.activity('Confirm delivery')
+send_return_shipping_label = gen.activity('Send return shipping label')
+receive_returned_items = gen.activity('Receive returned items')
+package_items = gen.activity('Package items')
+dispatch_order = gen.activity('Dispatch order')
+pick_items_from_warehouse = gen.activity('Pick items from warehouse')
+prepare_shipping_documents = gen.activity('Prepare shipping documents and labels')
+notify_failed_payment = gen.activity('Notify about failed payment')
+gift_wrap_items = gen.activity('Gift wrap items')
+process_payment = gen.activity('Process payment')
+customer_reports_issue = gen.activity('Customer reports issue')
+inspect_returned_items = gen.activity('Inspect returned items')
+place_order = gen.activity('Place order')
+process_replacement = gen.activity('Process replacement')
+send_follow_up_email = gen.activity('Send follow-up email')
+send_shipping_confirmation = gen.activity('Send shipping confirmation to customer')
+receive_back_order = gen.activity('Receive back-order')
+perform_quality_control_checks = gen.activity('Perform quality control checks')
+initiate_back_order = gen.activity('Initiate back-order')
+prepare_international_documents = gen.activity('Prepare documentation for international orders')
+process_refund = gen.activity('Process refund')
+inform_customer_about_delay = gen.activity('Inform customer about delay')
+
+# Define subprocesses
+payment_processing = gen.xor(process_payment, notify_failed_payment)
+stock_check = gen.xor(check_stock_availability, initiate_back_order.copy())
+back_order_process = gen.partial_order(dependencies=[(initiate_back_order, inform_customer_about_delay), (inform_customer_about_delay, receive_back_order), (receive_back_order, check_stock_availability.copy())])
+picking_packaging = gen.partial_order(dependencies=[(pick_items_from_warehouse, perform_quality_control_checks), (perform_quality_control_checks, package_items), (package_items, gift_wrap_items)])
+shipping_process = gen.partial_order(dependencies=[(prepare_shipping_documents, prepare_international_documents), (prepare_shipping_documents, dispatch_order), (dispatch_order, send_shipping_confirmation)])
+returns_process = gen.partial_order(dependencies=[(customer_reports_issue, send_return_shipping_label), (send_return_shipping_label, receive_returned_items), (receive_returned_items, inspect_returned_items), (inspect_returned_items, gen.xor(process_refund, process_replacement))])
+
+# Define the final model
+final_model = gen.partial_order(dependencies=[(place_order, record_order_details), (record_order_details, payment_processing), (payment_processing, stock_check), (stock_check, back_order_process), (back_order_process, picking_packaging), (picking_packaging, shipping_process), (shipping_process, confirm_delivery), (confirm_delivery, update_inventory_levels), (confirm_delivery, send_follow_up_email), (send_follow_up_email, returns_process)])

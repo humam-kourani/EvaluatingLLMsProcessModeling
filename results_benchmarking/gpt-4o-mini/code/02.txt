@@ -1,0 +1,50 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Initial activities
+identify_need = gen.activity('Identify need for new hire')
+create_job_description = gen.activity('Create job description')
+post_job_description = gen.activity('Post job description')
+collect_resumes = gen.activity('Collect resumes')
+screen_resumes = gen.activity('Screen resumes')
+conduct_initial_phone_interviews = gen.activity('Conduct initial phone interviews')
+invite_candidates = gen.activity('Invite candidates for interviews')
+conduct_virtual_interview = gen.activity('Conduct a virtual interview')
+conduct_in_person_interview = gen.activity('Conduct an in-person interview')
+choose_candidate = gen.activity('Choose candidate')
+extend_offer = gen.activity('Extend offer')
+negotiate_salary = gen.activity('Negotiate salary')
+begin_onboarding_process = gen.activity('Begin onboarding process')
+complete_paperwork = gen.activity('Complete paperwork')
+complete_orientation = gen.activity('Complete orientation')
+complete_training = gen.activity('Complete training')
+
+# Process flows
+job_posting_poset = gen.partial_order(dependencies=[
+    (create_job_description, post_job_description),
+    (post_job_description, collect_resumes),
+    (collect_resumes, screen_resumes),
+    (screen_resumes, conduct_initial_phone_interviews),
+    (conduct_initial_phone_interviews, invite_candidates),
+    (invite_candidates, gen.xor(conduct_virtual_interview, conduct_in_person_interview))
+])
+
+# Candidate selection flow
+selection_poset = gen.partial_order(dependencies=[
+    (job_posting_poset, choose_candidate),
+    (choose_candidate, extend_offer),
+    (extend_offer, negotiate_salary)
+])
+
+# Onboarding process flow
+onboarding_poset = gen.partial_order(dependencies=[
+    (negotiation_poset := gen.loop(do=begin_onboarding_process, redo=None), complete_paperwork),
+    (complete_paperwork, complete_orientation),
+    (complete_orientation, complete_training)
+])
+
+# Final model
+final_model = gen.partial_order(dependencies=[
+    (identify_need, selection_poset),
+    (selection_poset, onboarding_poset)
+])

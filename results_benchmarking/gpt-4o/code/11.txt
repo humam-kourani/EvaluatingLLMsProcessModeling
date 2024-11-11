@@ -1,0 +1,35 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Step 1: Initial subscription signup and setup
+customer_sign_up = gen.activity('Customer signs up')
+generate_account = gen.activity('Generate account')
+assign_access = gen.activity('Assign access')
+set_billing_cycles = gen.activity('Set automatic triggers for billing cycles')
+
+# Create partial order for the account setup
+account_setup = gen.partial_order(dependencies=[(customer_sign_up, generate_account), (generate_account, assign_access), (assign_access, set_billing_cycles)])
+
+# Step 2: Regular updates and notifications during subscription
+send_updates = gen.activity('Send regular updates')
+send_enhancements = gen.activity('Send product enhancements')
+send_renewal_notifications = gen.activity('Send renewal notifications')
+
+# Concurrent regular activities
+regular_activities = gen.partial_order(dependencies=[(send_updates,), (send_enhancements,), (send_renewal_notifications,)])
+
+# Step 3: Handling customer cancellation
+submit_cancellation = gen.activity('Customer submits cancellation request')
+apply_charges = gen.activity('apply charges')
+apply_refund = gen.activity('apply refund')
+deactivate_subscription = gen.activity('Deactivate subscription')
+settle_balance = gen.activity('Settle final account balance')
+
+# Exclusive choice between charges and refunds
+charges_or_refund = gen.xor(apply_charges, apply_refund)
+
+# Cancellation subprocess
+cancellation_process = gen.partial_order(dependencies=[(submit_cancellation, charges_or_refund), (charges_or_refund, deactivate_subscription), (deactivate_subscription, settle_balance)])
+
+# Step 4: Combining all subprocesses
+final_model = gen.partial_order(dependencies=[(account_setup,), (regular_activities,), (cancellation_process,)])

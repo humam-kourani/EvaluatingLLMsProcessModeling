@@ -1,0 +1,38 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Defining Activities
+outline_objectives = gen.activity('Outline objectives')
+draft_plan = gen.activity('Draft plan')
+conduct_meeting = gen.activity('Conduct strategic alignment meeting')
+review_feasibility = gen.activity('Review budget feasibility')
+provide_feedback = gen.activity('Provide feedback')
+adjust_plan = gen.activity('Adjust Plan')
+document_approve = gen.activity('Documented and approve adjustment')
+approve_final = gen.activity('Approve final budget')
+distribute_budget = gen.activity('Distribute budget')
+implement_plan = gen.activity('Implement plan')
+
+# Modeling Feedback Loop
+feedback_loop = gen.loop(
+    do=gen.partial_order(dependencies=[
+        (provide_feedback, adjust_plan),
+        (adjust_plan, document_approve)
+    ]),
+    redo=None
+)
+
+# Setting up the Process Model
+process_flow = gen.partial_order(dependencies=[
+    (outline_objectives, draft_plan),
+    (draft_plan, conduct_meeting),
+    (conduct_meeting, review_feasibility),
+    (review_feasibility, feedback_loop),
+    (feedback_loop, approve_final),
+    (approve_final, distribute_budget),
+    (distribute_budget, implement_plan)
+])
+
+# Finalizing the Model
+final_model = process_flow

@@ -1,0 +1,41 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+submit_request = gen.activity('Submit IT solution request')
+assess_compatibility = gen.activity('Assess compatibility')
+evaluate_cost = gen.activity('Evaluate cost and resource needs')
+procure_tools = gen.activity('Procure necessary tools or licenses')
+install_solution = gen.activity('Install the solution')
+test_solution = gen.activity('Test solution')
+rollout_solution = gen.activity('Roll out solution to requesting department')
+provide_training = gen.activity('Provide training')
+provide_support = gen.activity('Provide support for troubleshooting')
+
+# Partial Order for the main process flow
+main_flow = gen.partial_order(dependencies=[
+    (submit_request, assess_compatibility),
+    (submit_request, evaluate_cost),
+    (assess_compatibility, procure_tools),
+    (evaluate_cost, procure_tools),
+    (procure_tools, install_solution),
+    (install_solution, test_solution),
+    (test_solution, rollout_solution)
+])
+
+# Optional training and support
+optional_training = gen.xor(provide_training, None)
+optional_support = gen.xor(provide_support, None)
+
+# Combine optional activities with main flow using partial order
+final_poset = gen.partial_order(dependencies=[
+    (main_flow, optional_training),
+    (main_flow, optional_support)
+    #(rollout_solution, optional_training), #Alternative placement, depending on desired concurrency
+    #(rollout_solution, optional_support) #Alternative placement, depending on desired concurrency
+
+])
+
+
+final_model = final_poset

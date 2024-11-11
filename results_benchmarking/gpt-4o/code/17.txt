@@ -1,0 +1,110 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Step 1: Record order details
+record_order_details = gen.activity('Record order details')
+
+# Step 2: Process payment
+process_payment = gen.activity('Process payment')
+
+# Step 3: Notify about failed payment
+notify_failed_payment = gen.activity('Notify about failed payment')
+
+# Step 4: Payment fails (xor between failure and continuing process)
+payment_xor = gen.xor(notify_failed_payment, None)
+
+# Step 5: Check stock availability
+check_stock_availability = gen.activity('Check stock availability')
+
+# Step 6: Initiate back-order
+initiate_back_order = gen.activity('Initiate back-order')
+
+# Step 7: Inform customer about delay
+inform_customer_about_delay = gen.activity('Inform customer about delay')
+
+# Step 8: Receive back-order
+receive_back_order = gen.activity('Receive back-order')
+
+# Step 9: Back-order process (xor between continuing or initiating back-order)
+back_order_xor = gen.xor(
+    gen.partial_order(dependencies=[(initiate_back_order, inform_customer_about_delay), (inform_customer_about_delay, receive_back_order)]),
+    None
+)
+
+# Step 10: Pick items from warehouse
+pick_items_from_warehouse = gen.activity('Pick items from warehouse')
+
+# Step 11: Perform quality control checks
+perform_quality_control_checks = gen.activity('Perform quality control checks')
+
+# Step 12: Package items
+package_items = gen.activity('Package items')
+
+# Step 13: Gift wrap items (optional)
+gift_wrap_items = gen.xor(gen.activity('Gift wrap items'), None)
+
+# Step 14: Prepare shipping documents and labels
+prepare_shipping_documents = gen.activity('Prepare shipping documents and labels')
+
+# Step 15: Prepare documentation for international orders (optional)
+prepare_international_docs = gen.xor(gen.activity('Prepare documentation for international orders'), None)
+
+# Step 16: Dispatch order
+dispatch_order = gen.activity('Dispatch order')
+
+# Step 17: Send shipping confirmation to customer
+send_shipping_confirmation = gen.activity('Send shipping confirmation to customer')
+
+# Step 18: Update inventory levels
+update_inventory_levels = gen.activity('Update inventory levels')
+
+# Step 19: Confirm delivery
+confirm_delivery = gen.activity('Confirm delivery')
+
+# Step 20: Send follow-up email
+send_follow_up_email = gen.activity('Send follow-up email')
+
+# Step 21: Customer reports issue (optional step)
+customer_reports_issue = gen.xor(gen.activity('Customer reports issue'), None)
+
+# Step 22: Send return shipping label
+send_return_shipping_label = gen.activity('Send return shipping label')
+
+# Step 23: Receive returned items
+receive_returned_items = gen.activity('Receive returned items')
+
+# Step 24: Inspect returned items
+inspect_returned_items = gen.activity('Inspect returned items')
+
+# Step 25: Process refund
+process_refund = gen.activity('Process refund')
+
+# Step 26: Process replacement (optional)
+process_replacement = gen.xor(gen.activity('Process replacement'), None)
+
+# Combining subprocesses using a partial order
+final_model = gen.partial_order(
+    dependencies=[
+        (record_order_details, process_payment),
+        (process_payment, payment_xor),
+        (payment_xor, check_stock_availability),
+        (check_stock_availability, back_order_xor),
+        (back_order_xor, pick_items_from_warehouse),
+        (pick_items_from_warehouse, perform_quality_control_checks),
+        (perform_quality_control_checks, package_items),
+        (package_items, gift_wrap_items),
+        (gift_wrap_items, prepare_shipping_documents),
+        (prepare_shipping_documents, prepare_international_docs),
+        (prepare_international_docs, dispatch_order),
+        (dispatch_order, send_shipping_confirmation),
+        (send_shipping_confirmation, update_inventory_levels),
+        (update_inventory_levels, confirm_delivery),
+        (confirm_delivery, send_follow_up_email),
+        (send_follow_up_email, customer_reports_issue),
+        (customer_reports_issue, send_return_shipping_label),
+        (send_return_shipping_label, receive_returned_items),
+        (receive_returned_items, inspect_returned_items),
+        (inspect_returned_items, gen.xor(process_refund, process_replacement))
+    ]
+)

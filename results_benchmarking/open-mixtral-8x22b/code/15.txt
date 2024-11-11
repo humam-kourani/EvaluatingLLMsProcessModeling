@@ -1,0 +1,33 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+schedule_audit = gen.activity('Schedule compliance audit')
+prepare_documentation = gen.activity('Prepare documentation')
+gather_evidence = gen.activity('Gather evidence')
+conduct_self_assessment = gen.activity('Conduct self-assessment')
+conduct_external_audit = gen.activity('Conduct external audit')
+identify_gaps = gen.activity('Identify gaps or issues')
+make_corrections = gen.activity('Make necessary corrections or improvements')
+conduct_final_audit = gen.activity('Conduct final audit')
+award_certification = gen.activity('Award certification')
+issue_official_docs = gen.activity('Issue official documents')
+
+# Create partial order dependencies
+dependencies = [
+    (schedule_audit, prepare_documentation),
+    (prepare_documentation, gather_evidence),
+    (prepare_documentation, conduct_self_assessment),
+    (conduct_self_assessment, conduct_external_audit),
+    (conduct_external_audit, identify_gaps),
+    (identify_gaps, make_corrections),
+    (make_corrections, conduct_final_audit),
+    (conduct_final_audit, award_certification),
+    (award_certification, issue_official_docs)
+]
+
+# Create partial order model
+poset = gen.partial_order(dependencies=dependencies)
+
+# Create the final model
+final_model = poset

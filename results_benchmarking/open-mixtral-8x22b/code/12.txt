@@ -1,0 +1,26 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Activities
+identify_needs = gen.activity('Identify development needs or career aspirations')
+create_plan = gen.activity('Create personal development plan')
+work_on_skills = gen.activity('Work on skill enhancement')
+receive_feedback = gen.activity('Receive feedback and evaluation from supervisors')
+consider_promotion = gen.activity('Consider employee for promotion or new role')
+formal_review = gen.activity('Conducts formal performance review')
+approve_promotion = gen.activity('Approve promotion')
+set_new_responsibilities = gen.activity('Set new responsibilities')
+adjust_compensation = gen.activity('Adjust compensation')
+transition = gen.activity('Transition into new role')
+
+# Subprocesses
+plan_creation = gen.partial_order(dependencies=[(identify_needs, create_plan)])
+skill_enhancement = gen.loop(do=work_on_skills, redo=receive_feedback)
+promotion_review = gen.partial_order(dependencies=[(consider_promotion, formal_review)])
+formal_review_copy = formal_review.copy()
+promotion_approval = gen.partial_order(dependencies=[(formal_review_copy, approve_promotion), (approve_promotion, set_new_responsibilities), (approve_promotion, adjust_compensation)])
+set_new_responsibilities_copy = set_new_responsibilities.copy()
+role_transition = gen.partial_order(dependencies=[(set_new_responsibilities_copy, transition)])
+
+# Final model
+final_model = gen.partial_order(dependencies=[(plan_creation, skill_enhancement), (skill_enhancement, promotion_review), (promotion_review, promotion_approval), (promotion_approval, role_transition)])

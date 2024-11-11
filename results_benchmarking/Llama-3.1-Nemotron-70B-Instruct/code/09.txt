@@ -1,0 +1,51 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+identify_idea = gen.activity('Identify idea for new product or improvement')
+conduct_research = gen.activity('Conduct initial research')
+conduct_feasibility = gen.activity('Conduct feasibility studies')
+draft_concepts = gen.activity('Draft design concepts')
+select_design = gen.activity('Select promising design')
+build_prototype = gen.activity('Build prototype')
+test_functionality = gen.activity('Test functionality')
+test_safety = gen.activity('Test safety')
+test_market_potential = gen.activity('Test market potential')
+collect_feedback = gen.activity('Collect feedback from testing phase')
+refine_prototype = gen.activity('Refine prototype')
+approve_prototype = gen.activity('Approve prototype for further development')
+discard_prototype = gen.activity('Discard prototype')
+
+# Research and Feasibility Loop
+research_feasibility_poset = gen.partial_order(dependencies=[(conduct_research, conduct_feasibility)])
+research_feasibility_loop = gen.loop(do=research_feasibility_poset, redo=None)
+
+# Testing Phase
+testing_phase_poset = gen.partial_order(dependencies=[
+    (test_functionality,), 
+    (test_safety,), 
+    (test_market_potential,), 
+    (test_functionality, collect_feedback.copy()), 
+    (test_safety, collect_feedback.copy()), 
+    (test_market_potential, collect_feedback.copy())
+])
+
+# Refine and Re-test Loop
+refine_testing_phase_poset = testing_phase_poset.copy()  # Create a copy of the testing phase poset
+refine_collect_feedback = collect_feedback.copy()  # Create a copy of the collect feedback activity
+refine_test_loop = gen.loop(do=testing_phase_poset, redo=gen.partial_order(dependencies=[(refine_collect_feedback, refine_prototype), (refine_prototype, refine_testing_phase_poset)]))
+
+# Approval or Discard
+approval_discard_choice = gen.xor(approve_prototype, discard_prototype)
+
+# Final Process Model
+final_model = gen.partial_order(dependencies=[
+    (identify_idea, research_feasibility_loop), 
+    (research_feasibility_loop, draft_concepts), 
+    (draft_concepts, select_design), 
+    (select_design, build_prototype), 
+    (build_prototype, refine_test_loop), 
+    (refine_test_loop, collect_feedback), 
+    (collect_feedback, approval_discard_choice)
+])

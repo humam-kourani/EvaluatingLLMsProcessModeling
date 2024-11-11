@@ -1,0 +1,29 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+submit_request = gen.activity('Submit IT solution request')
+assess_compatibility = gen.activity('Assess compatibility')
+evaluate_costs = gen.activity('Evaluate cost and resource needs')
+procure_tools = gen.activity('Procure necessary tools or licenses')
+install_solution = gen.activity('Install the solution')
+test_solution = gen.activity('Test solution')
+rollout_solution = gen.activity('Roll out solution to requesting department')
+provide_training = gen.activity('Provide training')
+provide_support = gen.activity('Provide support for troubleshooting')
+
+# Construction of the model using a single flow of dependencies
+dependencies = [
+    (submit_request, assess_compatibility),
+    (assess_compatibility, evaluate_costs),
+    (evaluate_costs, procure_tools),
+    (procure_tools, install_solution),
+    (install_solution, test_solution),
+    (test_solution, rollout_solution),
+    (rollout_solution, provide_training),
+    (provide_training, provide_support)
+]
+
+# Final model encapsulating all dependencies in one partial order
+final_model = gen.partial_order(dependencies=dependencies)

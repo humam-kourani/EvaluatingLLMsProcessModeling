@@ -1,0 +1,54 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial activities
+schedule_audit = gen.activity('Schedule compliance audit')
+prepare_documentation = gen.activity('Prepare documentation')
+gather_evidence = gen.activity('Gather evidence')
+conduct_self_assessment = gen.activity('Conduct self-assessment')
+
+# Initial preparation partial order (concurrent activities)
+initial_preparation = gen.partial_order(
+    dependencies=[(prepare_documentation,), (gather_evidence,), (conduct_self_assessment,)]
+)
+
+# External audit activities
+conduct_external_audit = gen.activity('Conduct external audit')
+identify_gaps_or_issues = gen.activity('Identify gaps or issues')
+
+# External audit partial order (sequential dependencies)
+external_audit = gen.partial_order(
+    dependencies=[(conduct_external_audit, identify_gaps_or_issues)]
+)
+
+# Correction and final audit activities
+make_necessary_corrections_or_improvements = gen.activity('Make necessary corrections or improvements')
+conduct_final_audit = gen.activity('Conduct final audit')
+
+# Award certification and issue documents activities
+award_certification = gen.activity('Award certification')
+issue_official_documents = gen.activity('Issue official documents')
+
+# Final certification partial order (sequential dependencies)
+certification = gen.partial_order(
+    dependencies=[(conduct_final_audit, award_certification), (award_certification, issue_official_documents)]
+)
+
+# To fix the errors, we create copies of 'identify_gaps_or_issues' and 'conduct_final_audit' for use in 'main_process'
+identify_gaps_or_issues_copy = identify_gaps_or_issues.copy()
+conduct_final_audit_copy = conduct_final_audit.copy()
+
+# Main process partial order (sequential dependencies)
+main_process = gen.partial_order(
+    dependencies=[
+        (schedule_audit, initial_preparation),
+        (initial_preparation, external_audit),
+        (identify_gaps_or_issues_copy, make_necessary_corrections_or_improvements),
+        (make_necessary_corrections_or_improvements, conduct_final_audit_copy),
+        (conduct_final_audit_copy, certification.copy())  # Also create a copy of 'certification'
+    ]
+)
+
+# Final model
+final_model = main_process

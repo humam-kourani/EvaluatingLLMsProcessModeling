@@ -1,0 +1,39 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Activities
+identify_idea = gen.activity('Identify idea for new product or improvement')
+conduct_initial_research = gen.activity('Conduct initial research')
+conduct_feasibility_studies = gen.activity('Conduct feasibility studies')
+draft_design_concepts = gen.activity('Draft design concepts')
+select_promise_design = gen.activity('Select promising design')
+build_prototype = gen.activity('Build prototype')
+test_functionality = gen.activity('Test functionality')
+test_safety = gen.activity('Test safety')
+test_market_potential = gen.activity('Test market potential')
+collect_feedback = gen.activity('Collect feedback from testing phase')
+refine_prototype = gen.activity('Refine prototype')
+approve_prototype = gen.activity('Approve prototype for further development')
+discard_prototype = gen.activity('Discard prototype')
+
+# Parallel testing phase
+parallel_testing_phase = gen.partial_order(dependencies=[(), (test_functionality,), (test_safety,), (test_market_potential,)])
+
+# Collect feedback and refine prototype
+collect_refine_loop = gen.loop(do=collect_feedback, redo=refine_prototype)
+collect_refine_choice = gen.xor(collect_refine_loop, None)
+
+# Initial research and feasibility studies
+initial_feasibility_poset = gen.partial_order(dependencies=[(conduct_initial_research, conduct_feasibility_studies)])
+
+# Full R&D process
+rnd_poset = gen.partial_order(dependencies=[(identify_idea, initial_feasibility_poset),
+                                           (initial_feasibility_poset, draft_design_concepts),
+                                           (draft_design_concepts, select_promise_design),
+                                           (select_promise_design, build_prototype),
+                                           (build_prototype, parallel_testing_phase),
+                                           (parallel_testing_phase, collect_refine_choice),
+                                           (collect_refine_choice, approve_prototype),
+                                           (collect_refine_choice, discard_prototype)])
+
+final_model = rnd_poset

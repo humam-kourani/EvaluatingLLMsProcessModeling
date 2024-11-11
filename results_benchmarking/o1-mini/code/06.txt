@@ -1,0 +1,36 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+customer_online = gen.activity('Customer places order online')
+customer_phone = gen.activity('Customer places order over the phone')
+generate_confirmation = gen.activity('Generate and send order confirmation')
+pick_pack = gen.activity('Pick and pack items')
+generate_shipping_label = gen.activity('Generate shipping label')
+hand_over_order = gen.activity('Hand over order to logistics provider')
+send_tracking = gen.activity('Send tracking information to customer')
+monitor_shipment = gen.activity('Monitor shipment')
+successful_delivery = gen.activity('Successful delivery')
+process_feedback = gen.activity('Process customer feedback or returns')
+
+# Define exclusive choice between online and phone orders
+order_placement_choice = gen.xor(customer_online, customer_phone)
+
+# Define optional processing of customer feedback or returns
+optional_feedback = gen.xor(process_feedback, None)
+
+# Define dependencies for the main process flow
+dependencies = [
+    (order_placement_choice, generate_confirmation),
+    (generate_confirmation, pick_pack),
+    (pick_pack, generate_shipping_label),
+    (generate_shipping_label, hand_over_order),
+    (hand_over_order, send_tracking),
+    (send_tracking, monitor_shipment),
+    (monitor_shipment, successful_delivery),
+    (successful_delivery, optional_feedback)
+]
+
+# Generate the final POWL model
+final_model = gen.partial_order(dependencies=dependencies)

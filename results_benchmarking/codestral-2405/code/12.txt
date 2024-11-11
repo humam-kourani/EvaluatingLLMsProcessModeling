@@ -1,0 +1,24 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+identify_needs = gen.activity('Identify development needs or career aspirations')
+create_plan_1 = gen.activity('Create personal development plan')
+create_plan_2 = create_plan_1.copy()
+work_on_skills = gen.activity('Work on skill enhancement')
+consider_employee_1 = gen.activity('Consider employee for promotion or new role')
+consider_employee_2 = consider_employee_1.copy()
+receive_feedback = gen.activity('Receive feedback and evaluation from supervisors')
+formal_review = gen.activity('Conducts formal performance review')
+approve_promotion = gen.activity('Approve promotion')
+set_responsibilities = gen.activity('Set new responsibilities')
+adjust_compensation = gen.activity('Adjust compensation')
+transition_role = gen.activity('Transition into new role')
+
+# Define subprocesses
+manager_hr_plan = gen.partial_order(dependencies=[(identify_needs, create_plan_1)])
+employee_subprocess = gen.partial_order(dependencies=[(create_plan_2, work_on_skills), (work_on_skills, receive_feedback)])
+promotion_subprocess = gen.partial_order(dependencies=[(consider_employee_1, formal_review), (formal_review, approve_promotion), (approve_promotion, set_responsibilities), (approve_promotion, adjust_compensation)])
+
+# Define the final model
+final_model = gen.partial_order(dependencies=[(manager_hr_plan, employee_subprocess), (employee_subprocess, consider_employee_2), (consider_employee_2, promotion_subprocess), (promotion_subprocess, transition_role)])

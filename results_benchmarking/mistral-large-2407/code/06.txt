@@ -1,0 +1,36 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+customer_places_order_online = gen.activity('Customer places order online')
+customer_places_order_phone = gen.activity('Customer places order over the phone')
+generate_order_confirmation = gen.activity('Generate and send order confirmation')
+pick_and_pack_items = gen.activity('Pick and pack items')
+generate_shipping_label = gen.activity('Generate shipping label')
+hand_over_to_logistics = gen.activity('Hand over order to logistics provider')
+send_tracking_info = gen.activity('Send tracking information to customer')
+monitor_shipment = gen.activity('Monitor shipment')
+successful_delivery = gen.activity('Successful delivery')
+process_feedback_or_returns = gen.activity('Process customer feedback or returns')
+
+# Define choices and loops
+order_placement = gen.xor(customer_places_order_online, customer_places_order_phone)
+
+# Define partial orders
+packing_process = gen.partial_order(
+    dependencies=[(pick_and_pack_items, generate_shipping_label),
+                  (generate_shipping_label, hand_over_to_logistics),
+                  (hand_over_to_logistics, send_tracking_info),
+                  (send_tracking_info, monitor_shipment),
+                  (monitor_shipment, successful_delivery)]
+)
+
+# Create a copy of successful_delivery to use in the final model
+successful_delivery_copy = successful_delivery.copy()
+
+# Combine all parts into the final model
+final_model = gen.partial_order(
+    dependencies=[(order_placement, generate_order_confirmation),
+                  (generate_order_confirmation, packing_process),
+                  (successful_delivery_copy, process_feedback_or_returns)]
+)

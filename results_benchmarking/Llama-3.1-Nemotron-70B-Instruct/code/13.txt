@@ -1,0 +1,35 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+file_complaint = gen.activity('File complaint')
+log_complaint = gen.activity('Log complaint')
+assign_complaint = gen.activity('Assign complaint to relevant department')
+review_details = gen.activity('Review complaint details')
+approve_notify = gen.activity('Approve and notify customer')
+reject_notify = gen.activity('Reject and notify customer')
+process_reimbursement = gen.activity('Process reimbursement')
+resolve_complaint = gen.activity('Resolve complaint')
+provide_feedback = gen.activity('Provide feedback')
+
+# Complaint Validation and Notification
+validation_choice = gen.xor(approve_notify, reject_notify)
+validation_poset = gen.partial_order(dependencies=[(review_details, validation_choice)])
+
+# Refund Processing (if approved) - Create a copy of approve_notify to avoid reuse
+approve_notify_copy = approve_notify.copy()
+reject_notify_copy = reject_notify.copy()
+refund_poset = gen.partial_order(dependencies=[(approve_notify_copy, process_reimbursement), 
+                                               (process_reimbursement, resolve_complaint), 
+                                               (reject_notify_copy, resolve_complaint)])
+
+# Complaint Handling with Feedback
+# Combine all elements, ensuring unique usage of submodels
+complaint_handling_poset = gen.partial_order(dependencies=[(file_complaint, log_complaint), 
+                                                           (log_complaint, assign_complaint), 
+                                                           (assign_complaint, validation_poset), 
+                                                           (validation_poset, refund_poset), 
+                                                           (refund_poset, provide_feedback)])
+
+final_model = complaint_handling_poset

@@ -1,0 +1,39 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# identify development needs or career aspirations
+identify_needs = gen.activity('Identify development needs or career aspirations')
+
+# create personal development plan
+create_plan = gen.activity('Create personal development plan')
+
+# work on skill enhancement and receive feedback
+skill_enhancement = gen.activity('Work on skill enhancement')
+receive_feedback = gen.activity('Receive feedback and evaluation from supervisors')
+skill_feedback_poset = gen.partial_order(dependencies=[(skill_enhancement, receive_feedback)])
+
+# consider employee for promotion
+consider_promotion = gen.activity('Consider employee for promotion or new role')
+
+# approve promotion
+approve_promotion = gen.activity('Approve promotion')
+
+# conduct formal performance review
+conduct_review = gen.activity('Conducts formal performance review')
+
+# adjust compensation and set new responsibilities
+adjust_compensation = gen.activity('Adjust compensation')
+set_responsibilities = gen.activity('Set new responsibilities')
+
+# transition into new role
+transition_new_role = gen.activity('Transition into new role')
+
+# main process
+main_process = gen.partial_order(
+    dependencies=[(identify_needs, create_plan), (create_plan, skill_feedback_poset),
+                  (skill_feedback_poset, consider_promotion), (consider_promotion, conduct_review),
+                  (conduct_review, approve_promotion), (approve_promotion, adjust_compensation),
+                  (approve_promotion, set_responsibilities), (adjust_compensation, transition_new_role),
+                  (set_responsibilities, transition_new_role)])
+
+final_model = main_process

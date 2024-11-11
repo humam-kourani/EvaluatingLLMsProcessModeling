@@ -1,0 +1,50 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial signup and account setup
+signup = gen.activity('Customer signs up')
+generate_account = gen.activity('Generate account')
+assign_access = gen.activity('Assign access')
+set_billing = gen.activity('Set automatic triggers for billing cycles')
+
+initial_setup = gen.partial_order(dependencies=[
+    (signup, generate_account),
+    (generate_account, assign_access),
+    (generate_account, set_billing)
+])
+
+# Ongoing subscription activities
+updates = gen.activity('Send regular updates')
+enhancements = gen.activity('Send product enhancements')
+renewals = gen.activity('Send renewal notifications')
+
+ongoing_activities = gen.partial_order(dependencies=[
+    (updates,), (enhancements,), (renewals,)
+])
+
+# Cancellation process
+cancel_request = gen.activity('Customer submits cancellation request')
+refund = gen.activity('apply refund')
+charges = gen.activity('apply charges')
+deactivate = gen.activity('Deactivate subscription')
+settle = gen.activity('Settle final account balance')
+
+refund_or_charge = gen.xor(refund, charges)
+
+cancellation_process = gen.partial_order(dependencies=[
+    (cancel_request, refund_or_charge),
+    (refund_or_charge, deactivate),
+    (deactivate, settle)
+])
+
+# Combine ongoing activities and cancellation into a loop
+subscription_loop = gen.loop(
+    do=ongoing_activities,
+    redo=cancellation_process
+)
+
+# Final model
+final_model = gen.partial_order(dependencies=[
+    (initial_setup, subscription_loop)
+])

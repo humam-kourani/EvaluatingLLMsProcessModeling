@@ -1,0 +1,33 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define the activities
+login = gen.activity('Login')
+select_items = gen.activity('Select items')
+set_payment_method = gen.activity('Set payment method')
+pay = gen.activity('Pay')
+complete_installment_agreement = gen.activity('Complete installment agreement')
+select_free_reward = gen.activity('Select free reward')
+deliver_items = gen.activity('Deliver items')
+return_items = gen.activity('Return items')
+
+# Create a partial order for selecting items and setting payment method
+poset_item_payment = gen.partial_order(dependencies=[(select_items,), (set_payment_method,)])
+
+# Create a choice between paying and completing an installment agreement
+choice_pay_installment = gen.xor(pay, complete_installment_agreement)
+
+# Create a partial order for delivering items and returning items
+poset_deliver_return = gen.partial_order(dependencies=[(deliver_items, return_items)])
+
+# Create a loop for delivering and returning items
+loop_deliver_return = gen.loop(do=poset_deliver_return, redo=None)
+
+# Create a partial order for the main process
+poset_main = gen.partial_order(
+    dependencies=[(login, poset_item_payment), (poset_item_payment, select_free_reward),
+                  (select_free_reward, choice_pay_installment),
+                  (choice_pay_installment, loop_deliver_return)])
+
+# Create the final model
+final_model = poset_main

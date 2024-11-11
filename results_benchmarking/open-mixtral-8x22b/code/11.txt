@@ -1,0 +1,43 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+customer_signs_up = gen.activity('Customer signs up')
+generate_account = gen.activity('Generate account')
+assign_access = gen.activity('Assign access')
+set_billing_cycles = gen.activity('Set automatic triggers for billing cycles')
+send_product_enhancements = gen.activity('Send product enhancements')
+send_regular_updates = gen.activity('Send regular updates')
+send_renewal_notifications = gen.activity('Send renewal notifications')
+customer_submits_cancellation = gen.activity('Customer submits cancellation request')
+support_processes_cancellation = gen.activity('Support team processes cancellation')
+apply_charges = gen.activity('Apply charges')
+apply_refund = gen.activity('Apply refund')
+settle_final_balance = gen.activity('Settle final account balance')
+deactivate_subscription = gen.activity('Deactivate subscription')
+
+# Define partial orders
+subscription_activities = gen.partial_order(dependencies=[
+    (customer_signs_up, generate_account),
+    (generate_account, assign_access),
+    (assign_access, set_billing_cycles),
+    (set_billing_cycles, send_product_enhancements),
+    (set_billing_cycles, send_regular_updates),
+    (set_billing_cycles, send_renewal_notifications),
+])
+
+cancellation_activities = gen.partial_order(dependencies=[
+    (customer_submits_cancellation, support_processes_cancellation),
+    (support_processes_cancellation, apply_charges),
+    (support_processes_cancellation, apply_refund),
+    (apply_charges, settle_final_balance),
+    (apply_refund, settle_final_balance),
+    (settle_final_balance, deactivate_subscription),
+])
+
+# Define xor choice between subscription and cancellation
+choice = gen.xor(subscription_activities, cancellation_activities)
+
+# Define final model
+final_model = gen.partial_order(dependencies=[(choice,)])

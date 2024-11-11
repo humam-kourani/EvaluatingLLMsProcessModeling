@@ -1,0 +1,30 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+customer_signs_up = gen.activity('Customer signs up')
+generate_account = gen.activity('Generate account')
+assign_access = gen.activity('Assign access')
+set_automatic_triggers = gen.activity('Set automatic triggers for billing cycles')
+send_regular_updates = gen.activity('Send regular updates')
+send_product_enhancements = gen.activity('Send product enhancements')
+send_renewal_notifications = gen.activity('Send renewal notifications')
+customer_submits_cancellation_request = gen.activity('Customer submits cancellation request')
+apply_refund = gen.activity('Apply refund')
+apply_charges = gen.activity('Apply charges')
+deactivate_subscription = gen.activity('Deactivate subscription')
+settle_final_account_balance = gen.activity('Settle final account balance')
+
+# Define subprocesses
+subscription_period = gen.partial_order(
+    dependencies=[(send_regular_updates,), (send_product_enhancements,), (send_renewal_notifications,)])
+cancellation_process = gen.partial_order(
+    dependencies=[(customer_submits_cancellation_request,), (apply_refund,), (apply_charges,),
+                  (deactivate_subscription,), (settle_final_account_balance,)])
+
+# Define the final model
+final_model = gen.partial_order(
+    dependencies=[(customer_signs_up, generate_account), (generate_account, assign_access),
+                  (assign_access, set_automatic_triggers), (set_automatic_triggers, subscription_period),
+                  (subscription_period, cancellation_process)])

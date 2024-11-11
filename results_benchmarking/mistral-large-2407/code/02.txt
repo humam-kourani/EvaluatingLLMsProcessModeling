@@ -1,0 +1,45 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+identify_need = gen.activity('Identify need for new hire')
+create_job_description = gen.activity('Create job description')
+post_job_description = gen.activity('Post job description')
+collect_resumes = gen.activity('Collect resumes')
+screen_resumes = gen.activity('Screen resumes')
+conduct_phone_interviews = gen.activity('Conduct initial phone interviews')
+invite_candidates = gen.activity('Invite candidates for interviews')
+conduct_in_person_interview = gen.activity('Conduct an in-person interview')
+conduct_virtual_interview = gen.activity('Conduct a virtual interview')
+choose_candidate = gen.activity('Choose candidate')
+extend_offer = gen.activity('Extend offer')
+negotiate_salary = gen.activity('Negotiate salary')
+begin_onboarding = gen.activity('Begin onboarding process')
+complete_paperwork = gen.activity('Complete paperwork')
+complete_orientation = gen.activity('Complete orientation')
+complete_training = gen.activity('Complete training')
+integrate_new_hire = gen.activity('Fully integrate new hire')
+
+# Define choices and loops
+interview_choice = gen.xor(conduct_in_person_interview, conduct_virtual_interview)
+optional_negotiate_salary = gen.xor(negotiate_salary, None)
+
+# Define partial orders
+poset_1 = gen.partial_order(
+    dependencies=[(identify_need, create_job_description),
+                  (create_job_description, post_job_description),
+                  (post_job_description, collect_resumes),
+                  (collect_resumes, screen_resumes),
+                  (screen_resumes, conduct_phone_interviews),
+                  (conduct_phone_interviews, invite_candidates),
+                  (invite_candidates, interview_choice),
+                  (interview_choice, choose_candidate),
+                  (choose_candidate, extend_offer),
+                  (extend_offer, optional_negotiate_salary),
+                  (optional_negotiate_salary, begin_onboarding),
+                  (begin_onboarding, complete_paperwork),
+                  (complete_paperwork, complete_orientation),
+                  (complete_orientation, complete_training),
+                  (complete_training, integrate_new_hire)])
+
+final_model = poset_1

@@ -1,0 +1,62 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Basic activities
+submit_application = gen.activity('Submit application online')
+review_application = gen.activity('Review application and documents')
+notify_missing_docs = gen.activity('Notify applicant of missing documents')
+provide_docs = gen.activity('Provide missing documents')
+evaluate_application = gen.activity('Evaluate application by admissions committee')
+process_fees = gen.activity('Process fees or waivers')
+send_acceptance = gen.activity('Send acceptance letter')
+send_rejection = gen.activity('Send rejection letter')
+confirm_enrollment = gen.activity('Confirm enrollment')
+cancel_application = gen.activity('Cancel application')
+send_orientation = gen.activity('Send orientation materials')
+set_up_accounts = gen.activity('Set up IT accounts')
+assist_visa = gen.activity('Assist with visa processing')
+obtain_id = gen.activity('Obtain student ID card')
+meet_advisor = gen.activity('Meet with academic advisor')
+select_courses = gen.activity('Select courses')
+resolve_conflicts = gen.activity('Resolve schedule conflicts')
+begin_classes = gen.activity('Begin attending classes')
+add_drop_courses = gen.activity('Add/drop courses')
+post_grades = gen.activity('Post grades')
+review_grades = gen.activity('Review grades online')
+submit_appeal = gen.activity('Submit appeal form')
+meet_appeals_committee = gen.activity('Meet with appeals committee')
+await_decision = gen.activity('Await decision')
+graduate = gen.activity('Graduate')
+withdraw = gen.activity('Withdraw')
+
+# Decision nodes with copies for unique usage
+decision = gen.xor(send_acceptance, send_rejection)
+decision_copy = decision.copy()  # Copy for use in evaluation processing
+decision_copy2 = decision.copy()  # Additional copy for use in acceptance flow
+
+# Xor pathways
+document_review = gen.xor(review_application, provide_docs.copy())
+missing_docs_notify = gen.xor(notify_missing_docs, provide_docs.copy())
+student_confirmation = gen.xor(confirm_enrollment, cancel_application)
+
+# Partial orders
+initial_steps = gen.partial_order(dependencies=[(submit_application, missing_docs_notify), (missing_docs_notify, evaluate_application.copy())])
+evaluation_processing = gen.partial_order(dependencies=[(evaluate_application, decision), (process_fees, decision_copy)])
+acceptance_flow = gen.partial_order(dependencies=[(decision_copy2, student_confirmation), (student_confirmation, send_orientation), (send_orientation, set_up_accounts.copy())])
+visa_processing = gen.partial_order(dependencies=[(assist_visa, set_up_accounts.copy())])  # Conditional on student type
+study_plan = gen.partial_order(dependencies=[(obtain_id, meet_advisor), (meet_advisor, select_courses), (select_courses, resolve_conflicts), (resolve_conflicts, begin_classes.copy())])
+semester_activities = gen.loop(do=gen.partial_order(dependencies=[(begin_classes.copy(), add_drop_courses), (add_drop_courses, post_grades), (post_grades, review_grades)]), redo=None)
+grievance_process = gen.partial_order(dependencies=[(submit_appeal, meet_appeals_committee), (meet_appeals_committee, await_decision)])
+ongoing_process = gen.loop(do=gen.partial_order(dependencies=[(semester_activities, grievance_process)]), redo=None)
+
+# Final model
+final_model = gen.partial_order(dependencies=[
+    (initial_steps, evaluation_processing),
+    (evaluation_processing, acceptance_flow),
+    (acceptance_flow, visa_processing),
+    (visa_processing, study_plan),
+    (study_plan, ongoing_process),
+    (ongoing_process, graduate),
+    (ongoing_process, withdraw)
+])

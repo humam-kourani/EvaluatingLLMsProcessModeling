@@ -1,0 +1,42 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+submit_request = gen.activity('Submit IT solution request')
+assess_compatibility = gen.activity('Assess compatibility')
+evaluate_cost = gen.activity('Evaluate cost and resource needs')
+procure_tools = gen.activity('Procure necessary tools or licenses')
+install_solution = gen.activity('Install the solution')
+test_solution = gen.activity('Test solution')
+roll_out_solution = gen.activity('Roll out solution to requesting department')
+provide_training = gen.activity('Provide training')
+provide_support = gen.activity('Provide support for troubleshooting')
+
+# Assessment phase
+assessment = gen.partial_order(dependencies=[(assess_compatibility,), (evaluate_cost,)])
+
+# Implementation phase, including roll out
+implementation = gen.partial_order(dependencies=[
+    (procure_tools, install_solution),
+    (install_solution, test_solution),
+    (test_solution, roll_out_solution)
+])
+
+# Optional training
+optional_training = gen.xor(provide_training, None)
+
+# Combine implementation and optional training
+implementation_and_training = gen.partial_order(dependencies=[
+    (implementation, optional_training)
+])
+
+# The entire process can be approved or rejected after assessment
+approved_process = gen.xor(implementation_and_training, None)
+
+# Final model
+final_model = gen.partial_order(dependencies=[
+    (submit_request, assessment),
+    (assessment, approved_process),
+    (approved_process, provide_support)
+])

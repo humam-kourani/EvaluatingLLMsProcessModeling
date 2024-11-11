@@ -1,0 +1,96 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+place_order = gen.activity('Place order')
+record_order_details = gen.activity('Record order details')
+process_payment = gen.activity('Process payment')
+notify_about_failed_payment = gen.activity('Notify about failed payment')
+check_stock_availability = gen.activity('Check stock availability')
+check_stock_availability_copy = check_stock_availability.copy()
+check_stock_availability_copy_2 = check_stock_availability.copy()
+initiate_backorder = gen.activity('Initiate back-order')
+initiate_backorder_copy = initiate_backorder.copy()
+inform_customer_about_delay = gen.activity('Inform customer about delay')
+receive_backorder = gen.activity('Receive back-order')
+receive_backorder_copy = receive_backorder.copy()
+pick_items_from_warehouse = gen.activity('Pick items from warehouse')
+pick_items_from_warehouse_copy = pick_items_from_warehouse.copy()
+pick_items_from_warehouse_copy_2 = pick_items_from_warehouse.copy()
+perform_quality_control_checks = gen.activity('Perform quality control checks')
+package_items = gen.activity('Package items')
+package_items_copy = package_items.copy()
+package_items_copy_2 = package_items.copy()
+gift_wrap_items = gen.activity('Gift wrap items')
+prepare_shipping_documents_and_labels = gen.activity('Prepare shipping documents and labels')
+prepare_documentation_for_international_orders = gen.activity('Prepare documentation for international orders')
+dispatch_order = gen.activity('Dispatch order')
+send_shipping_confirmation_to_customer = gen.activity('Send shipping confirmation to customer')
+update_inventory_levels = gen.activity('Update inventory levels')
+confirm_delivery = gen.activity('Confirm delivery')
+send_followup_email = gen.activity('Send follow-up email')
+customer_reports_issue = gen.activity('Customer reports issue')
+send_return_shipping_label = gen.activity('Send return shipping label')
+receive_returned_items = gen.activity('Receive returned items')
+inspect_returned_items = gen.activity('Inspect returned items')
+process_refund = gen.activity('Process refund')
+process_replacement = gen.activity('Process replacement')
+
+payment_choice = gen.xor(process_payment, notify_about_failed_payment)
+backorder_choice = gen.xor(initiate_backorder, receive_backorder)
+package_only = package_items.copy()
+
+gift_wrap_choice = gen.xor(gen.partial_order([(package_only, gift_wrap_items)]), package_items_copy)
+
+inventory_backorder_poset = gen.partial_order([
+    (check_stock_availability, initiate_backorder_copy),
+    (initiate_backorder_copy, inform_customer_about_delay),
+    (inform_customer_about_delay, receive_backorder_copy),
+    (receive_backorder_copy, pick_items_from_warehouse)
+])
+
+stock_available_poset = gen.partial_order([
+    (check_stock_availability_copy, pick_items_from_warehouse_copy)
+])
+
+pick_inventory_poset_choice = gen.xor(inventory_backorder_poset, stock_available_poset)
+
+pick_items_quality_control_poset = gen.partial_order([
+    (pick_items_from_warehouse_copy_2, perform_quality_control_checks),
+    (perform_quality_control_checks, package_items)
+])
+
+package_items_preparation_poset = gen.partial_order([
+    (prepare_shipping_documents_and_labels, dispatch_order),
+    (package_items_copy_2, dispatch_order),
+    (prepare_documentation_for_international_orders, prepare_shipping_documents_and_labels)
+])
+
+prepare_and_ship_choice = gen.loop(do=package_items_preparation_poset, redo=None)
+
+delivery_workflow_poset = gen.partial_order([
+    (record_order_details, payment_choice),
+    (payment_choice, check_stock_availability_copy_2),
+    (check_stock_availability_copy_2, pick_inventory_poset_choice),
+    (pick_inventory_poset_choice, pick_items_quality_control_poset),
+    (pick_items_quality_control_poset, gift_wrap_choice),
+    (gift_wrap_choice, prepare_and_ship_choice),
+    (prepare_and_ship_choice, send_shipping_confirmation_to_customer),
+    (send_shipping_confirmation_to_customer, confirm_delivery),
+    (confirm_delivery, update_inventory_levels),
+    (update_inventory_levels, send_followup_email)
+])
+
+return_choice = gen.xor(customer_reports_issue, None)
+send_return_choice = gen.loop(do=send_return_shipping_label, redo=None)
+returns_poset = gen.partial_order([
+    (send_return_choice, receive_returned_items),
+    (receive_returned_items, inspect_returned_items),
+    (inspect_returned_items, process_refund),
+    (inspect_returned_items, process_replacement)
+])
+
+final_model = gen.partial_order([
+    (delivery_workflow_poset, return_choice),
+    (return_choice, returns_poset)
+])

@@ -1,0 +1,75 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+record_order_details = gen.activity('Record order details')
+process_payment = gen.activity('Process payment')
+notify_failed_payment = gen.activity('Notify about failed payment')
+check_stock_availability = gen.activity('Check stock availability')
+initiate_back_order = gen.activity('Initiate back-order')
+notify_delay = gen.activity('Inform customer about delay')
+receive_back_order = gen.activity('Receive back-order')
+pick_items = gen.activity('Pick items from warehouse')
+perform_quality_control = gen.activity('Perform quality control checks')
+gift_wrap_items = gen.activity('Gift wrap items')
+package_items = gen.activity('Package items')
+prepare_shipping_docs = gen.activity('Prepare shipping documents and labels')
+prepare_customs_docs = gen.activity('Prepare documentation for international orders')
+dispatch_order = gen.activity('Dispatch order')
+send_shipping_confirmation = gen.activity('Send shipping confirmation to customer')
+confirm_delivery = gen.activity('Confirm delivery')
+send_follow_up_email = gen.activity('Send follow-up email')
+customer_reports_issue = gen.activity('Customer reports issue')
+send_return_label = gen.activity('Send return shipping label')
+receive_returned_items = gen.activity('Receive returned items')
+inspect_returned_items = gen.activity('Inspect returned items')
+process_refund = gen.activity('Process refund')
+update_inventory_levels = gen.activity('Update inventory levels')
+process_replacement = gen.activity('Process replacement')
+
+# Define the payment processing choice
+payment_processing = gen.xor(notify_failed_payment, process_payment)
+
+# Define the stock check and back-order loop
+back_order_loop = gen.loop(do=check_stock_availability, redo=initiate_back_order)
+
+# Define the back-order receipt and stock availability
+back_order_and_stock = gen.xor(receive_back_order, back_order_loop)
+
+# Define the international order check
+international_order_check = gen.xor(prepare_customs_docs, None)
+
+# Define the quality control and gift wrapping order
+quality_control_and_gift_wrapping = gen.partial_order(
+    dependencies=[(pick_items, perform_quality_control), (perform_quality_control, gift_wrap_items)])
+
+# Define the dispatch process
+order_dispatch = gen.partial_order(
+    dependencies=[(package_items, dispatch_order), (prepare_shipping_docs, dispatch_order), (international_order_check, dispatch_order)])
+
+# Define the returns process
+returns_process = gen.partial_order(
+    dependencies=[
+        (send_return_label, receive_returned_items),
+        (receive_returned_items, inspect_returned_items),
+        (inspect_returned_items, gen.xor(process_refund, process_replacement))
+    ])
+
+# Define the complete order fulfillment process
+order_fulfillment = gen.partial_order(
+    dependencies=[
+        (record_order_details, payment_processing),
+        # Instead of reusing process_payment, we connect the xor construct directly
+        (payment_processing, back_order_and_stock),
+        (back_order_and_stock, quality_control_and_gift_wrapping),
+        (quality_control_and_gift_wrapping, order_dispatch),
+        (order_dispatch, send_shipping_confirmation),
+        (send_shipping_confirmation, confirm_delivery),
+        (confirm_delivery, send_follow_up_email),
+        (confirm_delivery, update_inventory_levels),
+        (send_follow_up_email, customer_reports_issue),
+        (customer_reports_issue, returns_process)
+    ])
+
+# Define the final model
+final_model = order_fulfillment

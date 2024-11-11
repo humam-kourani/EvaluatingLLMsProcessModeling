@@ -1,0 +1,29 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+receive_inquiry = gen.activity('Receive customer inquiry')
+collect_info = gen.activity('Collect customer information')
+address_concerns = gen.activity('Address customer concerns or questions')
+guide_selection = gen.activity('Guide customer in selecting product/service')
+provide_quote = gen.activity('Provide quote')
+place_order = gen.activity('Place order')
+record_order = gen.activity('Record order in system')
+send_confirmation = gen.activity('Send order confirmation to customer')
+
+# Sequential dependencies for initial activities
+initial_activities = gen.partial_order(dependencies=[(receive_inquiry, collect_info), (collect_info, address_concerns)])
+
+# Copy of address_concerns for the choose_product partial order
+address_concerns_copy = address_concerns.copy()
+interested_customer = gen.activity('Customer is interested')
+choose_product = gen.partial_order(dependencies=[(address_concerns_copy, interested_customer), (interested_customer, guide_selection)])
+
+# Copy of guide_selection for the quote_and_approval partial order
+guide_selection_copy = guide_selection.copy()
+quote_and_approval = gen.partial_order(dependencies=[(guide_selection_copy, provide_quote)])
+
+# Copy of provide_quote for the order_process partial order
+provide_quote_copy = provide_quote.copy()
+order_process = gen.partial_order(dependencies=[(provide_quote_copy, place_order), (place_order, record_order), (record_order, send_confirmation)])
+
+# Final process model
+final_model = gen.partial_order(dependencies=[(initial_activities, choose_product), (choose_product, quote_and_approval), (quote_and_approval, order_process)])

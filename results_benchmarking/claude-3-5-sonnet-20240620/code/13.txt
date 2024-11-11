@@ -1,0 +1,37 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+file_complaint = gen.activity('File complaint')
+log_complaint = gen.activity('Log complaint')
+assign_complaint = gen.activity('Assign complaint to relevant department')
+review_complaint = gen.activity('Review complaint details')
+approve_notify = gen.activity('Approve and notify customer')
+reject_notify = gen.activity('Reject and notify customer')
+process_reimbursement = gen.activity('Process reimbursement')
+resolve_complaint = gen.activity('Resolve complaint')
+provide_feedback = gen.activity('Provide feedback')
+
+# Define the approval path
+approve_path = gen.partial_order(dependencies=[(approve_notify, process_reimbursement)])
+
+# Define the choice between approval and rejection
+decision = gen.xor(approve_path, reject_notify)
+
+# Define the main process flow
+main_flow = gen.partial_order(dependencies=[
+    (file_complaint, log_complaint),
+    (log_complaint, assign_complaint),
+    (assign_complaint, review_complaint),
+    (review_complaint, decision),
+    (decision, resolve_complaint)
+])
+
+# Define the optional feedback
+optional_feedback = gen.xor(provide_feedback, None)
+
+# Combine main flow with optional feedback
+final_model = gen.partial_order(dependencies=[
+    (main_flow, optional_feedback)
+])

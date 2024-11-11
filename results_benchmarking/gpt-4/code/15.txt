@@ -1,0 +1,53 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define individual activities
+schedule_compliance_audit = gen.activity('Schedule compliance audit')
+prepare_documentation = gen.activity('Prepare documentation')
+gather_evidence = gen.activity('Gather evidence')
+conduct_self_assessment = gen.activity('Conduct self-assessment')
+conduct_external_audit = gen.activity('Conduct external audit')
+identify_gaps_or_issues = gen.activity('Identify gaps or issues')
+make_necessary_corrections = gen.activity('Make necessary corrections or improvements')
+conduct_final_audit = gen.activity('Conduct final audit')
+award_certification = gen.activity('Award certification')
+issue_official_documents = gen.activity('Issue official documents')
+
+# Creating copies of activities for unique usage
+conduct_external_audit_copy = conduct_external_audit.copy()
+make_necessary_corrections_copy = make_necessary_corrections.copy()
+award_certification_copy = award_certification.copy()
+
+# Modeling the preparation phase with partial order to represent concurrency
+preparation_phase = gen.partial_order(
+    dependencies=[(prepare_documentation,), (gather_evidence,), (conduct_self_assessment,)]
+)
+
+# After preparation, the external audit is conducted
+post_preparation = gen.partial_order(dependencies=[(preparation_phase, conduct_external_audit)])
+
+# Identifying gaps and making corrections are sequential after the external audit
+correction_phase = gen.partial_order(
+    dependencies=[(conduct_external_audit_copy, identify_gaps_or_issues),
+                  (identify_gaps_or_issues, make_necessary_corrections)]
+)
+
+# Conduct the final audit and award certification sequentially
+final_audit_and_award = gen.partial_order(
+    dependencies=[(make_necessary_corrections_copy, conduct_final_audit),
+                  (conduct_final_audit, award_certification)]
+)
+
+# Issuance of official documents concludes the process
+finalization = gen.partial_order(
+    dependencies=[(award_certification_copy, issue_official_documents)]
+)
+
+# Combine all parts into the final model with a starting point
+final_model = gen.partial_order(
+    dependencies=[(schedule_compliance_audit, post_preparation),
+                  (post_preparation, correction_phase),
+                  (correction_phase, final_audit_and_award),
+                  (final_audit_and_award, finalization)]
+)

@@ -1,0 +1,33 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define the activities
+define_objectives = gen.activity('Define campaign objectives')
+create_content = gen.activity('Create content')
+design_visuals = gen.activity('Design visuals')
+select_channels = gen.activity('Select promotion channels')
+launch_campaign = gen.activity('Launch campaign')
+track_performance = gen.activity('Track performance in real-time')
+collect_leads = gen.activity('Collect leads in CRM system')
+follow_up_leads = gen.activity('Sales teams follows up on leads')
+campaign_ends = gen.activity('Campaign period ends')
+analyze_performance = gen.activity('Analyze performance for future optimization')
+
+# Define the sequence of initial steps
+define_create_design_select = gen.partial_order(
+    dependencies=[(define_objectives, create_content), (create_content, design_visuals), (design_visuals, select_channels)])
+
+# Define the concurrent activities after the campaign launch
+concurrent_track_collect_follow_up = gen.partial_order(
+    dependencies=[(track_performance,), (collect_leads,), (follow_up_leads,)])
+
+# Define the sequence from launch to campaign end
+launch_to_end = gen.partial_order(
+    dependencies=[(launch_campaign, concurrent_track_collect_follow_up), (concurrent_track_collect_follow_up, campaign_ends)])
+
+# Define the full process
+full_process = gen.partial_order(
+    dependencies=[(define_create_design_select, launch_to_end), (launch_to_end, analyze_performance)])
+
+# Final model
+final_model = full_process

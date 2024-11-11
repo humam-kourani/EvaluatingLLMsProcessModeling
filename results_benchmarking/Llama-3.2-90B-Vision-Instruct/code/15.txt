@@ -1,0 +1,45 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Step 1: Schedule compliance audit
+schedule_audit = gen.activity('Schedule compliance audit')
+
+# Step 2: Prepare for audit (concurrent activities)
+prepare_documentation = gen.activity('Prepare documentation')
+gather_evidence = gen.activity('Gather evidence')
+conduct_self_assessment = gen.activity('Conduct self-assessment')
+internal_preparation = gen.partial_order(
+    dependencies=[(prepare_documentation,), (gather_evidence,), (conduct_self_assessment,)])
+
+# Step 3: Conduct external audit
+conduct_external_audit = gen.activity('Conduct external audit')
+
+# Step 4: Identify gaps or issues
+identify_gaps = gen.activity('Identify gaps or issues')
+
+# Step 5: Make necessary corrections or improvements
+make_corrections = gen.activity('Make necessary corrections or improvements')
+
+# Step 6: Conduct final audit
+conduct_final_audit = gen.activity('Conduct final audit')
+
+# Step 7: Award certification
+award_certification = gen.activity('Award certification')
+
+# Step 8: Issue official documents
+issue_documents = gen.activity('Issue official documents')
+
+# Creating the full process model
+full_process = gen.partial_order(
+    dependencies=[
+        (schedule_audit, internal_preparation), (internal_preparation, conduct_external_audit),
+        (conduct_external_audit, identify_gaps), (identify_gaps, make_corrections),
+        (make_corrections, conduct_final_audit), (conduct_final_audit, award_certification),
+        (award_certification, issue_documents)
+    ])
+
+final_model = full_process
+
+# Print the final model
+print(final_model)

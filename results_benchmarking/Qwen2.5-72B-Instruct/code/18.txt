@@ -1,0 +1,90 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator(True, True)
+
+# Activities
+submit_application = gen.activity('Submit application online')
+notify_missing_documents = gen.activity('Notify applicant of missing documents')
+provide_missing_documents = gen.activity('Provide missing documents')
+review_application_documents = gen.activity('Review application and documents')
+evaluate_application = gen.activity('Evaluate application by admissions committee')
+process_fees_waivers = gen.activity('Process fees or waivers')
+send_acceptance_letter = gen.activity('Send acceptance letter')
+send_rejection_letter = gen.activity('Send rejection letter')
+confirm_enrollment = gen.activity('Confirm enrollment')
+cancel_application = gen.activity('Cancel application')
+send_orientation_materials = gen.activity('Send orientation materials')
+set_up_it_accounts = gen.activity('Set up IT accounts')
+assist_with_visa_processing = gen.activity('Assist with visa processing')
+obtain_student_id_card = gen.activity('Obtain student ID card')
+begin_attending_classes = gen.activity('Begin attending classes')
+meet_with_academic_advisor = gen.activity('Meet with academic advisor')
+select_courses = gen.activity('Select courses')
+resolve_schedule_conflicts = gen.activity('Resolve schedule conflicts')
+add_drop_courses = gen.activity('Add/drop courses')
+post_grades = gen.activity('Post grades')
+review_grades_online = gen.activity('Review grades online')
+submit_appeal_form = gen.activity('Submit appeal form')
+meet_with_appeals_committee = gen.activity('Meet with appeals committee')
+await_decision = gen.activity('Await decision')
+graduate = gen.activity('Graduate')
+withdraw = gen.activity('Withdraw')
+
+# Subprocess for handling missing documents
+check_missing_documents = gen.xor(None, gen.loop(do=notify_missing_documents, redo=provide_missing_documents))
+
+# Subprocess for application evaluation
+evaluation_process = gen.partial_order(dependencies=[
+    (review_application_documents, check_missing_documents),
+    (check_missing_documents, evaluate_application)
+])
+
+# Subprocess for concurrent finance department process
+finance_process = gen.loop(do=process_fees_waivers, redo=None)
+
+# Subprocess for decision after evaluation
+decision_process = gen.xor(send_acceptance_letter, send_rejection_letter)
+
+# Subprocess for post-acceptance activities
+post_acceptance_process = gen.partial_order(dependencies=[
+    (decision_process, confirm_enrollment),
+    (confirm_enrollment, send_orientation_materials),
+    (confirm_enrollment, set_up_it_accounts),
+    (send_orientation_materials, gen.xor(assist_with_visa_processing, None)),
+    (send_orientation_materials, obtain_student_id_card),
+    (obtain_student_id_card, meet_with_academic_advisor),
+    (meet_with_academic_advisor, select_courses),
+    (select_courses, resolve_schedule_conflicts),
+    (resolve_schedule_conflicts, begin_attending_classes)
+])
+
+# Subprocess for semester activities
+begin_attending_classes_copy = gen.activity('Begin attending classes')  # New instance for the loop
+add_drop_courses_copy = gen.activity('Add/drop courses')  # New instance for the loop
+post_grades_copy = gen.activity('Post grades')  # New instance for the loop
+review_grades_online_copy = gen.activity('Review grades online')  # New instance for the loop
+submit_appeal_form_copy = gen.activity('Submit appeal form')  # New instance for the loop
+meet_with_appeals_committee_copy = gen.activity('Meet with appeals committee')  # New instance for the loop
+await_decision_copy = gen.activity('Await decision')  # New instance for the loop
+
+# Ensure that all activities in the semester loop are unique
+semester_activities = gen.loop(do=gen.partial_order(dependencies=[
+    (begin_attending_classes_copy, add_drop_courses_copy),
+    (add_drop_courses_copy, post_grades_copy),
+    (post_grades_copy, review_grades_online_copy),
+    (review_grades_online_copy, gen.xor(submit_appeal_form_copy, None)),
+    (submit_appeal_form_copy, meet_with_appeals_committee_copy),
+    (meet_with_appeals_committee_copy, await_decision_copy)
+]), redo=None)
+
+# Subprocess for final decision after confirmation
+final_decision = gen.xor(graduate, withdraw)
+
+# Final model
+final_model = gen.partial_order(dependencies=[
+    (submit_application, evaluation_process),
+    (evaluation_process, finance_process),
+    (finance_process, decision_process),
+    (decision_process, post_acceptance_process),
+    (post_acceptance_process, semester_activities),
+    (semester_activities, final_decision)
+])

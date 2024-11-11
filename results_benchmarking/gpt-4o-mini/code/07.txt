@@ -1,0 +1,54 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Activities
+search_ticket = gen.activity('Customer searches for ticket')
+select_route = gen.activity('Select route')
+select_date_time = gen.activity('Select date and time')
+provide_personal_info = gen.activity('Provide personal information')
+provide_payment_details = gen.activity('Provide payment details')
+generate_ticket = gen.activity('Generate ticket')
+send_ticket_email = gen.activity('Send ticket via email')
+send_ticket_sms = gen.activity('Send ticket via SMS')
+update_seat_inventory_1 = gen.activity('Update seat inventory')  # First instance
+send_reminder = gen.activity('Send reminder')
+send_instructions = gen.activity('Send instructions')
+complete_journey = gen.activity('Customer completes journey')
+post_travel_feedback = gen.activity('Post-travel feedback or services')
+
+# Partial order for the initial steps
+initial_steps_poset = gen.partial_order(dependencies=[
+    (search_ticket, select_route),
+    (select_route, select_date_time),
+    (select_date_time, provide_personal_info),
+])
+
+# Create a copy for payment details to use in the ticket generation step
+provide_payment_details_copy = provide_payment_details.copy()
+
+# Ticket generation and sending options
+update_seat_inventory_2 = update_seat_inventory_1.copy()  # Second unique instance for ticket generation
+ticket_generation_poset = gen.partial_order(dependencies=[
+    (provide_payment_details_copy, generate_ticket),
+    (generate_ticket, update_seat_inventory_2)
+])
+send_ticket_choice = gen.xor(send_ticket_email, send_ticket_sms)
+
+# Create another unique instance for reminders and instructions
+update_seat_inventory_3 = update_seat_inventory_1.copy()  # Third unique instance for reminders
+reminders_poset = gen.partial_order(dependencies=[
+    (update_seat_inventory_3, send_reminder),
+    (update_seat_inventory_3, send_instructions)
+])
+
+# Final process assembly
+final_process = gen.partial_order(dependencies=[
+    (initial_steps_poset,),
+    (ticket_generation_poset, send_ticket_choice),
+    (send_ticket_choice, reminders_poset),
+    (reminders_poset, complete_journey),
+    (complete_journey, post_travel_feedback)
+])
+
+# Final model
+final_model = final_process

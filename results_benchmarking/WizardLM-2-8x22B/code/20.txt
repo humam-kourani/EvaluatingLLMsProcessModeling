@@ -1,0 +1,57 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+guest_calls_room_service = gen.activity('Guest calls room service')
+manager_takes_down_order = gen.activity('Manager takes down the order')
+manager_submits_order_ticket_to_kitchen = gen.activity('Manager submits order ticket to kitchen')
+manager_gives_order_to_sommelier = gen.activity('Manager gives order to sommelier')
+manager_assigns_order_to_waiter = gen.activity('Manager assigns order to waiter')
+sommelier_fetches_wine_and_prepares_alcoholic_beverages = gen.activity('Sommelier fetches wine and prepare alcoholic beverages')
+kitchen_prepares_food = gen.activity('Kitchen prepares food')
+waiter_readies_cart = gen.activity('Waiter readies cart')
+waiter_prepares_nonalcoholic_drinks = gen.activity('Waiter prepares nonalcoholic drinks')
+waiter_delivers_order_to_guests_room = gen.activity('Waiter delivers order to guest\'s room')
+waiter_returns_to_room_service_station = gen.activity('Waiter returns to room-service station')
+waiter_debits_guests_account = gen.activity('Waiter debits guest\'s account')
+
+# Create copies of the waiter's activities for the billing path
+waiter_readies_cart_billing = waiter_readies_cart.copy()
+waiter_prepares_nonalcoholic_drinks_billing = waiter_prepares_nonalcoholic_drinks.copy()
+waiter_delivers_order_to_guests_room_billing = waiter_delivers_order_to_guests_room.copy()
+waiter_returns_to_room_service_station_billing = waiter_returns_to_room_service_station.copy()
+
+# Define subprocesses and partial orders
+# Subprocess: Kitchen and Sommelier tasks
+kitchen_sommelier_tasks = gen.partial_order(
+    dependencies=[(manager_submits_order_ticket_to_kitchen, kitchen_prepares_food),
+                  (manager_gives_order_to_sommelier, sommelier_fetches_wine_and_prepares_alcoholic_beverages)])
+
+# Subprocess: Waiter tasks without billing
+waiter_tasks_without_billing = gen.partial_order(
+    dependencies=[(waiter_readies_cart, waiter_delivers_order_to_guests_room),
+                  (waiter_prepares_nonalcoholic_drinks, waiter_delivers_order_to_guests_room),
+                  (waiter_delivers_order_to_guests_room, waiter_returns_to_room_service_station)])
+
+# Subprocess: Waiter tasks with billing
+waiter_tasks_with_billing_dependencies = [
+    (waiter_readies_cart_billing, waiter_delivers_order_to_guests_room_billing),
+    (waiter_prepares_nonalcoholic_drinks_billing, waiter_delivers_order_to_guests_room_billing),
+    (waiter_delivers_order_to_guests_room_billing, waiter_returns_to_room_service_station_billing),
+    (waiter_returns_to_room_service_station_billing, waiter_debits_guests_account)
+]
+waiter_tasks_with_billing = gen.partial_order(dependencies=waiter_tasks_with_billing_dependencies)
+
+# Decision point: Waiter either follows the tasks without billing or with billing
+waiter_tasks_decision = gen.xor(waiter_tasks_without_billing, waiter_tasks_with_billing)
+
+# Combine subprocesses into the final model
+# The manager's actions lead to the kitchen and sommelier tasks, as well as the waiter's tasks decision
+final_model = gen.partial_order(
+    dependencies=[(guest_calls_room_service, manager_takes_down_order),
+                  (manager_takes_down_order, manager_assigns_order_to_waiter),
+                  (manager_takes_down_order, kitchen_sommelier_tasks),
+                  (manager_assigns_order_to_waiter, waiter_tasks_decision),
+                  (kitchen_sommelier_tasks, waiter_tasks_decision)])
+
+# Note: The final model includes the manager's actions, the combined kitchen and sommelier tasks, and the decision point for the waiter's tasks. The kitchen_sommelier_tasks partial order is treated as a single unit representing the concurrent tasks initiated by the manager.

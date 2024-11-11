@@ -1,0 +1,40 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial activities
+check_inventory = gen.activity('Check current inventory level')
+auto_alert = gen.activity('Send an automated alert')
+manual_alert = gen.activity('Send a manual alert')
+
+# Alert choice
+alert_choice = gen.xor(auto_alert, manual_alert)
+
+# Order and update activities
+place_order = gen.activity('Place order with suppliers')
+update_system = gen.activity('Update inventory system with expected delivery dates')
+
+# Receiving and processing activities
+receive_stock = gen.activity('Receive stock')
+inspect_stock = gen.activity('Inspect stock for quality')
+record_stock = gen.activity('Record stock in system')
+
+# Concurrent stock placement activities
+place_shelves = gen.activity('Place stock on shelves')
+place_storage = gen.activity('Place stock in storage')
+stock_placement = gen.partial_order(dependencies=[(place_shelves,), (place_storage,)])
+
+# Final update
+update_levels = gen.activity('Update inventory levels')
+
+# Combine all activities in the main process flow
+final_model = gen.partial_order(dependencies=[
+    (check_inventory, alert_choice),
+    (alert_choice, place_order),
+    (place_order, update_system),
+    (update_system, receive_stock),
+    (receive_stock, inspect_stock),
+    (inspect_stock, record_stock),
+    (record_stock, stock_placement),
+    (stock_placement, update_levels)
+])

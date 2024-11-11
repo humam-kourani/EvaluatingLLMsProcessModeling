@@ -1,0 +1,28 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+define_objectives = gen.activity('Define campaign objectives')
+create_content = gen.activity('Create content')
+design_visuals = gen.activity('Design visuals')
+select_channels = gen.activity('Select promotion channels')
+launch_campaign = gen.activity('Launch campaign')
+track_performance = gen.activity('Track performance in real-time')
+collect_leads = gen.activity('Collect leads in CRM system')
+sales_follow_up = gen.activity('Sales teams follow up on leads')
+campaign_ends = gen.activity('Campaign period ends')
+analyze_performance = gen.activity('Analyze performance for future optimization')
+
+# Concurrent creation of campaign assets
+campaign_assets = gen.partial_order(dependencies=[(create_content,), (design_visuals,), (select_channels,)])
+
+# Sequence: Define Objectives -> Create Assets -> Launch & Track/Collect
+campaign_launch_sequence = gen.partial_order(dependencies=[(define_objectives, campaign_assets), 
+                                                           (campaign_assets, launch_campaign), 
+                                                           (launch_campaign, track_performance), 
+                                                           (launch_campaign, collect_leads),
+                                                           (collect_leads, sales_follow_up)])
+
+# Final Model: Linear sequence of campaign launch, campaign end, and post-campaign analysis
+final_model = gen.partial_order(dependencies=[(campaign_launch_sequence, campaign_ends), (campaign_ends, analyze_performance)])

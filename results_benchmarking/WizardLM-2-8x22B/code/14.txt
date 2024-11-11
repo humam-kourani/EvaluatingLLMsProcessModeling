@@ -1,0 +1,49 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator(True, True)
+
+# Define activities
+outline_objectives = gen.activity('Outline objectives')
+draft_plan = gen.activity('Draft plan')
+strategic_alignment_meeting = gen.activity('Conduct strategic alignment meeting')
+review_budget_feasibility = gen.activity('Review budget feasibility')
+adjust_plan = gen.activity('Adjust Plan')
+document_adjustment = gen.activity('Documented and approve adjustment')
+provide_feedback_loop = gen.activity('Provide feedback within loop')  # Unique activity for feedback within the loop
+decision_complete = gen.activity('Decision: Adjustments complete')  # Activity to signify end of adjustment loop
+approve_final_budget = gen.activity('Approve final budget')
+distribute_budget = gen.activity('Distribute budget')
+implement_plan = gen.activity('Implement plan')
+
+# Define the adjustment loop body
+adjustment_loop_body = gen.partial_order(dependencies=[
+    (adjust_plan, document_adjustment),
+    (document_adjustment, provide_feedback_loop)
+])
+
+# Define the loop for the adjustment process
+adjustment_loop = gen.loop(do=adjustment_loop_body, redo=None)  # No redo part since the loop ends with feedback
+
+# Define the review process which includes strategic alignment and budget review
+review_process_poset = gen.partial_order(dependencies=[
+    (draft_plan, strategic_alignment_meeting),
+    (strategic_alignment_meeting, review_budget_feasibility)
+])
+
+# Combine the review process with the adjustment loop
+review_and_adjust_poset = gen.partial_order(dependencies=[(review_process_poset, adjustment_loop)])
+
+# Define the final approval and budget distribution, which occur after the loop
+final_approval_and_distribution_poset = gen.partial_order(dependencies=[
+    (provide_feedback_loop, decision_complete),  # Feedback within the loop leads to the decision
+    (decision_complete, approve_final_budget),      # Decision activity triggers the approval process
+    (approve_final_budget, distribute_budget)
+])
+
+# Combine all parts into the final model
+final_model = gen.partial_order(dependencies=[
+    (outline_objectives, draft_plan),
+    (draft_plan, review_process_poset),
+    (review_process_poset, review_and_adjust_poset),
+    (review_and_adjust_poset, final_approval_and_distribution_poset),
+    (final_approval_and_distribution_poset, implement_plan)
+])

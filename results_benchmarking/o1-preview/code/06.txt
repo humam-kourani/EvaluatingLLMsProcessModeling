@@ -1,0 +1,38 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+a = gen.activity('Customer places order online')
+b = gen.activity('Customer places order over the phone')
+c = gen.activity('Generate and send order confirmation')
+d = gen.activity('Pick and pack items')
+e = gen.activity('Generate shipping label')
+f = gen.activity('Hand over order to logistics provider')
+g = gen.activity('Send tracking information to customer')
+h = gen.activity('Monitor shipment')
+i = gen.activity('Successful delivery')
+j = gen.activity('Process customer feedback or returns')
+
+# Model the exclusive choice of order placement methods
+order_placement = gen.xor(a, b)
+
+# Model the loop for monitoring shipment
+monitor_loop = gen.loop(do=h, redo=None)
+
+# Model the optional processing of customer feedback or returns
+optional_j = gen.xor(j, None)
+
+# Define dependencies in the process
+dependencies = [
+    (order_placement, c),
+    (c, d),
+    (d, e),
+    (e, f),
+    (f, g),
+    (g, monitor_loop),
+    (monitor_loop, i),
+    (i, optional_j)
+]
+
+# Create the final model
+final_model = gen.partial_order(dependencies=dependencies)

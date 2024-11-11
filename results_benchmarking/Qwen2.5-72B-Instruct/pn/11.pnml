@@ -1,0 +1,214 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml>
+  <net id="imdf_net_1729593797.6501174" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <name>
+      <text>imdf_net_1729593797.6501174</text>
+    </name>
+    <page id="n0">
+      <place id="p_27">
+        <name>
+          <text>p_27</text>
+        </name>
+      </place>
+      <place id="p_29">
+        <name>
+          <text>p_29</text>
+        </name>
+      </place>
+      <place id="p_33">
+        <name>
+          <text>p_33</text>
+        </name>
+      </place>
+      <place id="p_11">
+        <name>
+          <text>p_11</text>
+        </name>
+      </place>
+      <place id="p_30">
+        <name>
+          <text>p_30</text>
+        </name>
+      </place>
+      <place id="p_26">
+        <name>
+          <text>p_26</text>
+        </name>
+      </place>
+      <place id="p_53">
+        <name>
+          <text>p_53</text>
+        </name>
+      </place>
+      <place id="sink">
+        <name>
+          <text>sink</text>
+        </name>
+      </place>
+      <place id="p_13">
+        <name>
+          <text>p_13</text>
+        </name>
+      </place>
+      <place id="p_16">
+        <name>
+          <text>p_16</text>
+        </name>
+      </place>
+      <place id="p_24">
+        <name>
+          <text>p_24</text>
+        </name>
+      </place>
+      <place id="p_49">
+        <name>
+          <text>p_49</text>
+        </name>
+      </place>
+      <place id="source">
+        <name>
+          <text>source</text>
+        </name>
+        <initialMarking>
+          <text>1</text>
+        </initialMarking>
+      </place>
+      <place id="p_48">
+        <name>
+          <text>p_48</text>
+        </name>
+      </place>
+      <place id="p_32">
+        <name>
+          <text>p_32</text>
+        </name>
+      </place>
+      <place id="p_44">
+        <name>
+          <text>p_44</text>
+        </name>
+      </place>
+      <place id="p_46">
+        <name>
+          <text>p_46</text>
+        </name>
+      </place>
+      <transition id="1f2a4eda-6ab0-4a2c-8052-0b35a25d2a9e">
+        <name>
+          <text>Send regular updates</text>
+        </name>
+      </transition>
+      <transition id="617e0ed3-709c-4bc4-86e6-d11540515bf2">
+        <name>
+          <text>Customer signs up</text>
+        </name>
+      </transition>
+      <transition id="4c4de2d4-aff4-4312-937d-f8f225862a3c">
+        <name>
+          <text>Process cancellation request</text>
+        </name>
+      </transition>
+      <transition id="d662e893-a4cf-4cba-8099-baf4c87cc325">
+        <name>
+          <text>Settle final account balance</text>
+        </name>
+      </transition>
+      <transition id="b57c90c0-45bd-4436-81c0-9dc4800fded0">
+        <name>
+          <text>Send product enhancements</text>
+        </name>
+      </transition>
+      <transition id="3b4d694c-7324-4a6b-8a05-ad7d3907fb9f">
+        <name>
+          <text>Generate account</text>
+        </name>
+      </transition>
+      <transition id="7b15aa98-ffaf-4014-a185-ce101f6c64c2">
+        <name>
+          <text>Customer submits cancellation request</text>
+        </name>
+      </transition>
+      <transition id="67420bf0-d8bf-4c33-a273-6680500b088c">
+        <name>
+          <text>Send renewal notifications</text>
+        </name>
+      </transition>
+      <transition id="2cb70631-5783-41f6-a8c6-2cb0c4f8a081">
+        <name>
+          <text>apply charges</text>
+        </name>
+      </transition>
+      <transition id="1bc453b0-e15e-49f5-89a2-f94280adaaaf">
+        <name>
+          <text>Assign access</text>
+        </name>
+      </transition>
+      <transition id="0cce5a5b-ba3d-443b-b982-4c74c2317f24">
+        <name>
+          <text>Set automatic triggers for billing cycles</text>
+        </name>
+      </transition>
+      <transition id="1fc78098-8bb6-4cfd-873f-f5df8dc4f696">
+        <name>
+          <text>Set automatic triggers for billing cycles</text>
+        </name>
+      </transition>
+      <transition id="f41f7b5a-27ac-4e96-8405-c1014eebff4d">
+        <name>
+          <text>Customer submits cancellation request</text>
+        </name>
+      </transition>
+      <transition id="6bbee50a-e668-40ed-88ba-04e92f065e04">
+        <name>
+          <text>apply refund</text>
+        </name>
+      </transition>
+      <transition id="2923a24d-797d-4929-8ae7-85421e3cda37">
+        <name>
+          <text>Deactivate subscription</text>
+        </name>
+      </transition>
+      <arc id="2591165973504" source="7b15aa98-ffaf-4014-a185-ce101f6c64c2" target="p_44"/>
+      <arc id="2591165973600" source="67420bf0-d8bf-4c33-a273-6680500b088c" target="p_32"/>
+      <arc id="2591165973024" source="p_49" target="2923a24d-797d-4929-8ae7-85421e3cda37"/>
+      <arc id="2591165982768" source="p_48" target="6bbee50a-e668-40ed-88ba-04e92f065e04"/>
+      <arc id="2591165974080" source="4c4de2d4-aff4-4312-937d-f8f225862a3c" target="p_48"/>
+      <arc id="2591161539152" source="p_27" target="1f2a4eda-6ab0-4a2c-8052-0b35a25d2a9e"/>
+      <arc id="2591161542752" source="p_11" target="3b4d694c-7324-4a6b-8a05-ad7d3907fb9f"/>
+      <arc id="2591161487456" source="p_44" target="f41f7b5a-27ac-4e96-8405-c1014eebff4d"/>
+      <arc id="2591165975136" source="1fc78098-8bb6-4cfd-873f-f5df8dc4f696" target="p_30"/>
+      <arc id="2591165976192" source="1fc78098-8bb6-4cfd-873f-f5df8dc4f696" target="p_33"/>
+      <arc id="2591165982336" source="p_48" target="2cb70631-5783-41f6-a8c6-2cb0c4f8a081"/>
+      <arc id="2591165974656" source="0cce5a5b-ba3d-443b-b982-4c74c2317f24" target="p_24"/>
+      <arc id="2591165973120" source="p_32" target="7b15aa98-ffaf-4014-a185-ce101f6c64c2"/>
+      <arc id="2591161539728" source="p_16" target="0cce5a5b-ba3d-443b-b982-4c74c2317f24"/>
+      <arc id="2591165974176" source="1fc78098-8bb6-4cfd-873f-f5df8dc4f696" target="p_27"/>
+      <arc id="2591165973696" source="3b4d694c-7324-4a6b-8a05-ad7d3907fb9f" target="p_13"/>
+      <arc id="2591165976768" source="1bc453b0-e15e-49f5-89a2-f94280adaaaf" target="p_16"/>
+      <arc id="2591161541840" source="p_30" target="b57c90c0-45bd-4436-81c0-9dc4800fded0"/>
+      <arc id="2591165973216" source="p_29" target="7b15aa98-ffaf-4014-a185-ce101f6c64c2"/>
+      <arc id="2591165974752" source="617e0ed3-709c-4bc4-86e6-d11540515bf2" target="p_11"/>
+      <arc id="2591161499360" source="p_46" target="4c4de2d4-aff4-4312-937d-f8f225862a3c"/>
+      <arc id="2591165976288" source="b57c90c0-45bd-4436-81c0-9dc4800fded0" target="p_29"/>
+      <arc id="2591161534208" source="1f2a4eda-6ab0-4a2c-8052-0b35a25d2a9e" target="p_26"/>
+      <arc id="2591161540880" source="p_13" target="1bc453b0-e15e-49f5-89a2-f94280adaaaf"/>
+      <arc id="2591165982480" source="6bbee50a-e668-40ed-88ba-04e92f065e04" target="p_49"/>
+      <arc id="2591165973312" source="p_26" target="7b15aa98-ffaf-4014-a185-ce101f6c64c2"/>
+      <arc id="2591165906800" source="p_33" target="67420bf0-d8bf-4c33-a273-6680500b088c"/>
+      <arc id="2591165979504" source="p_53" target="d662e893-a4cf-4cba-8099-baf4c87cc325"/>
+      <arc id="2591165973888" source="d662e893-a4cf-4cba-8099-baf4c87cc325" target="sink"/>
+      <arc id="2591161535888" source="p_24" target="1fc78098-8bb6-4cfd-873f-f5df8dc4f696"/>
+      <arc id="2591165973408" source="f41f7b5a-27ac-4e96-8405-c1014eebff4d" target="p_46"/>
+      <arc id="2591165972928" source="source" target="617e0ed3-709c-4bc4-86e6-d11540515bf2"/>
+      <arc id="2591165973984" source="2923a24d-797d-4929-8ae7-85421e3cda37" target="p_53"/>
+      <arc id="2591165982192" source="2cb70631-5783-41f6-a8c6-2cb0c4f8a081" target="p_49"/>
+    </page>
+    <finalmarkings>
+      <marking>
+        <place idref="sink">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
+  </net>
+</pnml>

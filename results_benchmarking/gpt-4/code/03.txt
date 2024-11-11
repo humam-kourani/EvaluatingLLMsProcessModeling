@@ -1,0 +1,42 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+check_inventory = gen.activity('Check current inventory level')
+send_alert_automated = gen.activity('Send an automated alert')
+send_alert_manual = gen.activity('Send a manual alert')
+place_order = gen.activity('Place order with suppliers')
+update_inventory_expected_dates = gen.activity('Update inventory system with expected delivery dates')
+receive_stock = gen.activity('Receive stock')
+inspect_quality = gen.activity('Inspect stock for quality')
+record_system = gen.activity('Record stock in system')
+record_system_copy = record_system.copy()  # Creating a copy for reuse
+place_storage = gen.activity('Place stock in storage')
+place_shelves = gen.activity('Place stock on shelves')
+update_inventory_levels = gen.activity('Update inventory levels')
+
+# Define the alerting mechanism
+alert_choice = gen.xor(send_alert_automated, send_alert_manual)
+
+# Process for receiving and placing stock
+receive_process = gen.partial_order(dependencies=[
+    (receive_stock, inspect_quality),
+    (inspect_quality, record_system)
+])
+
+# Since 'Record stock in system' is used again, it should be copied for the new dependency
+placement_choice = gen.xor(place_storage, place_shelves)
+stock_placement = gen.partial_order(dependencies=[(record_system_copy, placement_choice)])
+
+# Complete process flow
+process_flow = gen.partial_order(dependencies=[
+    (check_inventory, alert_choice),
+    (alert_choice, place_order),
+    (place_order, update_inventory_expected_dates),
+    (update_inventory_expected_dates, receive_process),
+    (receive_process, stock_placement),
+    (stock_placement, update_inventory_levels)
+])
+
+final_model = process_flow

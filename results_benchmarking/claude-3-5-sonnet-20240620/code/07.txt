@@ -1,0 +1,50 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial activities
+search = gen.activity("Customer searches for ticket")
+select_route = gen.activity("Select route")
+select_date_time = gen.activity("Select date and time")
+provide_personal_info = gen.activity("Provide personal information")
+provide_payment = gen.activity("Provide payment details")
+
+# Ticket generation and sending
+generate_ticket = gen.activity("Generate ticket")
+send_email = gen.activity("Send ticket via email")
+send_sms = gen.activity("Send ticket via SMS")
+send_ticket = gen.xor(send_email, send_sms)
+
+# Inventory update
+update_inventory = gen.activity("Update seat inventory")
+
+# Pre-travel activities (optional)
+send_reminder = gen.activity("Send reminder")
+send_instructions = gen.activity("Send instructions")
+optional_reminder = gen.xor(send_reminder, None)
+optional_instructions = gen.xor(send_instructions, None)
+
+# Journey completion
+complete_journey = gen.activity("Customer completes journey")
+
+# Post-travel activities (optional)
+post_travel = gen.activity("Post-travel feedback or services")
+optional_post_travel = gen.xor(post_travel, None)
+
+# Construct the process model
+booking_process = gen.partial_order(dependencies=[
+    (search, select_route),
+    (select_route, select_date_time),
+    (select_date_time, provide_personal_info),
+    (provide_personal_info, provide_payment),
+    (provide_payment, generate_ticket),
+    (generate_ticket, send_ticket),
+    (send_ticket, update_inventory),
+    (update_inventory, optional_reminder),
+    (update_inventory, optional_instructions),
+    (optional_reminder, complete_journey),
+    (optional_instructions, complete_journey),
+    (complete_journey, optional_post_travel)
+])
+
+final_model = booking_process

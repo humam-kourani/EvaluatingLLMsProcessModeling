@@ -1,0 +1,26 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+submit_request = gen.activity('Submit IT solution request')
+assess_compatibility = gen.activity('Assess compatibility')
+evaluate_cost_resource = gen.activity('Evaluate cost and resource needs')
+procure_tools = gen.activity('Procure necessary tools or licenses')
+install_solution = gen.activity('Install the solution')
+test_solution = gen.activity('Test solution')
+roll_out_solution = gen.activity('Roll out solution to requesting department')
+provide_training = gen.activity('Provide training')
+provide_support = gen.activity('Provide support for troubleshooting')
+
+# Define the process
+approval_poset = gen.partial_order(dependencies=[(assess_compatibility, evaluate_cost_resource)])
+approval_procure_poset = gen.partial_order(dependencies=[(approval_poset, procure_tools)])
+install_test_poset = gen.partial_order(dependencies=[(install_solution, test_solution)])
+roll_out_training_poset = gen.partial_order(dependencies=[(roll_out_solution, provide_training)])
+
+# Create a copy of approval_poset for the second usage
+approval_poset_copy = approval_poset.copy()
+
+final_model = gen.partial_order(
+    dependencies=[(submit_request, approval_poset_copy), (approval_procure_poset, install_test_poset),
+                  (install_test_poset, roll_out_training_poset), (roll_out_training_poset, provide_support)])

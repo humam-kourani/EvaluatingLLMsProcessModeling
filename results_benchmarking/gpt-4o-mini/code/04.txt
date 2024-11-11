@@ -1,0 +1,36 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+define_campaign_objectives = gen.activity('Define campaign objectives')
+create_content = gen.activity('Create content')
+design_visuals = gen.activity('Design visuals')
+select_promotion_channels = gen.activity('Select promotion channels')
+launch_campaign = gen.activity('Launch campaign')
+track_performance = gen.activity('Track performance in real-time')
+collect_leads = gen.activity('Collect leads in CRM system')
+sales_follow_up = gen.activity('Sales teams follows up on leads')
+analyze_performance = gen.activity('Analyze performance for future optimization')
+campaign_period_ends = gen.activity('Campaign period ends')
+
+# Model the process flow
+poset_content_visuals = gen.partial_order(dependencies=[
+    (create_content, design_visuals),
+])
+
+poset_campaign = gen.partial_order(dependencies=[
+    (define_campaign_objectives, poset_content_visuals),
+    (poset_content_visuals, select_promotion_channels),
+    (select_promotion_channels, launch_campaign),
+    (launch_campaign, track_performance),
+    (track_performance, collect_leads),
+    (collect_leads, sales_follow_up),
+])
+
+# Create a copy of 'Campaign period ends' to ensure it is unique
+campaign_period_ends_copy = campaign_period_ends.copy()
+
+final_model = gen.partial_order(dependencies=[
+    (poset_campaign, analyze_performance),
+    (campaign_period_ends_copy, analyze_performance),
+])

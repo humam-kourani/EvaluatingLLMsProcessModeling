@@ -1,0 +1,48 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+search_ticket = gen.activity('Customer searches for ticket')
+select_route = gen.activity('Select route')
+select_date_time = gen.activity('Select date and time')
+provide_info = gen.activity('Provide personal information')
+provide_payment = gen.activity('Provide payment details')
+generate_ticket = gen.activity('Generate ticket')
+send_email = gen.activity('Send ticket via email')
+send_sms = gen.activity('Send ticket via SMS')
+update_inventory = gen.activity('Update seat inventory')
+send_reminder = gen.activity('Send reminder')
+send_instructions = gen.activity('Send instructions')
+complete_journey = gen.activity('Customer completes journey')
+post_feedback = gen.activity('Post-travel feedback or services')
+
+# Define model structures
+search_sequence = gen.partial_order(dependencies=[(search_ticket, select_route), (select_route, select_date_time)])
+
+# Copy select_date_time for reuse
+select_date_time_copy = select_date_time.copy()
+info_payment_sequence = gen.partial_order(dependencies=[(select_date_time_copy, provide_info), (provide_info, provide_payment)])
+
+# Define and copy ticket_choice before its use
+ticket_choice = gen.xor(send_email, send_sms)
+ticket_choice_copy = ticket_choice.copy()
+
+# Copy provide_payment for reuse
+provide_payment_copy = provide_payment.copy()
+ticket_sequence = gen.partial_order(dependencies=[(provide_payment_copy, generate_ticket), (generate_ticket, ticket_choice)])
+
+# Update sequence with copied ticket_choice
+update_sequence = gen.partial_order(dependencies=[(ticket_choice_copy, update_inventory)])
+
+# Copy update_inventory for reuse in the reminder instructions sequence
+update_inventory_copy = update_inventory.copy()
+reminder_instructions_sequence = gen.partial_order(dependencies=[(update_inventory_copy, send_reminder), (send_reminder, send_instructions), (send_instructions, complete_journey)])
+
+# Model for optional post-travel activities
+optional_feedback = gen.xor(post_feedback, None)
+
+# Combining all parts
+final_sequence = gen.partial_order(dependencies=[(search_sequence, info_payment_sequence), (info_payment_sequence, ticket_sequence), (ticket_sequence, update_sequence), (update_sequence, reminder_instructions_sequence), (reminder_instructions_sequence, optional_feedback)])
+
+final_model = final_sequence

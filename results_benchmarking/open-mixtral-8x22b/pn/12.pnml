@@ -1,0 +1,171 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml>
+  <net id="imdf_net_1729584776.5219765" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <name>
+      <text>imdf_net_1729584776.5219765</text>
+    </name>
+    <page id="n0">
+      <place id="p_36">
+        <name>
+          <text>p_36</text>
+        </name>
+      </place>
+      <place id="p_34">
+        <name>
+          <text>p_34</text>
+        </name>
+      </place>
+      <place id="p_39">
+        <name>
+          <text>p_39</text>
+        </name>
+      </place>
+      <place id="p_40">
+        <name>
+          <text>p_40</text>
+        </name>
+      </place>
+      <place id="p_52">
+        <name>
+          <text>p_52</text>
+        </name>
+      </place>
+      <place id="source">
+        <name>
+          <text>source</text>
+        </name>
+        <initialMarking>
+          <text>1</text>
+        </initialMarking>
+      </place>
+      <place id="p_12">
+        <name>
+          <text>p_12</text>
+        </name>
+      </place>
+      <place id="p_32">
+        <name>
+          <text>p_32</text>
+        </name>
+      </place>
+      <place id="sink">
+        <name>
+          <text>sink</text>
+        </name>
+      </place>
+      <place id="p_18">
+        <name>
+          <text>p_18</text>
+        </name>
+      </place>
+      <place id="p_26">
+        <name>
+          <text>p_26</text>
+        </name>
+      </place>
+      <place id="p_37">
+        <name>
+          <text>p_37</text>
+        </name>
+      </place>
+      <place id="p_17">
+        <name>
+          <text>p_17</text>
+        </name>
+      </place>
+      <transition id="25e10fcc-ffc0-464e-9165-f6bb3660c81e">
+        <name>
+          <text>Set new responsibilities</text>
+        </name>
+      </transition>
+      <transition id="4089e2a2-58d5-4bbe-8fd3-e334f0aa0a23">
+        <name>
+          <text>Adjust compensation</text>
+        </name>
+      </transition>
+      <transition id="6ebc2406-7e96-4f66-b3af-51e3ebc4d153">
+        <name>
+          <text>Work on skill enhancement</text>
+        </name>
+      </transition>
+      <transition id="3fb0cb97-cc09-4d8e-a4a3-74f2ba42f240">
+        <name>
+          <text>Receive feedback and evaluation from supervisors</text>
+        </name>
+      </transition>
+      <transition id="b2371846-9c33-4d93-b28f-9a7f69d1ec3b">
+        <name>
+          <text>Conducts formal performance review</text>
+        </name>
+      </transition>
+      <transition id="6b77aeea-6dda-46bf-8428-7e9e210f9670">
+        <name>
+          <text>Set new responsibilities</text>
+        </name>
+      </transition>
+      <transition id="82f7fb00-99ba-45cb-9833-22b714ea6e3c">
+        <name>
+          <text>Identify development needs or career aspirations</text>
+        </name>
+      </transition>
+      <transition id="a53a9a51-c5b9-474d-8b45-72ca908d400d">
+        <name>
+          <text>Create personal development plan</text>
+        </name>
+      </transition>
+      <transition id="a37113d3-c116-401f-a639-0937bd414ed7">
+        <name>
+          <text>Consider employee for promotion or new role</text>
+        </name>
+      </transition>
+      <transition id="218ceb01-df2f-432a-aedd-ee7b69c186c0">
+        <name>
+          <text>Transition into new role</text>
+        </name>
+      </transition>
+      <transition id="3610eddc-be08-45cf-b8de-ecf37d6b6b78">
+        <name>
+          <text>Conducts formal performance review</text>
+        </name>
+      </transition>
+      <transition id="4400a319-2ff6-4aff-bec3-48b501878f38">
+        <name>
+          <text>Approve promotion</text>
+        </name>
+      </transition>
+      <arc id="2692929875456" source="p_12" target="a53a9a51-c5b9-474d-8b45-72ca908d400d"/>
+      <arc id="2692929081872" source="3610eddc-be08-45cf-b8de-ecf37d6b6b78" target="p_32"/>
+      <arc id="2692929701392" source="82f7fb00-99ba-45cb-9833-22b714ea6e3c" target="p_12"/>
+      <arc id="2692931763264" source="p_39" target="6b77aeea-6dda-46bf-8428-7e9e210f9670"/>
+      <arc id="2692931763312" source="a37113d3-c116-401f-a639-0937bd414ed7" target="p_26"/>
+      <arc id="2692929706096" source="p_52" target="218ceb01-df2f-432a-aedd-ee7b69c186c0"/>
+      <arc id="2692931763360" source="3fb0cb97-cc09-4d8e-a4a3-74f2ba42f240" target="p_17"/>
+      <arc id="2692929867440" source="p_32" target="b2371846-9c33-4d93-b28f-9a7f69d1ec3b"/>
+      <arc id="2692929871040" source="6ebc2406-7e96-4f66-b3af-51e3ebc4d153" target="p_18"/>
+      <arc id="2692929704128" source="p_37" target="25e10fcc-ffc0-464e-9165-f6bb3660c81e"/>
+      <arc id="2692929878240" source="p_34" target="4400a319-2ff6-4aff-bec3-48b501878f38"/>
+      <arc id="2692931763936" source="a53a9a51-c5b9-474d-8b45-72ca908d400d" target="p_17"/>
+      <arc id="2692929873680" source="p_26" target="3610eddc-be08-45cf-b8de-ecf37d6b6b78"/>
+      <arc id="2692931755296" source="p_18" target="a37113d3-c116-401f-a639-0937bd414ed7"/>
+      <arc id="2692929711424" source="p_40" target="4089e2a2-58d5-4bbe-8fd3-e334f0aa0a23"/>
+      <arc id="2692929871184" source="p_17" target="6ebc2406-7e96-4f66-b3af-51e3ebc4d153"/>
+      <arc id="2692929701728" source="4400a319-2ff6-4aff-bec3-48b501878f38" target="p_37"/>
+      <arc id="2692929708928" source="b2371846-9c33-4d93-b28f-9a7f69d1ec3b" target="p_34"/>
+      <arc id="2692929701248" source="6b77aeea-6dda-46bf-8428-7e9e210f9670" target="p_52"/>
+      <arc id="2692929714064" source="25e10fcc-ffc0-464e-9165-f6bb3660c81e" target="p_36"/>
+      <arc id="2692931763600" source="source" target="82f7fb00-99ba-45cb-9833-22b714ea6e3c"/>
+      <arc id="2692929700768" source="4089e2a2-58d5-4bbe-8fd3-e334f0aa0a23" target="p_39"/>
+      <arc id="2692931763120" source="218ceb01-df2f-432a-aedd-ee7b69c186c0" target="sink"/>
+      <arc id="2692929870800" source="p_18" target="3fb0cb97-cc09-4d8e-a4a3-74f2ba42f240"/>
+      <arc id="2692931763696" source="p_36" target="6b77aeea-6dda-46bf-8428-7e9e210f9670"/>
+      <arc id="2692929708016" source="4400a319-2ff6-4aff-bec3-48b501878f38" target="p_40"/>
+    </page>
+    <finalmarkings>
+      <marking>
+        <place idref="sink">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
+  </net>
+</pnml>

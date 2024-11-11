@@ -1,0 +1,76 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Step 1: Send notification
+send_notification = gen.activity('Send notification')
+
+# Step 2: Prepare financial statements and gather necessary documents
+prepare_financial_statements = gen.activity('Prepare financial statements')
+gather_necessary_documents = gen.activity('Gather necessary documents')
+concurrent_step_2 = gen.partial_order(dependencies=[(prepare_financial_statements,), (gather_necessary_documents,)])
+
+# Step 3: Check regulatory updates
+check_regulatory_updates = gen.activity('Check regulatory updates')
+
+# Step 4: Submit documents to the central audit team
+submit_documents = gen.activity('Submit documents')
+
+# Step 5: Review submission
+review_submission = gen.activity('Review submission')
+request_clarifications = gen.activity('Request clarifications of discrepancies')
+receive_clarifications = gen.activity('Receive clarifications')
+clarification_loop = gen.loop(do=request_clarifications, redo=receive_clarifications)
+clarification_optional = gen.xor(clarification_loop, None)
+
+# Step 6: Conduct risk assessment
+evaluate_financial_risks = gen.activity('Evaluate financial risks')
+evaluate_operational_risks = gen.activity('Evaluate operational risks')
+evaluate_compliance_risks = gen.activity('Evaluate compliance risks')
+concurrent_risks = gen.partial_order(dependencies=[(evaluate_financial_risks,), (evaluate_operational_risks,), (evaluate_compliance_risks,)])
+complete_risk_assessment = gen.activity('Complete risk assessment/mitigation')
+risk_assessment_dependencies = [(clarification_optional, concurrent_risks), (concurrent_risks, complete_risk_assessment)]
+risk_assessment_order = gen.partial_order(dependencies=risk_assessment_dependencies)
+
+# Step 7: Launch detailed investigation
+launch_detailed_investigation = gen.activity('Launch detailed investigation')
+
+# Step 8: Conduct detailed investigation
+conduct_data_analysis = gen.activity('Conduct data analysis')
+conduct_interviews = gen.activity('Conduct interviews')
+perform_site_visits = gen.activity('Perform site visits')
+concurrent_investigation = gen.partial_order(dependencies=[(conduct_data_analysis,), (conduct_interviews,), (perform_site_visits,)])
+
+# Step 9: Compile audit report
+compile_audit_report = gen.activity('Compile audit report')
+
+# Step 10: Review report by audit director
+review_report_by_audit_director = gen.activity('Review report by audit director')
+approve_report = gen.activity('Approve report')
+send_report_for_revision = gen.activity('Send report for revision')
+update_and_resubmit_report = gen.activity('Update and resubmit report')
+approval_loop = gen.loop(do=send_report_for_revision, redo=update_and_resubmit_report)
+approval_optional = gen.xor(approval_loop, approve_report)
+
+# Step 11: Distribute final report and archive report
+distribute_final_report = gen.activity('Distribute final report')
+archive_report = gen.activity('Archive report')
+concurrent_step_11 = gen.partial_order(dependencies=[(distribute_final_report,), (archive_report,)])
+
+# Step 12: Close audit process
+close_audit_process = gen.activity('Close audit process')
+
+# Combine all steps
+final_model = gen.partial_order(
+    dependencies=[(send_notification, concurrent_step_2),
+                  (send_notification, check_regulatory_updates),
+                  (concurrent_step_2, submit_documents),
+                  (check_regulatory_updates, submit_documents),
+                  (submit_documents, review_submission),
+                  (review_submission, risk_assessment_order),
+                  (risk_assessment_order, launch_detailed_investigation),
+                  (launch_detailed_investigation, concurrent_investigation),
+                  (concurrent_investigation, compile_audit_report),
+                  (compile_audit_report, review_report_by_audit_director),
+                  (review_report_by_audit_director, approval_optional),
+                  (approval_optional, concurrent_step_11),
+                  (concurrent_step_11, close_audit_process)])

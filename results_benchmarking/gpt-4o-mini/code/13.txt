@@ -1,0 +1,53 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator(True, True)
+
+# Activities
+file_complaint = gen.activity('File complaint')
+log_complaint_1 = gen.activity('Log complaint - Instance 1')  # First unique instance for logging
+log_complaint_2 = gen.activity('Log complaint - Instance 2')  # Second unique instance for logging
+assign_complaint_1 = gen.activity('Assign complaint to relevant department - Instance 1')  # First unique instance for assignment
+assign_complaint_2 = gen.activity('Assign complaint to relevant department - Instance 2')  # Second unique instance for assignment
+review_complaint_details = gen.activity('Review complaint details')
+approve_notify_customer = gen.activity('Approve and notify customer')
+reject_notify_customer = gen.activity('Reject and notify customer')
+process_reimbursement = gen.activity('Process reimbursement')
+resolve_complaint = gen.activity('Resolve complaint')
+provide_feedback = gen.activity('Provide feedback')
+
+# Decision points and flows
+decision = gen.xor(approve_notify_customer, reject_notify_customer)
+
+# Resolving the complaint after notification
+poset_resolve = gen.partial_order(
+    dependencies=[
+        (decision, process_reimbursement),  # Process reimbursement if approved
+        (decision, resolve_complaint)  # Resolve complaint after decision
+    ]
+)
+
+# Log and assign complaint to relevant department
+poset_logging = gen.partial_order(dependencies=[
+    (log_complaint_1, assign_complaint_1),
+    (assign_complaint_1, review_complaint_details),
+    (review_complaint_details, poset_resolve)
+])
+
+# Complete flow
+final_model = gen.partial_order(
+    dependencies=[
+        (file_complaint, log_complaint_1),
+        (log_complaint_1, assign_complaint_1)
+    ]
+)
+
+# Adding feedback process after resolving
+final_with_feedback = gen.partial_order(
+    dependencies=[
+        (final_model, resolve_complaint),
+        (resolve_complaint, provide_feedback)
+    ]
+)
+
+# Final model
+final_model = final_with_feedback

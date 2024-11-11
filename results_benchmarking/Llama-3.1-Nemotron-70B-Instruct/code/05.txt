@@ -1,0 +1,41 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+identify_need = gen.activity('Identify need for new supplier or vendor')
+issue_rfp = gen.activity('Issue request for proposals (RFP)')
+receive_proposals = gen.activity('Receive supplier proposals')
+evaluate_proposal = gen.activity('Evaluate proposal')
+conduct_interview = gen.activity('Conduct interview')
+conduct_site_visit = gen.activity('Conduct site visit')
+select_supplier = gen.activity('Select supplier')
+begin_negotiations = gen.activity('Begin contract negotiations')
+sign_contract = gen.activity('Sign contract')
+onboard_supplier = gen.activity('Onboard supplier')
+execute_contract = gen.activity('Execute contract')
+
+# Model evaluation process with optional interview and site visit
+evaluation_loop = gen.loop(do=evaluate_proposal, redo=None)
+interview_or_site_visit = gen.xor(conduct_interview, conduct_site_visit, None)
+evaluation_with_optional_activities = gen.partial_order(
+    dependencies=[(evaluation_loop, interview_or_site_visit), (interview_or_site_visit, select_supplier)])
+
+# Create a copy of select_supplier for use in final_model
+select_supplier_for_final = select_supplier.copy()  # Create a unique instance
+
+# Model contract negotiations and signing
+contract_negotiations = gen.partial_order(
+    dependencies=[(begin_negotiations, sign_contract)])
+
+# Model onboarding and contract execution
+onboarding_execution = gen.partial_order(
+    dependencies=[(onboard_supplier, execute_contract)])
+
+# Combine entire process using the copied select_supplier
+final_model = gen.partial_order(
+    dependencies=[(identify_need, issue_rfp), (issue_rfp, receive_proposals), 
+                  (receive_proposals, evaluation_with_optional_activities), 
+                  (evaluation_with_optional_activities, select_supplier_for_final), 
+                  (select_supplier_for_final, contract_negotiations), 
+                  (contract_negotiations, onboarding_execution)])

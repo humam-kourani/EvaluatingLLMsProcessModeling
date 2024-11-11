@@ -1,0 +1,42 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Activities
+schedule_audit = gen.activity('Schedule compliance audit')
+prepare_documentation = gen.activity('Prepare documentation')
+gather_evidence = gen.activity('Gather evidence')
+conduct_self_assessment = gen.activity('Conduct self-assessment')
+conduct_external_audit = gen.activity('Conduct external audit')
+identify_gaps = gen.activity('Identify gaps or issues')
+make_corrections = gen.activity('Make necessary corrections or improvements')
+conduct_final_audit = gen.activity('Conduct final audit')
+award_certification = gen.activity('Award certification')
+issue_documents = gen.activity('Issue official documents')
+
+# Preparing for the audit (can happen in parallel)
+preparation_poset = gen.partial_order(dependencies=[
+    (prepare_documentation,), 
+    (gather_evidence,), 
+    (conduct_self_assessment,)
+])
+
+# After preparation, conduct the external audit and identify gaps
+external_audit_flow = gen.partial_order(dependencies=[
+    (preparation_poset,), 
+    (conduct_external_audit, identify_gaps)
+])
+
+# Make corrections before the final audit
+final_audit_flow = gen.partial_order(dependencies=[
+    (external_audit_flow,), 
+    (make_corrections, conduct_final_audit)
+])
+
+# Final steps: award certification and issue documents if criteria are met
+final_step_poset = gen.partial_order(dependencies=[
+    (final_audit_flow,), 
+    (award_certification, issue_documents)
+])
+
+# Complete model
+final_model = gen.partial_order(dependencies=[(schedule_audit, final_step_poset)])

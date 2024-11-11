@@ -1,0 +1,48 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+identify_idea = gen.activity('Identify idea for new product or improvement')
+conduct_initial_research = gen.activity('Conduct initial research')
+conduct_feasibility_studies = gen.activity('Conduct feasibility studies')
+draft_design_concepts = gen.activity('Draft design concepts')
+select_promising_design = gen.activity('Select promising design')
+build_prototype = gen.activity('Build prototype')
+test_functionality = gen.activity('Test functionality')
+test_safety = gen.activity('Test safety')
+test_market_potential = gen.activity('Test market potential')
+collect_feedback = gen.activity('Collect feedback from testing phase')
+refine_prototype = gen.activity('Refine prototype')
+approve_prototype = gen.activity('Approve prototype for further development')
+discard_prototype = gen.activity('Discard prototype')
+
+# Define subprocesses
+initial_research_and_feasibility = gen.partial_order(
+    dependencies=[(conduct_initial_research, conduct_feasibility_studies)]
+)
+draft_design_and_select = gen.partial_order(
+    dependencies=[(draft_design_concepts, select_promising_design)]
+)
+build_and_test_prototype = gen.partial_order(
+    dependencies=[(build_prototype, test_functionality), (build_prototype, test_safety), (build_prototype, test_market_potential)]
+)
+build_and_test_prototype_copy_1 = build_and_test_prototype.copy()
+build_and_test_prototype_copy_2 = build_and_test_prototype.copy()
+collect_feedback_and_refine = gen.partial_order(
+    dependencies=[(collect_feedback, refine_prototype)]
+)
+
+# Combine subprocesses
+refinement_loop = gen.loop(do=build_and_test_prototype_copy_1, redo=collect_feedback_and_refine)
+process_sequence = gen.partial_order(
+    dependencies=[
+        (identify_idea, initial_research_and_feasibility),
+        (initial_research_and_feasibility, draft_design_and_select),
+        (draft_design_and_select, build_and_test_prototype),
+        (build_and_test_prototype, gen.xor(refinement_loop, gen.xor(build_and_test_prototype_copy_2, gen.xor(approve_prototype, discard_prototype))))
+    ]
+)
+
+# Define final model
+final_model = process_sequence

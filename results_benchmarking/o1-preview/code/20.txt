@@ -1,0 +1,51 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+guest_calls = gen.activity("Guest calls room service")
+manager_takes_order = gen.activity("Manager takes down the order")
+manager_submits_to_kitchen = gen.activity("Manager submits order ticket to kitchen")
+manager_gives_to_sommelier = gen.activity("Manager gives order to sommelier")
+manager_assigns_to_waiter = gen.activity("Manager assigns order to waiter")
+kitchen_prepares_food = gen.activity("Kitchen prepares food")
+sommelier_prepares_wine = gen.activity("Sommelier fetches wine and prepare alcoholic beverages")
+waiter_readies_cart = gen.activity("Waiter readies cart")
+waiter_prepares_nonalc_drinks = gen.activity("Waiter prepares nonalcoholic drinks")
+waiter_delivers_order = gen.activity("Waiter delivers order to guest's room")
+waiter_returns_station = gen.activity("Waiter returns to room-service station")
+waiter_debits_account = gen.activity("Waiter debits guest's account")
+waiter_delays_debiting = gen.activity("Waiter waits/delays debiting")
+
+# Define optional sommelier process
+sommelier_process = gen.partial_order(dependencies=[
+    (manager_gives_to_sommelier, sommelier_prepares_wine)
+])
+
+optional_sommelier_process = gen.xor(sommelier_process, None)
+
+# Create a copy of 'sommelier_prepares_wine' for reuse
+sommelier_prepares_wine_copy = sommelier_prepares_wine.copy()
+
+# Define choice between debiting and delaying
+choice_debiting = gen.xor(waiter_debits_account, waiter_delays_debiting)
+
+# Collect all dependencies
+dependencies = [
+    (guest_calls, manager_takes_order),
+    (manager_takes_order, manager_submits_to_kitchen),
+    (manager_takes_order, optional_sommelier_process),
+    (manager_submits_to_kitchen, manager_assigns_to_waiter),
+    (optional_sommelier_process, manager_assigns_to_waiter),
+    (manager_submits_to_kitchen, kitchen_prepares_food),
+    (manager_assigns_to_waiter, waiter_readies_cart),
+    (manager_assigns_to_waiter, waiter_prepares_nonalc_drinks),
+    (kitchen_prepares_food, waiter_delivers_order),
+    (waiter_readies_cart, waiter_delivers_order),
+    (waiter_prepares_nonalc_drinks, waiter_delivers_order),
+    (sommelier_prepares_wine_copy, waiter_delivers_order),
+    (waiter_delivers_order, waiter_returns_station),
+    (waiter_returns_station, choice_debiting)
+]
+
+# Create final model
+final_model = gen.partial_order(dependencies=dependencies)

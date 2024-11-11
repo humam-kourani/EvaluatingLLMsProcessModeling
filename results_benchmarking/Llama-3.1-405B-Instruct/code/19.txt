@@ -1,0 +1,40 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+login = gen.activity('Login')
+select_items = gen.activity('Select items')
+set_payment_method = gen.activity('Set payment method')
+select_free_reward = gen.activity('Select free reward')
+pay = gen.activity('Pay')
+complete_installment_agreement = gen.activity('Complete installment agreement')
+deliver_items = gen.activity('Deliver items')
+return_items = gen.activity('Return items')
+
+# concurrent selection of items and setting payment method
+poset_concurrent_selection = gen.partial_order(dependencies=[(login, select_items), (login, set_payment_method)])
+
+# choice between paying or completing installment agreement
+choice_payment = gen.xor(pay, complete_installment_agreement)
+
+# create a copy of select_items to avoid reusing it
+select_items_copy = select_items.copy()
+
+# partial order for independent reward selection
+poset_reward_selection = gen.partial_order(dependencies=[(select_items_copy, select_free_reward)])
+
+# create a copy of deliver_items to avoid reusing it
+deliver_items_copy = deliver_items.copy()
+
+# create a copy of return_items to avoid reusing it
+return_items_copy = return_items.copy()
+
+# partial order for delivery and potential return
+poset_delivery_return = gen.partial_order(dependencies=[(deliver_items, return_items)])
+
+# loop for repeated delivery after return
+loop_delivery_return = gen.loop(do=deliver_items_copy, redo=return_items_copy)
+
+# combine all partial orders
+final_model = gen.partial_order(dependencies=[(poset_concurrent_selection, choice_payment), 
+                                              (poset_concurrent_selection, poset_reward_selection), 
+                                              (choice_payment, loop_delivery_return), 
+                                              (poset_reward_selection, loop_delivery_return)])

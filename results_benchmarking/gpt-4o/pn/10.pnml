@@ -1,0 +1,169 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml>
+  <net id="imdf_net_1729523501.658795" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <name>
+      <text>imdf_net_1729523501.658795</text>
+    </name>
+    <page id="n0">
+      <place id="source">
+        <name>
+          <text>source</text>
+        </name>
+        <initialMarking>
+          <text>1</text>
+        </initialMarking>
+      </place>
+      <place id="p_11">
+        <name>
+          <text>p_11</text>
+        </name>
+      </place>
+      <place id="p_17">
+        <name>
+          <text>p_17</text>
+        </name>
+      </place>
+      <place id="p_22">
+        <name>
+          <text>p_22</text>
+        </name>
+      </place>
+      <place id="sink">
+        <name>
+          <text>sink</text>
+        </name>
+      </place>
+      <place id="p_13">
+        <name>
+          <text>p_13</text>
+        </name>
+      </place>
+      <place id="p_31">
+        <name>
+          <text>p_31</text>
+        </name>
+      </place>
+      <place id="p_32">
+        <name>
+          <text>p_32</text>
+        </name>
+      </place>
+      <place id="p_34">
+        <name>
+          <text>p_34</text>
+        </name>
+      </place>
+      <place id="p_35">
+        <name>
+          <text>p_35</text>
+        </name>
+      </place>
+      <place id="p_19">
+        <name>
+          <text>p_19</text>
+        </name>
+      </place>
+      <place id="p_15">
+        <name>
+          <text>p_15</text>
+        </name>
+      </place>
+      <transition id="tauJoin_4">
+        <name>
+          <text>tauJoin_4</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="026d9143-fa02-40b3-aaec-fa8fa877d84b"/>
+      </transition>
+      <transition id="2c27c4d6-da4b-4ce7-939a-ac5ade46b8b4">
+        <name>
+          <text>Submit IT solution request</text>
+        </name>
+      </transition>
+      <transition id="a4fc797c-00f6-4364-bded-39c0b0adda9b">
+        <name>
+          <text>Procure necessary tools or licenses</text>
+        </name>
+      </transition>
+      <transition id="b0649751-3780-459c-b7d0-2676ed575231">
+        <name>
+          <text>Install the solution</text>
+        </name>
+      </transition>
+      <transition id="ce579683-f854-429e-b2e3-d93a0b8a48ff">
+        <name>
+          <text>Test solution</text>
+        </name>
+      </transition>
+      <transition id="91926f94-d754-48a7-9524-500d4cf1b4c3">
+        <name>
+          <text>Roll out solution to requesting department</text>
+        </name>
+      </transition>
+      <transition id="skip_28">
+        <name>
+          <text>skip_28</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="201a5801-84ae-4a39-ad4d-697447653849"/>
+      </transition>
+      <transition id="9a699f4d-1755-4cf6-91ce-02227e2b6d0e">
+        <name>
+          <text>Provide support for troubleshooting</text>
+        </name>
+      </transition>
+      <transition id="e4153a6d-a9e0-4d49-9569-7adb7575e83a">
+        <name>
+          <text>Evaluate cost and resource needs</text>
+        </name>
+      </transition>
+      <transition id="d9f8d3cb-e247-4f28-a938-7af123208e6a">
+        <name>
+          <text>Provide training</text>
+        </name>
+      </transition>
+      <transition id="skip_25">
+        <name>
+          <text>skip_25</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="9f81ec48-2a36-4e8b-8a9e-f2111d1b2cb6"/>
+      </transition>
+      <transition id="cb42a158-0f1e-41ca-8098-2411e5ba8189">
+        <name>
+          <text>Assess compatibility</text>
+        </name>
+      </transition>
+      <arc id="1765157492752" source="2c27c4d6-da4b-4ce7-939a-ac5ade46b8b4" target="p_11"/>
+      <arc id="1765157501488" source="d9f8d3cb-e247-4f28-a938-7af123208e6a" target="p_32"/>
+      <arc id="1765157777472" source="p_13" target="e4153a6d-a9e0-4d49-9569-7adb7575e83a"/>
+      <arc id="1765157489728" source="a4fc797c-00f6-4364-bded-39c0b0adda9b" target="p_17"/>
+      <arc id="1765157495872" source="91926f94-d754-48a7-9524-500d4cf1b4c3" target="p_31"/>
+      <arc id="1765157487184" source="p_35" target="tauJoin_4"/>
+      <arc id="1765157495920" source="9a699f4d-1755-4cf6-91ce-02227e2b6d0e" target="p_35"/>
+      <arc id="1765157776512" source="p_15" target="a4fc797c-00f6-4364-bded-39c0b0adda9b"/>
+      <arc id="1765157490832" source="91926f94-d754-48a7-9524-500d4cf1b4c3" target="p_34"/>
+      <arc id="1765157766288" source="p_19" target="ce579683-f854-429e-b2e3-d93a0b8a48ff"/>
+      <arc id="1765157502112" source="p_34" target="skip_28"/>
+      <arc id="1765157490880" source="p_31" target="d9f8d3cb-e247-4f28-a938-7af123208e6a"/>
+      <arc id="1765157501152" source="skip_25" target="p_32"/>
+      <arc id="1765157496064" source="tauJoin_4" target="sink"/>
+      <arc id="1765157501200" source="skip_28" target="p_35"/>
+      <arc id="1765157500720" source="p_31" target="skip_25"/>
+      <arc id="1765157770560" source="p_17" target="b0649751-3780-459c-b7d0-2676ed575231"/>
+      <arc id="1765157768016" source="p_11" target="cb42a158-0f1e-41ca-8098-2411e5ba8189"/>
+      <arc id="1765157492080" source="source" target="2c27c4d6-da4b-4ce7-939a-ac5ade46b8b4"/>
+      <arc id="1765157493136" source="ce579683-f854-429e-b2e3-d93a0b8a48ff" target="p_22"/>
+      <arc id="1765157486992" source="p_22" target="91926f94-d754-48a7-9524-500d4cf1b4c3"/>
+      <arc id="1765157488048" source="e4153a6d-a9e0-4d49-9569-7adb7575e83a" target="p_15"/>
+      <arc id="1765157487040" source="b0649751-3780-459c-b7d0-2676ed575231" target="p_19"/>
+      <arc id="1765157490640" source="cb42a158-0f1e-41ca-8098-2411e5ba8189" target="p_13"/>
+      <arc id="1765157488096" source="p_32" target="tauJoin_4"/>
+      <arc id="1765157502448" source="p_34" target="9a699f4d-1755-4cf6-91ce-02227e2b6d0e"/>
+    </page>
+    <finalmarkings>
+      <marking>
+        <place idref="sink">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
+  </net>
+</pnml>

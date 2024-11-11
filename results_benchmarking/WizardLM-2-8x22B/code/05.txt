@@ -1,0 +1,60 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+identify_need = gen.activity('Identify need for new supplier or vendor')
+issue_rfp = gen.activity('Issue request for proposals (RFP)')
+receive_proposals = gen.activity('Receive supplier proposals')
+evaluate_proposal = gen.activity('Evaluate proposal')
+conduct_site_visit = gen.activity('Conduct site visit')
+conduct_interview = gen.activity('Conduct interview')
+select_supplier_after_evaluate = gen.activity('Select supplier after evaluate')
+select_supplier_after_site_visit = gen.activity('Select supplier after site visit')
+select_supplier_after_interview = gen.activity('Select supplier after interview')
+begin_negotiations = gen.activity('Begin contract negotiations')
+sign_contract_original = gen.activity('Sign contract')  # Original instance for negotiation
+onboard_supplier_original = gen.activity('Onboard supplier')  # Original instance for execution
+execute_contract_original = gen.activity('Execute contract')
+
+# Define the selection process as an xor choice of evaluation methods
+evaluation_methods = gen.xor(
+    gen.partial_order(dependencies=[(evaluate_proposal, select_supplier_after_evaluate)]),
+    gen.partial_order(dependencies=[(conduct_site_visit, select_supplier_after_site_visit)]),
+    gen.partial_order(dependencies=[(conduct_interview, select_supplier_after_interview)])
+)
+
+# Define the procurement team's activities after receiving proposals
+after_receive_proposals = gen.partial_order(
+    dependencies=[(receive_proposals, evaluation_methods)]
+)
+
+# Define the contract negotiation and signing process
+# Create a unique copy of 'select_supplier' for the negotiation process
+select_supplier_neg = gen.xor(
+    select_supplier_after_evaluate.copy(),
+    select_supplier_after_site_visit.copy(),
+    select_supplier_after_interview.copy()
+)
+
+negotiation_signing = gen.partial_order(
+    dependencies=[(select_supplier_neg, begin_negotiations), (begin_negotiations, sign_contract_original)]
+)
+
+# Define the onboarding and contract execution process
+# Create unique copies of 'sign_contract', 'onboard_supplier', and 'execute_contract'
+sign_contract_onboard = sign_contract_original.copy()
+onboard_supplier_execute = onboard_supplier_original.copy()
+execute_contract_execute = execute_contract_original.copy()
+onboarding_execution = gen.partial_order(
+    dependencies=[(sign_contract_onboard, onboard_supplier_execute), (onboard_supplier_execute, execute_contract_execute)]
+)
+
+# Combine all parts into the final process model
+final_model = gen.partial_order(
+    dependencies=[
+        (identify_need, issue_rfp),
+        (issue_rfp, after_receive_proposals),
+        (after_receive_proposals, negotiation_signing),
+        (negotiation_signing, onboarding_execution)
+    ]
+)

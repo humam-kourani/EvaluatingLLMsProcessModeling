@@ -1,0 +1,33 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+report_incident = gen.activity('Report incident')
+log_report_into_tracking_system = gen.activity('Log report into tracking system')
+assign_report_to_appropriate_team = gen.activity('Assign report to appropriate team')
+gather_necessary_information = gen.activity('Gather necessary information')
+identify_cause_of_incident = gen.activity('Identify cause of incident')
+propose_corrective_actions = gen.activity('Propose corrective actions')
+
+# Exclusive choice between implementing a fix, conducting training, or changing policy
+implement_fix = gen.activity('Implement fix')
+conduct_training = gen.activity('Conduct training')
+change_policy = gen.activity('Change policy')
+corrective_actions_choice = gen.xor(implement_fix, conduct_training, change_policy)
+
+# Follow-up and closing of the incident report
+conduct_follow_up = gen.activity('Conduct follow-up')
+close_incident_report = gen.activity('Close incident report')
+notify_all_stakeholders = gen.activity('Notify all stakeholders')
+
+# Combine all activities into a single partial order
+final_model = gen.partial_order(dependencies=[
+    (report_incident, log_report_into_tracking_system),
+    (log_report_into_tracking_system, assign_report_to_appropriate_team),
+    (assign_report_to_appropriate_team, gather_necessary_information),
+    (gather_necessary_information, identify_cause_of_incident),
+    (identify_cause_of_incident, propose_corrective_actions),
+    (propose_corrective_actions, corrective_actions_choice),
+    (corrective_actions_choice, conduct_follow_up),
+    (conduct_follow_up, close_incident_report),
+    (close_incident_report, notify_all_stakeholders)
+])

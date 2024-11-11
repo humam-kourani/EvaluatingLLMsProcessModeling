@@ -1,0 +1,30 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+outline_objectives = gen.activity('Outline objectives')
+conduct_strategic_alignment_meeting = gen.activity('Conduct strategic alignment meeting')
+draft_plan_1 = gen.activity('Draft plan')
+draft_plan_2 = draft_plan_1.copy()
+draft_plan_3 = draft_plan_1.copy()
+draft_plan_4 = draft_plan_1.copy()
+distribute_budget = gen.activity('Distribute budget')
+provide_feedback_1 = gen.activity('Provide feedback')
+provide_feedback_2 = provide_feedback_1.copy()
+adjust_plan_1 = gen.activity('Adjust Plan')
+adjust_plan_2 = adjust_plan_1.copy()
+adjust_plan_3 = adjust_plan_1.copy()
+document_and_approve_adjustment = gen.activity('Documented and approve adjustment')
+approve_final_budget = gen.activity('Approve final budget')
+implement_plan = gen.activity('Implement plan')
+review_budget_feasibility = gen.activity('Review budget feasibility')
+
+# Define subprocesses
+strategic_alignment_review = gen.partial_order(dependencies=[(draft_plan_1, conduct_strategic_alignment_meeting), (conduct_strategic_alignment_meeting, provide_feedback_1), (provide_feedback_1, adjust_plan_1)])
+finance_review = gen.partial_order(dependencies=[(draft_plan_2, review_budget_feasibility), (review_budget_feasibility, provide_feedback_2), (provide_feedback_2, adjust_plan_2)])
+
+# Define adjustment loop
+adjustment_loop = gen.loop(do=gen.partial_order(dependencies=[(adjust_plan_3, document_and_approve_adjustment), (document_and_approve_adjustment, draft_plan_3)]), redo=None)
+
+# Define final model
+final_model = gen.partial_order(dependencies=[(outline_objectives, draft_plan_4), (strategic_alignment_review, finance_review), (finance_review, adjustment_loop), (adjustment_loop, approve_final_budget), (approve_final_budget, distribute_budget), (distribute_budget, implement_plan)])

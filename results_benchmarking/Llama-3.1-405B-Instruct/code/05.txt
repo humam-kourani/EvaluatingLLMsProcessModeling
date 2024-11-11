@@ -1,0 +1,43 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+identify_need = gen.activity('Identify need for new supplier or vendor')
+issue_rfp = gen.activity('Issue request for proposals (RFP)')
+receive_proposals = gen.activity('Receive supplier proposals')
+evaluate_proposal = gen.activity('Evaluate proposal')
+conduct_site_visit = gen.activity('Conduct site visit')
+conduct_interview = gen.activity('Conduct interview')
+select_supplier = gen.activity('Select supplier')
+begin_negotiations = gen.activity('Begin contract negotiations')
+sign_contract = gen.activity('Sign contract')
+onboard_supplier = gen.activity('Onboard supplier')
+execute_contract = gen.activity('Execute contract')
+
+# Model a loop for evaluating multiple proposals
+evaluation_loop = gen.loop(do=evaluate_proposal, redo=None)
+
+# Model a choice between conducting a site visit or an interview
+visit_or_interview = gen.xor(conduct_site_visit, conduct_interview)
+optional_visit_or_interview = gen.xor(visit_or_interview, None)
+
+# Create a copy of the issue_rfp and receive_proposals activities
+issue_rfp_copy = issue_rfp.copy()
+receive_proposals_copy = receive_proposals.copy()
+
+# Model the RFP, evaluation, and supplier selection process
+new_rfp_and_evaluation = gen.partial_order(dependencies=[(issue_rfp_copy, receive_proposals_copy), (receive_proposals_copy, evaluation_loop), (evaluation_loop, optional_visit_or_interview), (optional_visit_or_interview, select_supplier)])
+
+# Create a copy of the select_supplier activity to use in the negotiation process
+select_supplier_copy = select_supplier.copy()
+
+# Model the contract negotiation and signing process
+negotiation_process = gen.partial_order(dependencies=[(select_supplier_copy, begin_negotiations), (begin_negotiations, sign_contract)])
+
+# Create a copy of the sign_contract activity to use in the onboarding process
+sign_contract_copy = sign_contract.copy()
+
+# Model the onboarding and contract execution process
+onboarding_process = gen.partial_order(dependencies=[(sign_contract_copy, onboard_supplier), (onboard_supplier, execute_contract)])
+
+# Model the entire process
+final_model = gen.partial_order(dependencies=[(identify_need, new_rfp_and_evaluation), (new_rfp_and_evaluation, negotiation_process), (negotiation_process, onboarding_process)])

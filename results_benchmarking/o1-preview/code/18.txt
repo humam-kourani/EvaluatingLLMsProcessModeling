@@ -1,0 +1,138 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Create activities
+submit_application_online = gen.activity('Submit application online')
+review_application_and_documents = gen.activity('Review application and documents')
+notify_applicant_of_missing_documents = gen.activity('Notify applicant of missing documents')
+provide_missing_documents = gen.activity('Provide missing documents')
+evaluate_application = gen.activity('Evaluate application by admissions committee')
+process_fees_or_waivers = gen.activity('Process fees or waivers')
+send_acceptance_letter = gen.activity('Send acceptance letter')
+send_rejection_letter = gen.activity('Send rejection letter')
+confirm_enrollment = gen.activity('Confirm enrollment')
+cancel_application = gen.activity('Cancel application')
+send_orientation_materials = gen.activity('Send orientation materials')
+set_up_it_accounts = gen.activity('Set up IT accounts')
+assist_with_visa_processing = gen.activity('Assist with visa processing')
+obtain_student_id_card = gen.activity('Obtain student ID card')
+meet_with_academic_advisor = gen.activity('Meet with academic advisor')
+select_courses = gen.activity('Select courses')
+resolve_schedule_conflicts = gen.activity('Resolve schedule conflicts')
+begin_attending_classes = gen.activity('Begin attending classes')
+add_drop_courses = gen.activity('Add/drop courses')
+post_grades = gen.activity('Post grades')
+review_grades_online = gen.activity('Review grades online')
+submit_appeal_form = gen.activity('Submit appeal form')
+meet_with_appeals_committee = gen.activity('Meet with appeals committee')
+await_decision = gen.activity('Await decision')
+graduate = gen.activity('Graduate')
+withdraw = gen.activity('Withdraw')
+
+# Loop for handling missing documents
+notify_and_provide = gen.partial_order(dependencies=[
+    (notify_applicant_of_missing_documents, provide_missing_documents)
+])
+review_loop = gen.loop(
+    do=review_application_and_documents,
+    redo=notify_and_provide
+)
+
+# Evaluation and fee processing happen concurrently
+evaluation_and_fees = gen.partial_order(dependencies=[
+    (evaluate_application,),
+    (process_fees_or_waivers,)
+])
+
+# Confirmation or cancellation
+confirmation_choice = gen.xor(
+    confirm_enrollment,
+    cancel_application
+)
+
+# Post-acceptance activities
+post_acceptance_activities = gen.partial_order(dependencies=[
+    (send_orientation_materials,),
+    (set_up_it_accounts,)
+])
+
+# Optional visa processing
+visa_processing = gen.xor(
+    assist_with_visa_processing,
+    None
+)
+
+# Study plan creation
+study_plan = gen.partial_order(dependencies=[
+    (meet_with_academic_advisor,),
+    (select_courses,),
+    (resolve_schedule_conflicts,)
+])
+
+# Starting classes (includes obtaining student ID card)
+start_classes = gen.partial_order(dependencies=[
+    (obtain_student_id_card, study_plan),
+    (study_plan, begin_attending_classes)
+])
+
+# Semester activities
+semester_activities = gen.partial_order(dependencies=[
+    (add_drop_courses,),
+    (post_grades, review_grades_online)
+])
+
+# Optional grievance process
+grievance_process = gen.xor(
+    gen.partial_order(dependencies=[
+        (submit_appeal_form, meet_with_appeals_committee),
+        (meet_with_appeals_committee, await_decision)
+    ]),
+    None
+)
+
+# Semester loop body
+semester_loop_body = gen.partial_order(dependencies=[
+    (semester_activities,),
+    (grievance_process,)
+])
+
+# Loop per semester until graduation or withdrawal
+semester_loop = gen.loop(
+    do=semester_loop_body,
+    redo=None
+)
+
+# Final decision
+final_decision = gen.xor(
+    graduate,
+    withdraw
+)
+
+# Acceptance sequence (adjusted to avoid reusing 'Obtain student ID card')
+acceptance_sequence = gen.partial_order(dependencies=[
+    (send_acceptance_letter, confirmation_choice),
+    (confirmation_choice, post_acceptance_activities),
+    (post_acceptance_activities, visa_processing),
+    (visa_processing, start_classes),
+    (start_classes, semester_loop),
+    (semester_loop, final_decision)
+])
+
+# Rejection sequence
+rejection_sequence = send_rejection_letter
+
+# Post-evaluation paths
+post_evaluation_paths = gen.xor(
+    acceptance_sequence,
+    rejection_sequence
+)
+
+# Combine all dependencies
+dependencies = [
+    (submit_application_online, review_loop),
+    (review_loop, evaluation_and_fees),
+    (evaluation_and_fees, post_evaluation_paths)
+]
+
+# Build final model
+final_model = gen.partial_order(dependencies=dependencies)

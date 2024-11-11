@@ -1,0 +1,42 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+report_incident = gen.activity('Report incident')
+log_report = gen.activity('Log report into tracking system')
+assign_team = gen.activity('Assign report to appropriate team')
+gather_info = gen.activity('Gather necessary information')
+identify_cause = gen.activity('Identify cause of incident')
+propose_corrections = gen.activity('Propose corrective actions')
+implement_fix = gen.activity('Implement fix')
+conduct_training = gen.activity('Conduct training')
+change_policy = gen.activity('Change policy')
+conduct_followup = gen.activity('Conduct follow-up')
+close_report = gen.activity('Close incident report')
+notify_stakeholders = gen.activity('Notify all stakeholders')
+
+# Define the subprocesses and their dependencies
+investigation_order_dependencies = [
+    (assign_team, gather_info),
+    (gather_info, identify_cause),
+    (identify_cause, propose_corrections)
+]
+
+corrective_actions_order_dependencies = [
+    (propose_corrections, implement_fix),
+    (propose_corrections, conduct_training),
+    (propose_corrections, change_policy),
+    (implement_fix, conduct_followup),
+    (conduct_training, conduct_followup),
+    (change_policy, conduct_followup)
+]
+
+closing_order_dependencies = [
+    (conduct_followup, close_report),
+    (close_report, notify_stakeholders)
+]
+
+poset_full_process = gen.partial_order(
+    dependencies=investigation_order_dependencies + corrective_actions_order_dependencies + closing_order_dependencies)
+
+# Final model
+final_model = gen.partial_order(dependencies=[(report_incident, log_report), (log_report, poset_full_process)])

@@ -1,0 +1,73 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Base activities
+guest_calls_room_service = gen.activity('Guest calls room service')
+manager_takes_order = gen.activity('Manager takes down the order')
+manager_submits_order_to_kitchen = gen.activity('Manager submits order ticket to kitchen')
+manager_submits_order_to_kitchen_copy = manager_submits_order_to_kitchen.copy()
+manager_gives_order_to_sommelier = gen.activity('Manager gives order to sommelier')
+manager_gives_order_to_sommelier_copy = manager_gives_order_to_sommelier.copy()
+manager_assigns_order_to_waiter = gen.activity('Manager assigns order to waiter')
+manager_assigns_order_to_waiter_copy = manager_assigns_order_to_waiter.copy()
+waiter_readies_cart = gen.activity('Waiter readies cart')
+sommelier_fetches_wine_and_prepares_alcoholic_beverages = gen.activity('Sommelier fetches wine and prepare alcoholic beverages')
+sommelier_fetches_wine_and_prepares_alcoholic_beverages_copy = sommelier_fetches_wine_and_prepares_alcoholic_beverages.copy()
+kitchen_prepares_food = gen.activity('Kitchen prepares food')
+kitchen_prepares_food_copy = kitchen_prepares_food.copy()
+waiter_prepares_nonalcoholic_drinks = gen.activity('Waiter prepares nonalcoholic drinks')
+waiter_prepares_nonalcoholic_drinks_copy = waiter_prepares_nonalcoholic_drinks.copy()
+waiter_delivers_order = gen.activity('Waiter delivers order to guest\'s room')
+waiter_delivers_order_copy_1 = waiter_delivers_order.copy()  # First copy for the delivery phase
+waiter_delivers_order_copy_2 = waiter_delivers_order.copy()  # Second copy for the billing phase
+waiter_delivers_order_copy_3 = waiter_delivers_order.copy()  # Third copy for the XOR construct
+waiter_returns_to_station = gen.activity('Waiter returns to room-service station')
+waiter_debits_account = gen.activity('Waiter debits guest\'s account')
+waiter_waits_to_debit = gen.activity('Waiter waits/delays debiting')
+
+# Main process flow
+# The manager takes the order and splits tasks between the kitchen and sommelier
+order_processing = gen.partial_order(
+    dependencies=[
+        (manager_takes_order, manager_submits_order_to_kitchen),
+        (manager_takes_order, manager_gives_order_to_sommelier),
+        (manager_takes_order, manager_assigns_order_to_waiter)
+    ]
+)
+
+# Kitchen and sommelier work concurrently while the waiter prepares the cart and nonalcoholic drinks
+preparation_phase = gen.partial_order(
+    dependencies=[
+        (manager_submits_order_to_kitchen_copy, kitchen_prepares_food),
+        (manager_gives_order_to_sommelier_copy, sommelier_fetches_wine_and_prepares_alcoholic_beverages),
+        (manager_assigns_order_to_waiter_copy, waiter_readies_cart),
+        (waiter_readies_cart, waiter_prepares_nonalcoholic_drinks)
+    ]
+)
+
+# Once food, wine, and the cart are ready, the waiter delivers the order
+delivery_phase = gen.partial_order(
+    dependencies=[
+        (kitchen_prepares_food_copy, waiter_delivers_order_copy_1),
+        (sommelier_fetches_wine_and_prepares_alcoholic_beverages_copy, waiter_delivers_order_copy_1),
+        (waiter_prepares_nonalcoholic_drinks_copy, waiter_delivers_order_copy_1)
+    ]
+)
+
+# The waiter returns to the station after delivery, but may delay debiting if another task is pending
+billing_phase = gen.xor(
+    gen.partial_order(dependencies=[(waiter_delivers_order_copy_2, waiter_debits_account)]),
+    gen.partial_order(dependencies=[(waiter_delivers_order_copy_3, waiter_waits_to_debit)])
+)
+
+# Final process model combining all phases
+final_model = gen.partial_order(
+    dependencies=[
+        (guest_calls_room_service, order_processing),
+        (order_processing, preparation_phase),
+        (preparation_phase, delivery_phase),
+        (delivery_phase, waiter_returns_to_station),
+        (waiter_returns_to_station, billing_phase)
+    ]
+)

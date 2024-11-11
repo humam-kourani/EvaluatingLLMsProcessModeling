@@ -1,0 +1,32 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+customer_places_order_online = gen.activity('Customer places order online')
+customer_places_order_over_phone = gen.activity('Customer places order over the phone')
+generate_and_send_order_confirmation = gen.activity('Generate and send order confirmation')
+pick_and_pack_items = gen.activity('Pick and pack items')
+generate_shipping_label = gen.activity('Generate shipping label')
+hand_over_order_to_logistics_provider = gen.activity('Hand over order to logistics provider')
+send_tracking_information_to_customer = gen.activity('Send tracking information to customer')
+monitor_shipment = gen.activity('Monitor shipment')
+successful_delivery = gen.activity('Successful delivery')
+process_customer_feedback_or_returns = gen.activity('Process customer feedback or returns')
+
+# Define the initial choice between placing an order online or over the phone
+initial_choice = gen.xor(customer_places_order_online, customer_places_order_over_phone)
+
+# Define the main process
+order_process = gen.partial_order(dependencies=[
+    (initial_choice, generate_and_send_order_confirmation),
+    (generate_and_send_order_confirmation, pick_and_pack_items),
+    (pick_and_pack_items, generate_shipping_label),
+    (generate_shipping_label, hand_over_order_to_logistics_provider),
+    (hand_over_order_to_logistics_provider, send_tracking_information_to_customer),
+    (send_tracking_information_to_customer, monitor_shipment),
+    (monitor_shipment, successful_delivery),
+    (successful_delivery, process_customer_feedback_or_returns)
+])
+
+# Define the final model
+final_model = order_process

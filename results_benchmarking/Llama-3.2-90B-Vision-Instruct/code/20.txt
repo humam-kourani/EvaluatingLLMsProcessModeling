@@ -1,0 +1,45 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+manager_takes_order = gen.activity('Manager takes down the order')
+manager_submits_ticket = gen.activity('Manager submits order ticket to kitchen')
+manager_gives_order_to_sommelier = gen.activity('Manager gives order to sommelier')
+manager_assigns_order_to_waiter = gen.activity('Manager assigns order to waiter')
+
+kitchen_prepares_food = gen.activity('Kitchen prepares food')
+
+sommelier_fetches_wine = gen.activity('Sommelier fetches wine and prepare alcoholic beverages')
+
+waiter_prepares_nonalcoholic_drinks = gen.activity('Waiter prepares nonalcoholic drinks')
+waiter_readies_cart = gen.activity('Waiter readies cart')
+waiter_delivers_order = gen.activity('Waiter delivers order to guest\'s room')
+waiter_returns_to_station = gen.activity('Waiter returns to room-service station')
+waiter_debits_account = gen.activity('Waiter debits guest\'s account')
+waiter_debits_account_copy = waiter_debits_account.copy()
+waiter_waits_to_debit = gen.activity('Waiter waits/delays debiting')
+
+concurrent_tasks = gen.partial_order(
+    dependencies=[(kitchen_prepares_food,), (sommelier_fetches_wine,), 
+                  (waiter_prepares_nonalcoholic_drinks,), (waiter_readies_cart,)])
+
+poset_after_concurrent_tasks = gen.partial_order(
+    dependencies=[(concurrent_tasks, waiter_delivers_order), 
+                  (waiter_delivers_order, waiter_returns_to_station.copy()), 
+                  (waiter_returns_to_station.copy(), waiter_debits_account)])
+
+waiter_returns_to_station_copy = waiter_returns_to_station.copy()
+
+poset_with_delayed_debiting = gen.partial_order(
+    dependencies=[(waiter_returns_to_station_copy, waiter_waits_to_debit), 
+                  (waiter_waits_to_debit, waiter_debits_account_copy)])
+
+initial_choice = gen.xor(poset_after_concurrent_tasks, poset_with_delayed_debiting)
+
+initial_poset = gen.partial_order(
+    dependencies=[(manager_takes_order, manager_submits_ticket), 
+                  (manager_takes_order, manager_gives_order_to_sommelier), 
+                  (manager_takes_order, manager_assigns_order_to_waiter), 
+                  (manager_assigns_order_to_waiter, initial_choice)])
+
+guest_calls = gen.activity('Guest calls room service')
+final_model = gen.partial_order(dependencies=[(guest_calls, initial_poset)])

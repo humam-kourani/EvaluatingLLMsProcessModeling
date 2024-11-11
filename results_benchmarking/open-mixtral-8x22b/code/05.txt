@@ -1,0 +1,32 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+identify_need = gen.activity('Identify need for new supplier or vendor')
+issue_rfp = gen.activity('Issue request for proposals (RFP)')
+receive_proposals = gen.activity('Receive supplier proposals')
+evaluate_proposal = gen.activity('Evaluate proposal')
+conduct_interview = gen.activity('Conduct interview')
+conduct_site_visit = gen.activity('Conduct site visit')
+begin_negotiations = gen.activity('Begin contract negotiations')
+select_supplier = gen.activity('Select supplier')
+sign_contract = gen.activity('Sign contract')
+execute_contract = gen.activity('Execute contract')
+onboard_supplier = gen.activity('Onboard supplier')
+
+# Define submodels
+evaluation_submodel = gen.partial_order(dependencies=[(receive_proposals.copy(), evaluate_proposal.copy())])
+interview_or_site_visit = gen.xor(conduct_interview.copy(), conduct_site_visit.copy())
+select_supplier_submodel = gen.partial_order(dependencies=[(evaluation_submodel.copy(), interview_or_site_visit),
+                                                           (interview_or_site_visit, select_supplier.copy())])
+sign_contract_submodel = gen.partial_order(dependencies=[(select_supplier_submodel.copy(), begin_negotiations),
+                                                         (begin_negotiations, sign_contract.copy())])
+onboard_supplier_submodel = gen.partial_order(dependencies=[(sign_contract_submodel.copy(), execute_contract),
+                                                            (execute_contract, onboard_supplier)])
+
+# Define final model
+final_model = gen.partial_order(dependencies=[(identify_need, issue_rfp),
+                                              (issue_rfp, select_supplier_submodel),
+                                              (select_supplier_submodel, sign_contract_submodel),
+                                              (sign_contract_submodel, onboard_supplier_submodel)])

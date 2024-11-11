@@ -1,0 +1,45 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Activities
+guest_calls = gen.activity('Guest calls room service')
+manager_takes_order = gen.activity('Manager takes down the order')
+manager_submits_ticket = gen.activity('Manager submits order ticket to kitchen')
+manager_gives_order_to_sommelier = gen.activity('Manager gives order to sommelier')
+sommelier_fetches_and_preparing = gen.activity('Sommelier fetches wine and prepare alcoholic beverages')
+manager_assigns_order = gen.activity('Manager assigns order to waiter')
+waiter_readies_cart = gen.activity('Waiter readies cart')
+waiter_prepares_nonalcoholic = gen.activity('Waiter prepares nonalcoholic drinks')
+kitchen_prepares_food = gen.activity('Kitchen prepares food')
+waiter_delivers_order = gen.activity('Waiter delivers order to guest\'s room')
+waiter_returns = gen.activity('Waiter returns to room-service station')
+waiter_debits_account = gen.activity('Waiter debits guest\'s account')
+waiter_waits_debiting = gen.activity('Waiter waits/delays debiting')
+
+# Sommelier and Waiter tasks
+sommelier_procedure = sommelier_fetches_and_preparing
+waiter_procedures = gen.partial_order(dependencies=[(waiter_readies_cart, waiter_prepares_nonalcoholic)])
+
+# Create a copy of sommelier_fetches_and_preparing to avoid reuse
+sommelier_procedure_copy = sommelier_fetches_and_preparing.copy()
+
+# Kitchen and Sommelier tasks
+kitchen_sommelier_procedures = gen.partial_order(dependencies=[(kitchen_prepares_food,), (sommelier_procedure_copy,)])
+
+# Final partial order for the whole process
+final_model = gen.partial_order(
+    dependencies=[
+        (guest_calls, manager_takes_order),
+        (manager_takes_order, manager_submits_ticket),
+        (manager_takes_order, manager_gives_order_to_sommelier),
+        (manager_takes_order, manager_assigns_order),
+        (manager_gives_order_to_sommelier, sommelier_procedure),
+        (manager_assigns_order, waiter_procedures),
+        (manager_submits_ticket, kitchen_sommelier_procedures),
+        (kitchen_sommelier_procedures, waiter_delivers_order),
+        (waiter_procedures, waiter_delivers_order),
+        (waiter_delivers_order, waiter_returns),
+        (waiter_returns, waiter_debits_account),
+        (waiter_returns, waiter_waits_debiting),
+        (waiter_waits_debiting, waiter_debits_account)
+    ])

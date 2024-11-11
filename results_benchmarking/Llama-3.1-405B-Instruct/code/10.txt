@@ -1,0 +1,22 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+submit_request = gen.activity('Submit IT solution request')
+assess_compatibility = gen.activity('Assess compatibility')
+evaluate_cost = gen.activity('Evaluate cost and resource needs')
+approve = gen.xor(gen.activity('Approve'), gen.activity('Reject'))
+
+procure_tools = gen.activity('Procure necessary tools or licenses')
+install_solution = gen.activity('Install the solution')
+test_solution = gen.activity('Test solution')
+roll_out_solution = gen.activity('Roll out solution to requesting department')
+provide_training = gen.xor(gen.activity('Provide training'), None)
+provide_support = gen.activity('Provide support for troubleshooting')
+
+installation_poset = gen.partial_order(dependencies=[(procure_tools, install_solution), (install_solution, test_solution)])
+
+approved_poset = gen.partial_order(
+    dependencies=[(assess_compatibility, evaluate_cost), (evaluate_cost, approve),
+                  (approve, installation_poset), (installation_poset, roll_out_solution)])
+
+final_model = gen.partial_order(dependencies=[(submit_request, approved_poset), (approved_poset, provide_training), (approved_poset, provide_support), (provide_training, provide_support)])

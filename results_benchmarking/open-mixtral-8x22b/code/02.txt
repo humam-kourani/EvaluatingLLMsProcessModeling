@@ -1,0 +1,46 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator(True, True)
+
+# Define activities
+identify_need = gen.activity('Identify need for new hire')
+create_job_description = gen.activity('Create job description')
+post_job_description = gen.activity('Post job description')
+collect_resumes = gen.activity('Collect resumes')
+screen_resumes = gen.activity('Screen resumes')
+initial_phone_interviews = gen.activity('Conduct initial phone interviews')
+invite_candidates = gen.activity('Invite candidates for interviews')
+virtual_interview = gen.activity('Conduct a virtual interview')
+in_person_interview = gen.activity('Conduct an in-person interview')
+choose_candidate = gen.activity('Choose candidate')
+extend_offer = gen.activity('Extend offer')
+negotiate_salary = gen.activity('Negotiate salary')
+begin_onboarding = gen.activity('Begin onboarding process')
+complete_paperwork = gen.activity('Complete paperwork')
+orientation = gen.activity('Complete orientation')
+training = gen.activity('Complete training')
+
+# Define the process structure
+post_job_description_process = gen.partial_order(dependencies=[(create_job_description, post_job_description)])
+collect_resumes_process = gen.partial_order(dependencies=[(post_job_description_process.copy(), collect_resumes)])
+resume_screening_process = gen.partial_order(dependencies=[(collect_resumes_process.copy(), screen_resumes)])
+phone_interviews_process = gen.partial_order(dependencies=[(resume_screening_process.copy(), initial_phone_interviews)])
+interviews_process = gen.partial_order(dependencies=[(invite_candidates, gen.xor(virtual_interview, in_person_interview))])
+choose_candidate_process = gen.partial_order(dependencies=[(interviews_process, choose_candidate)])
+offer_process = gen.partial_order(dependencies=[(choose_candidate_process.copy(), extend_offer)])
+salary_negotiations_process = gen.partial_order(dependencies=[(offer_process.copy(), gen.xor(negotiate_salary, None))])
+onboarding_process = gen.partial_order(
+    dependencies=[(salary_negotiations_process, begin_onboarding),
+                  (begin_onboarding, complete_paperwork),
+                  (complete_paperwork, orientation),
+                  (orientation, training)])
+
+# Combine all process parts
+final_model = gen.partial_order(dependencies=[(identify_need, post_job_description_process.copy()),
+                                              (post_job_description_process.copy(), resume_screening_process.copy()),
+                                              (resume_screening_process.copy(), phone_interviews_process.copy()),
+                                              (phone_interviews_process.copy(), invite_candidates.copy()),
+                                              (invite_candidates.copy(), interviews_process.copy()),
+                                              (interviews_process.copy(), choose_candidate_process),
+                                              (choose_candidate_process, offer_process),
+                                              (offer_process, salary_negotiations_process),
+                                              (salary_negotiations_process, onboarding_process)])

@@ -1,0 +1,78 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Activities
+send_notification = gen.activity('Send notification')
+prepare_financial_statements = gen.activity('Prepare financial statements')
+gather_documents = gen.activity('Gather necessary documents')
+check_regulatory_updates = gen.activity('Check for regulatory updates')
+submit_documents = gen.activity('Submit documents')
+review_submission = gen.activity('Review submission')
+request_clarifications = gen.activity('Request clarifications of discrepancies')
+receive_clarifications = gen.activity('Receive clarifications')
+evaluate_financial_risks = gen.activity('Evaluate financial risks')
+evaluate_operational_risks = gen.activity('Evaluate operational risks')
+evaluate_compliance_risks = gen.activity('Evaluate compliance risks')
+launch_investigation = gen.activity('Launch detailed investigation')
+conduct_data_analysis = gen.activity('Conduct data analysis')
+conduct_interviews = gen.activity('Conduct interviews')
+perform_site_visits = gen.activity('Perform site visits')
+compile_audit_report = gen.activity('Compile audit report')
+review_report_by_audit_director = gen.activity('Review report by audit director')
+approve_report = gen.activity('Approve report')
+send_report_for_revision = gen.activity('Send report for revision')
+update_and_resubmit_report = gen.activity('Update and resubmit report')
+distribute_final_report = gen.activity('Distribute final report')
+archive_report = gen.activity('Archive report')
+close_audit_process = gen.activity('Close audit process')
+
+# Review and Clarification Loop
+clarification_loop = gen.loop(
+    do=receive_clarifications,
+    redo=request_clarifications
+)
+
+# Revisions Loop
+revision_loop = gen.loop(
+    do=update_and_resubmit_report,
+    redo=send_report_for_revision
+)
+
+# Decision after report review
+decision_after_review = gen.xor(
+    approve_report,
+    revision_loop
+)
+
+# Main process flow
+main_process = gen.partial_order(
+    dependencies=[
+        (send_notification, prepare_financial_statements),
+        (send_notification, gather_documents),
+        (send_notification, check_regulatory_updates),
+        (gather_documents, submit_documents),
+        (submit_documents, review_submission),
+        (review_submission, clarification_loop),
+        (evaluate_financial_risks,),
+        (evaluate_operational_risks,),
+        (evaluate_compliance_risks,),
+        (clarification_loop, evaluate_financial_risks),
+        (clarification_loop, evaluate_operational_risks),
+        (clarification_loop, evaluate_compliance_risks),
+        (evaluate_financial_risks, launch_investigation),
+        (evaluate_operational_risks, launch_investigation),
+        (evaluate_compliance_risks, launch_investigation),
+        (launch_investigation, conduct_data_analysis),
+        (launch_investigation, conduct_interviews),
+        (launch_investigation, perform_site_visits),
+        (launch_investigation, compile_audit_report),
+        (compile_audit_report, review_report_by_audit_director),
+        (review_report_by_audit_director, decision_after_review),
+        (decision_after_review, distribute_final_report),
+        (distribute_final_report, archive_report),
+        (archive_report, close_audit_process)
+    ]
+)
+
+# Final model
+final_model = main_process

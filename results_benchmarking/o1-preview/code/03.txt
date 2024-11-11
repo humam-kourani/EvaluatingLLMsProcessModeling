@@ -1,0 +1,36 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+check_inventory = gen.activity('Check current inventory level')
+send_automated_alert = gen.activity('Send an automated alert')
+send_manual_alert = gen.activity('Send a manual alert')
+alert_choice = gen.xor(send_automated_alert, send_manual_alert)
+place_order = gen.activity('Place order with suppliers')
+update_expected_delivery = gen.activity('Update inventory system with expected delivery dates')
+receive_stock = gen.activity('Receive stock')
+inspect_stock = gen.activity('Inspect stock for quality')
+record_stock = gen.activity('Record stock in system')
+place_on_shelves = gen.activity('Place stock on shelves')
+place_in_storage = gen.activity('Place stock in storage')
+place_choice = gen.xor(place_on_shelves, place_in_storage)
+update_inventory_levels = gen.activity('Update inventory levels')
+
+# Create loop over checking inventory levels
+check_inventory_loop = gen.loop(do=check_inventory, redo=None)
+
+# Define dependencies
+dependencies = [
+    (check_inventory_loop, alert_choice),
+    (alert_choice, place_order),
+    (place_order, update_expected_delivery),
+    (update_expected_delivery, receive_stock),
+    (receive_stock, inspect_stock),
+    (inspect_stock, record_stock),
+    (inspect_stock, place_choice),
+    (record_stock, update_inventory_levels),
+    (place_choice, update_inventory_levels)
+]
+
+# Create partial order
+final_model = gen.partial_order(dependencies=dependencies)

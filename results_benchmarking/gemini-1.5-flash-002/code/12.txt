@@ -1,0 +1,42 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+identify_needs = gen.activity('Identify development needs or career aspirations')
+create_plan = gen.activity('Create personal development plan')
+work_on_skills = gen.activity('Work on skill enhancement')
+receive_feedback = gen.activity('Receive feedback and evaluation from supervisors')
+consider_promotion = gen.activity('Consider employee for promotion or new role')
+hr_review = gen.activity('Conducts formal performance review')
+approve_promotion = gen.activity('Approve promotion')
+set_responsibilities = gen.activity('Set new responsibilities')
+adjust_compensation = gen.activity('Adjust compensation')
+transition_role = gen.activity('Transition into new role')
+
+
+# Partial Orders and Loops
+
+# Combining the initial steps
+initial_plan = gen.partial_order(dependencies=[(identify_needs, create_plan)])
+
+# Combining skill enhancement and feedback
+skill_enhancement_loop = gen.loop(do=work_on_skills, redo=receive_feedback)
+
+# Combining the promotion consideration and HR review
+# Create copies to avoid reuse errors
+hr_review_copy_1 = hr_review.copy()
+consider_promotion_copy = consider_promotion.copy()
+promotion_process = gen.partial_order(dependencies=[(skill_enhancement_loop, consider_promotion_copy), (consider_promotion_copy, hr_review_copy_1)])
+
+
+# Final steps after promotion approval
+final_steps = gen.partial_order(dependencies=[(approve_promotion, set_responsibilities), (approve_promotion, adjust_compensation), (set_responsibilities, transition_role), (adjust_compensation, transition_role)])
+
+# Combining all parts into a single process
+# Create copies to avoid reuse errors
+hr_review_copy_2 = hr_review.copy()
+approve_promotion_copy = approve_promotion.copy()
+overall_process = gen.partial_order(dependencies=[(initial_plan, promotion_process), (hr_review_copy_2, approve_promotion_copy), (approve_promotion_copy, final_steps)])
+
+final_model = overall_process

@@ -1,0 +1,36 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+identify_need = gen.activity('Identify need for new hire')
+create_job_description = gen.activity('Create job description')
+post_job_description = gen.activity('Post job description')
+collect_resumes = gen.activity('Collect resumes')
+screen_resumes = gen.activity('Screen resumes')
+initial_phone_interviews = gen.activity('Conduct initial phone interviews')
+in_person_interview = gen.activity('Conduct an in-person interview')
+virtual_interview = gen.activity('Conduct a virtual interview')
+choose_candidate = gen.activity('Choose candidate')
+extend_offer = gen.activity('Extend offer')
+negotiate_salary = gen.activity('Negotiate salary')
+begin_onboarding = gen.activity('Begin onboarding process')
+complete_paperwork = gen.activity('Complete paperwork')
+complete_orientation = gen.activity('Complete orientation')
+complete_training = gen.activity('Complete training')
+
+# Define subprocesses
+post_job = gen.partial_order(dependencies=[(create_job_description, post_job_description)])
+screen_resumes_process = gen.partial_order(dependencies=[(collect_resumes, screen_resumes), (screen_resumes, initial_phone_interviews)])
+interview_process = gen.xor(in_person_interview, virtual_interview)
+# Create a copy of initial_phone_interviews for the select_candidate subprocess
+initial_phone_interviews_copy = initial_phone_interviews.copy()
+# Create a copy of choose_candidate for the offer_process subprocess
+choose_candidate_copy = choose_candidate.copy()
+select_candidate = gen.partial_order(dependencies=[(initial_phone_interviews_copy, interview_process), (interview_process, choose_candidate)])
+offer_process = gen.partial_order(dependencies=[(choose_candidate_copy, extend_offer), (extend_offer, negotiate_salary)])
+onboarding_process = gen.partial_order(dependencies=[(begin_onboarding, complete_paperwork), (complete_paperwork, complete_orientation), (complete_orientation, complete_training)])
+# Create a copy of begin_onboarding for the final partial order
+begin_onboarding_copy = begin_onboarding.copy()
+
+# Define the full process
+final_model = gen.partial_order(dependencies=[(identify_need, post_job), (post_job, screen_resumes_process), (screen_resumes_process, select_candidate), (select_candidate, offer_process), (offer_process, begin_onboarding_copy), (begin_onboarding_copy, onboarding_process)])

@@ -1,0 +1,42 @@
+from utils.model_generation import ModelGenerator
+
+# Initialize the generator
+gen = ModelGenerator()
+
+# Define activities
+login = gen.activity('Login')
+select_items = gen.activity('Select items')
+set_payment_method = gen.activity('Set payment method')
+pay = gen.activity('Pay')
+installment_agreement = gen.activity('Complete installment agreement')
+select_reward = gen.activity('Select free reward')
+deliver_items = gen.activity('Deliver items')
+return_items = gen.activity('Return items')
+
+# Define concurrent activities for selecting items and setting payment method
+concurrent_select_payment = gen.partial_order(
+    dependencies=[(select_items,), (set_payment_method,)])
+
+# Define XOR choice for either paying or completing installment agreement
+payment_choice = gen.xor(pay, installment_agreement)
+
+# Define the selection of reward after items are selected, which is independent of payment
+poset_reward_payment = gen.partial_order(
+    dependencies=[(concurrent_select_payment, select_reward), (concurrent_select_payment, payment_choice)])
+
+# Define the delivery of items after the payment and reward selection
+poset_delivery = gen.partial_order(
+    dependencies=[(poset_reward_payment, deliver_items)])
+
+# Create a copy of the deliver_items for reuse in the return loop
+deliver_items_copy = deliver_items.copy()
+
+# Define the loop for returning items and receiving a new delivery
+return_loop = gen.loop(do=return_items, redo=deliver_items_copy)
+
+# Combine the login step with the main process and the return loop
+final_poset = gen.partial_order(
+    dependencies=[(login, poset_delivery), (poset_delivery, return_loop)])
+
+# Final model
+final_model = final_poset

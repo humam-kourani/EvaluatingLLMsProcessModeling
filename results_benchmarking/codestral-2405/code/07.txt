@@ -1,0 +1,32 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+search_ticket = gen.activity('Customer searches for ticket')
+select_route = gen.activity('Select route')
+select_date_time = gen.activity('Select date and time')
+personal_info = gen.activity('Provide personal information')
+payment_details = gen.activity('Provide payment details')
+generate_ticket = gen.activity('Generate ticket')
+send_email = gen.activity('Send ticket via email')
+send_sms = gen.activity('Send ticket via SMS')
+update_inventory = gen.activity('Update seat inventory')
+send_reminder = gen.activity('Send reminder')
+send_instructions = gen.activity('Send instructions')
+complete_journey = gen.activity('Customer completes journey')
+post_travel_feedback = gen.activity('Post-travel feedback or services')
+
+# Define subprocesses
+select_options = gen.partial_order(dependencies=[(select_route, select_date_time)])
+provide_details = gen.partial_order(dependencies=[(personal_info, payment_details)])
+send_ticket = gen.xor(send_email, send_sms)
+pre_travel_services = gen.xor(send_reminder, send_instructions)
+
+# Define main process
+main_process = gen.partial_order(
+    dependencies=[(search_ticket, select_options), (select_options, provide_details),
+                 (provide_details, generate_ticket), (generate_ticket, send_ticket),
+                 (generate_ticket, update_inventory), (send_ticket, pre_travel_services),
+                 (pre_travel_services, complete_journey), (complete_journey, post_travel_feedback)])
+
+final_model = main_process

@@ -1,0 +1,38 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+identify_need = gen.activity('Identify need for new hire')
+create_job_description = gen.activity('Create job description')
+post_job_description = gen.activity('Post job description')
+collect_resumes = gen.activity('Collect resumes')
+screen_resumes = gen.activity('Screen resumes')
+initial_phone_interviews = gen.activity('Conduct initial phone interviews')
+invite_candidates = gen.activity('Invite candidates for interviews')
+in_person_interview = gen.activity('Conduct an in-person interview')
+virtual_interview = gen.activity('Conduct a virtual interview')
+interview_choice = gen.xor(in_person_interview, virtual_interview)
+choose_candidate = gen.activity('Choose candidate')
+extend_offer = gen.activity('Extend offer')
+negotiate_salary = gen.xor(gen.activity('Negotiate salary'), None)
+begin_onboarding = gen.activity('Begin onboarding process')
+complete_paperwork = gen.activity('Complete paperwork')
+complete_orientation = gen.activity('Complete orientation')
+complete_training = gen.activity('Complete training')
+
+resumes_screening_interviews = gen.partial_order(
+    dependencies=[(collect_resumes, screen_resumes), (screen_resumes, initial_phone_interviews),
+                  (initial_phone_interviews, invite_candidates), (invite_candidates, interview_choice),
+                  (interview_choice, choose_candidate)])
+
+onboarding = gen.partial_order(
+    dependencies=[(begin_onboarding, complete_paperwork), (complete_paperwork, complete_orientation),
+                  (complete_orientation, complete_training)])
+
+job_posting_and_offer = gen.partial_order(
+    dependencies=[(create_job_description, post_job_description), (post_job_description, resumes_screening_interviews),
+                  (resumes_screening_interviews, extend_offer), (extend_offer, negotiate_salary)])
+
+choose_candidate_copy = choose_candidate.copy()
+final_model = gen.partial_order(
+    dependencies=[(identify_need, job_posting_and_offer), (job_posting_and_offer, choose_candidate_copy),
+                  (choose_candidate_copy, onboarding)])

@@ -1,0 +1,43 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Activities
+define_campaign_objectives = gen.activity('Define campaign objectives')
+create_content = gen.activity('Create content')
+design_visuals = gen.activity('Design visuals')
+select_promotion_channels = gen.activity('Select promotion channels')
+launch_campaign = gen.activity('Launch campaign')
+track_performance = gen.activity('Track performance in real-time')
+collect_leads = gen.activity('Collect leads in CRM system')
+sales_follow_up = gen.activity('Sales teams follows up on leads')
+campaign_ends = gen.activity('Campaign period ends')
+analyze_performance = gen.activity('Analyze performance for future optimization')
+
+# Partial order for content creation and visuals design
+content_visuals_poset = gen.partial_order(dependencies=[(create_content,), (design_visuals,)])
+
+# Partial order for content creation, visuals design, and channel selection
+content_visuals_channels_poset = gen.partial_order(
+    dependencies=[(content_visuals_poset, select_promotion_channels)])
+
+# Partial order for tracking performance and collecting leads
+track_performance_copy = track_performance.copy()
+launch_campaign_copy = launch_campaign.copy()
+track_collect_poset = gen.partial_order(
+    dependencies=[(launch_campaign_copy, track_performance_copy), (launch_campaign_copy, collect_leads)])
+
+# Create a copy of collect_leads for the second use
+collect_leads_copy = collect_leads.copy()
+
+# Partial order for sales follow-up and campaign ends
+track_performance_copy_2 = track_performance.copy()
+follow_up_end_poset = gen.partial_order(
+    dependencies=[(collect_leads_copy, sales_follow_up), (track_performance_copy_2, campaign_ends)])
+
+# Final partial order
+final_model = gen.partial_order(
+    dependencies=[(define_campaign_objectives, content_visuals_channels_poset),
+                  (content_visuals_channels_poset, launch_campaign),
+                  (launch_campaign, track_collect_poset),
+                  (track_collect_poset, follow_up_end_poset),
+                  (follow_up_end_poset, analyze_performance)])

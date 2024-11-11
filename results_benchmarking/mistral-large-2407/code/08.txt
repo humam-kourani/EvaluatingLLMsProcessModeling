@@ -1,0 +1,34 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+report_incident = gen.activity('Report incident')
+log_report = gen.activity('Log report into tracking system')
+assign_report = gen.activity('Assign report to appropriate team')
+gather_info = gen.activity('Gather necessary information')
+identify_cause = gen.activity('Identify cause of incident')
+propose_actions = gen.activity('Propose corrective actions')
+implement_fix = gen.activity('Implement fix')
+conduct_training = gen.activity('Conduct training')
+change_policy = gen.activity('Change policy')
+conduct_follow_up = gen.activity('Conduct follow-up')
+notify_stakeholders = gen.activity('Notify all stakeholders')
+close_report = gen.activity('Close incident report')
+
+# Define potential corrective actions as a choice
+corrective_actions = gen.xor(implement_fix, conduct_training, change_policy)
+
+# Define the main partial order of activities
+final_model = gen.partial_order(
+    dependencies=[
+        (report_incident, log_report),
+        (log_report, assign_report),
+        (assign_report, gather_info),
+        (gather_info, identify_cause),
+        (identify_cause, propose_actions),
+        (propose_actions, corrective_actions),
+        (corrective_actions, conduct_follow_up),
+        (conduct_follow_up, notify_stakeholders),
+        (notify_stakeholders, close_report)
+    ]
+)

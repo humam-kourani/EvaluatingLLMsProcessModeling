@@ -1,0 +1,56 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+customer_signs_up = gen.activity('Customer signs up')
+generate_account = gen.activity('Generate account')
+assign_access = gen.activity('Assign access')
+set_billing_triggers = gen.activity('Set automatic triggers for billing cycles')
+send_regular_updates = gen.activity('Send regular updates')
+send_product_enhancements = gen.activity('Send product enhancements')
+send_renewal_notifications = gen.activity('Send renewal notifications')
+customer_submits_cancellation_request = gen.activity('Customer submits cancellation request')
+process_cancellation_request = gen.activity('Process cancellation request')
+apply_charges = gen.activity('apply charges')
+apply_refund = gen.activity('apply refund')
+deactivate_subscription = gen.activity('Deactivate subscription')
+settle_final_account_balance = gen.activity('Settle final account balance')
+
+# Define the initial signup and account setup process
+initial_process = gen.partial_order(dependencies=[
+    (customer_signs_up, generate_account),
+    (generate_account, assign_access),
+    (assign_access, set_billing_triggers)
+])
+
+# Create a copy of set_billing_triggers for the ongoing activities
+set_billing_triggers_copy = set_billing_triggers.copy()
+
+# Define the ongoing subscription activities
+ongoing_activities = gen.partial_order(dependencies=[
+    (set_billing_triggers_copy, send_regular_updates),
+    (set_billing_triggers_copy, send_product_enhancements),
+    (set_billing_triggers_copy, send_renewal_notifications)
+])
+
+# Define the cancellation process
+apply_refunds_or_charges = gen.xor(apply_refund, apply_charges)
+cancellation_process = gen.partial_order(dependencies=[
+    (customer_submits_cancellation_request, process_cancellation_request),
+    (process_cancellation_request, apply_refunds_or_charges),
+    (apply_refunds_or_charges, deactivate_subscription),
+    (deactivate_subscription, settle_final_account_balance)
+])
+
+# Create a copy of customer_submits_cancellation_request for the final partial order
+customer_submits_cancellation_request_copy = customer_submits_cancellation_request.copy()
+
+# Combine the initial process, ongoing activities, and the cancellation process
+final_model = gen.partial_order(dependencies=[
+    (initial_process, ongoing_activities),
+    (ongoing_activities, customer_submits_cancellation_request_copy),
+    (customer_submits_cancellation_request_copy, cancellation_process)
+])
+
+# Save the final model
+final_model = final_model

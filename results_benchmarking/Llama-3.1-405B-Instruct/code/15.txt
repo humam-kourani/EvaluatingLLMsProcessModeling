@@ -1,0 +1,22 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+schedule_compliance_audit = gen.activity('Schedule compliance audit')
+prepare_documentation = gen.activity('Prepare documentation')
+gather_evidence = gen.activity('Gather evidence')
+conduct_self_assessment = gen.activity('Conduct self-assessment')
+poset_1 = gen.partial_order(dependencies=[(schedule_compliance_audit, prepare_documentation), 
+                                          (schedule_compliance_audit, gather_evidence), 
+                                          (schedule_compliance_audit, conduct_self_assessment)])
+conduct_external_audit = gen.activity('Conduct external audit')
+identify_gaps_or_issues = gen.activity('Identify gaps or issues')
+poset_2 = gen.partial_order(dependencies=[(poset_1, conduct_external_audit), 
+                                          (conduct_external_audit, identify_gaps_or_issues)])
+make_necessary_corrections_or_improvements = gen.activity('Make necessary corrections or improvements')
+conduct_final_audit = gen.activity('Conduct final audit')
+award_certification = gen.activity('Award certification')
+issue_official_documents = gen.activity('Issue official documents')
+poset_3 = gen.partial_order(dependencies=[(identify_gaps_or_issues.copy(), make_necessary_corrections_or_improvements), 
+                                          (make_necessary_corrections_or_improvements, conduct_final_audit), 
+                                          (conduct_final_audit, award_certification), 
+                                          (award_certification, issue_official_documents)])
+final_model = gen.partial_order(dependencies=[(poset_2, poset_3)])

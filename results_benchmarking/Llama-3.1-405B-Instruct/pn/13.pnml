@@ -1,0 +1,172 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml>
+  <net id="imdf_net_1729596566.526605" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <name>
+      <text>imdf_net_1729596566.526605</text>
+    </name>
+    <page id="n0">
+      <place id="p_43">
+        <name>
+          <text>p_43</text>
+        </name>
+      </place>
+      <place id="p_32">
+        <name>
+          <text>p_32</text>
+        </name>
+      </place>
+      <place id="p_21">
+        <name>
+          <text>p_21</text>
+        </name>
+      </place>
+      <place id="p_16">
+        <name>
+          <text>p_16</text>
+        </name>
+      </place>
+      <place id="p_11">
+        <name>
+          <text>p_11</text>
+        </name>
+      </place>
+      <place id="p_23">
+        <name>
+          <text>p_23</text>
+        </name>
+      </place>
+      <place id="p_24">
+        <name>
+          <text>p_24</text>
+        </name>
+      </place>
+      <place id="source">
+        <name>
+          <text>source</text>
+        </name>
+        <initialMarking>
+          <text>1</text>
+        </initialMarking>
+      </place>
+      <place id="sink">
+        <name>
+          <text>sink</text>
+        </name>
+      </place>
+      <place id="p_13">
+        <name>
+          <text>p_13</text>
+        </name>
+      </place>
+      <place id="p_22">
+        <name>
+          <text>p_22</text>
+        </name>
+      </place>
+      <place id="p_36">
+        <name>
+          <text>p_36</text>
+        </name>
+      </place>
+      <transition id="1a70d1a0-939d-4176-b379-bec47212bff1">
+        <name>
+          <text>Provide feedback</text>
+        </name>
+      </transition>
+      <transition id="df4dd122-8ed8-4c15-926c-b8605d2e8082">
+        <name>
+          <text>Approve and notify customer</text>
+        </name>
+      </transition>
+      <transition id="3e29c091-db3b-4c46-aeec-4fb372e02448">
+        <name>
+          <text>File complaint</text>
+        </name>
+      </transition>
+      <transition id="a6f5593b-24fb-4021-ba72-7187862d4137">
+        <name>
+          <text>Review complaint details</text>
+        </name>
+      </transition>
+      <transition id="ceaba5a2-4650-4491-bd23-1b0503eca5d5">
+        <name>
+          <text>Approve and notify customer</text>
+        </name>
+      </transition>
+      <transition id="1212e4e2-f0f7-41a9-862c-1b72492a53b8">
+        <name>
+          <text>Reject and notify customer</text>
+        </name>
+      </transition>
+      <transition id="387edb6d-865a-423f-90c9-051d1cf9b6a3">
+        <name>
+          <text>Log complaint</text>
+        </name>
+      </transition>
+      <transition id="final_par_18">
+        <name>
+          <text>final_par_18</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="53311a51-86a0-472f-b953-7cda9bb41fdb"/>
+      </transition>
+      <transition id="fc030e30-934d-458e-802f-77959f6cbc39">
+        <name>
+          <text>Reject and notify customer</text>
+        </name>
+      </transition>
+      <transition id="80c371e3-5e59-47f3-bb01-b5a9a0bb51ca">
+        <name>
+          <text>Resolve complaint</text>
+        </name>
+      </transition>
+      <transition id="af1693ea-ba73-480d-a92b-48c620860857">
+        <name>
+          <text>Process reimbursement</text>
+        </name>
+      </transition>
+      <transition id="b103dea7-4a85-48ba-8ea3-e3171ef7749e">
+        <name>
+          <text>Assign complaint to relevant department</text>
+        </name>
+      </transition>
+      <transition id="977f3aeb-b6b3-4b71-8297-0c8c3ef9d838">
+        <name>
+          <text>Resolve complaint</text>
+        </name>
+      </transition>
+      <arc id="1636287827968" source="387edb6d-865a-423f-90c9-051d1cf9b6a3" target="p_13"/>
+      <arc id="1636287826432" source="final_par_18" target="p_23"/>
+      <arc id="1636288280656" source="p_36" target="80c371e3-5e59-47f3-bb01-b5a9a0bb51ca"/>
+      <arc id="1636287824992" source="p_23" target="1212e4e2-f0f7-41a9-862c-1b72492a53b8"/>
+      <arc id="1636288279648" source="p_11" target="387edb6d-865a-423f-90c9-051d1cf9b6a3"/>
+      <arc id="1636287830128" source="1212e4e2-f0f7-41a9-862c-1b72492a53b8" target="p_43"/>
+      <arc id="1636287824560" source="df4dd122-8ed8-4c15-926c-b8605d2e8082" target="p_32"/>
+      <arc id="1636287728368" source="p_32" target="af1693ea-ba73-480d-a92b-48c620860857"/>
+      <arc id="1636287826672" source="977f3aeb-b6b3-4b71-8297-0c8c3ef9d838" target="p_24"/>
+      <arc id="1636287830272" source="source" target="3e29c091-db3b-4c46-aeec-4fb372e02448"/>
+      <arc id="1636287831808" source="3e29c091-db3b-4c46-aeec-4fb372e02448" target="p_11"/>
+      <arc id="1636287824128" source="p_23" target="df4dd122-8ed8-4c15-926c-b8605d2e8082"/>
+      <arc id="1636287833344" source="p_24" target="1a70d1a0-939d-4176-b379-bec47212bff1"/>
+      <arc id="1636288275232" source="p_13" target="b103dea7-4a85-48ba-8ea3-e3171ef7749e"/>
+      <arc id="1636288275760" source="p_21" target="ceaba5a2-4650-4491-bd23-1b0503eca5d5"/>
+      <arc id="1636287824176" source="80c371e3-5e59-47f3-bb01-b5a9a0bb51ca" target="p_24"/>
+      <arc id="1636288273744" source="fc030e30-934d-458e-802f-77959f6cbc39" target="p_22"/>
+      <arc id="1636287825232" source="p_43" target="977f3aeb-b6b3-4b71-8297-0c8c3ef9d838"/>
+      <arc id="1636287837040" source="1a70d1a0-939d-4176-b379-bec47212bff1" target="sink"/>
+      <arc id="1636287832960" source="a6f5593b-24fb-4021-ba72-7187862d4137" target="p_21"/>
+      <arc id="1636288266640" source="p_16" target="a6f5593b-24fb-4021-ba72-7187862d4137"/>
+      <arc id="1636288277920" source="ceaba5a2-4650-4491-bd23-1b0503eca5d5" target="p_22"/>
+      <arc id="1636287834544" source="af1693ea-ba73-480d-a92b-48c620860857" target="p_36"/>
+      <arc id="1636287824320" source="b103dea7-4a85-48ba-8ea3-e3171ef7749e" target="p_16"/>
+      <arc id="1636288273360" source="p_21" target="fc030e30-934d-458e-802f-77959f6cbc39"/>
+      <arc id="1636288275424" source="p_22" target="final_par_18"/>
+    </page>
+    <finalmarkings>
+      <marking>
+        <place idref="sink">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
+  </net>
+</pnml>

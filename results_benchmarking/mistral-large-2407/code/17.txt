@@ -1,0 +1,72 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+place_order = gen.activity('Place order')
+record_order_details = gen.activity('Record order details')
+process_payment = gen.activity('Process payment')
+notify_failed_payment = gen.activity('Notify about failed payment')
+check_stock_availability = gen.activity('Check stock availability')
+initiate_back_order = gen.activity('Initiate back-order')
+inform_customer_about_delay = gen.activity('Inform customer about delay')
+receive_back_order = gen.activity('Receive back-order')
+pick_items = gen.activity('Pick items from warehouse')
+perform_quality_checks = gen.activity('Perform quality control checks')
+package_items = gen.activity('Package items')
+gift_wrap_items = gen.activity('Gift wrap items')
+prepare_shipping_docs = gen.activity('Prepare shipping documents and labels')
+prepare_customs_docs = gen.activity('Prepare documentation for international orders')
+dispatch_order = gen.activity('Dispatch order')
+send_shipping_confirmation = gen.activity('Send shipping confirmation to customer')
+update_inventory_levels = gen.activity('Update inventory levels')
+confirm_delivery = gen.activity('Confirm delivery')
+send_follow_up_email = gen.activity('Send follow-up email')
+customer_reports_issue = gen.activity('Customer reports issue')
+send_return_label = gen.activity('Send return shipping label')
+receive_returned_items = gen.activity('Receive returned items')
+inspect_returned_items = gen.activity('Inspect returned items')
+process_replacement = gen.activity('Process replacement')
+process_refund = gen.activity('Process refund')
+
+# Define submodels
+payment_success = gen.partial_order(dependencies=[(process_payment.copy(), check_stock_availability.copy())])
+payment_failure = gen.partial_order(dependencies=[(process_payment.copy(), notify_failed_payment)])
+payment_choice = gen.xor(payment_success, payment_failure)
+
+no_back_order = gen.partial_order(dependencies=[(check_stock_availability.copy(), pick_items.copy())])
+back_order = gen.partial_order(dependencies=[(check_stock_availability.copy(), initiate_back_order),
+                                             (initiate_back_order, inform_customer_about_delay),
+                                             (inform_customer_about_delay, receive_back_order),
+                                             (receive_back_order, pick_items.copy())])
+stock_choice = gen.xor(no_back_order, back_order)
+
+quality_checks_and_packaging = gen.partial_order(dependencies=[(pick_items.copy(), perform_quality_checks),
+                                                               (perform_quality_checks, package_items.copy()),
+                                                               (package_items.copy(), gift_wrap_items)])
+
+shipping_docs = gen.partial_order(dependencies=[(prepare_shipping_docs, prepare_customs_docs)])
+
+dispatch_and_notify = gen.partial_order(dependencies=[(package_items.copy(), dispatch_order),
+                                                     (dispatch_order, send_shipping_confirmation.copy())])
+
+update_inventory_and_confirm_delivery = gen.partial_order(dependencies=[(send_shipping_confirmation.copy(), update_inventory_levels),
+                                                                       (update_inventory_levels, confirm_delivery),
+                                                                       (confirm_delivery, send_follow_up_email)])
+
+returns_process = gen.partial_order(dependencies=[(customer_reports_issue, send_return_label),
+                                                 (send_return_label, receive_returned_items),
+                                                 (receive_returned_items, inspect_returned_items),
+                                                 (inspect_returned_items, process_replacement),
+                                                 (inspect_returned_items, process_refund)])
+
+# Combine all submodels
+final_model = gen.partial_order(
+    dependencies=[(place_order, record_order_details),
+                  (record_order_details, process_payment.copy()),
+                  (process_payment.copy(), payment_choice),
+                  (payment_choice, stock_choice.copy()),
+                  (stock_choice.copy(), quality_checks_and_packaging),
+                  (quality_checks_and_packaging, shipping_docs),
+                  (shipping_docs, dispatch_and_notify),
+                  (dispatch_and_notify, update_inventory_and_confirm_delivery),
+                  (update_inventory_and_confirm_delivery, returns_process)])

@@ -1,0 +1,47 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+outline_objectives = gen.activity('Outline objectives')
+draft_plan = gen.activity('Draft plan')
+conduct_strategic_alignment_meeting_1 = gen.activity('Conduct strategic alignment meeting')  # For the main process
+conduct_strategic_alignment_meeting_2 = gen.activity('Conduct strategic alignment meeting')  # For the strategic and feasibility review
+review_budget_feasibility = gen.activity('Review budget feasibility')
+provide_feedback_1 = gen.activity('Provide feedback')  # For the strategic and feasibility review
+adjust_plan = gen.activity('Adjust Plan')
+document_and_approve_adjustment = gen.activity('Documented and approve adjustment')
+approve_final_budget = gen.activity('Approve final budget')
+distribute_budget = gen.activity('Distribute budget')
+implement_plan = gen.activity('Implement plan')
+
+# Define the loop for review and adjustment
+provide_feedback_loop_start = gen.activity('Provide feedback')  # For the start of the loop
+provide_feedback_loop_end = gen.activity('Provide feedback')  # For the end of the loop
+provide_feedback_loop_redo = gen.activity('Provide feedback')  # For the redo part of the loop
+
+adjust_and_review = gen.partial_order(dependencies=[
+    (provide_feedback_loop_start, adjust_plan),
+    (adjust_plan, document_and_approve_adjustment),
+    (document_and_approve_adjustment, provide_feedback_loop_end)
+])
+loop_review_adjust = gen.loop(do=adjust_and_review, redo=provide_feedback_loop_redo)
+
+# Define the strategic and feasibility review
+strategic_and_feasibility_review = gen.partial_order(dependencies=[
+    (conduct_strategic_alignment_meeting_2, review_budget_feasibility),
+    (review_budget_feasibility, provide_feedback_1)
+])
+
+# Define the main process
+main_process = gen.partial_order(dependencies=[
+    (outline_objectives, draft_plan),
+    (draft_plan, conduct_strategic_alignment_meeting_1),
+    (conduct_strategic_alignment_meeting_1, strategic_and_feasibility_review),
+    (strategic_and_feasibility_review, loop_review_adjust),
+    (loop_review_adjust, approve_final_budget),
+    (approve_final_budget, distribute_budget),
+    (distribute_budget, implement_plan)
+])
+
+# Final model
+final_model = main_process

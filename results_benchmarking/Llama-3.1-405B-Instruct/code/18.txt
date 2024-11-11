@@ -1,0 +1,64 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+submit_application = gen.activity('Submit application online')
+review_application = gen.activity('Review application and documents')
+notify_missing_documents = gen.activity('Notify applicant of missing documents')
+provide_missing_documents = gen.activity('Provide missing documents')
+loop_1 = gen.loop(do=notify_missing_documents, redo=provide_missing_documents)
+choice_1 = gen.xor(loop_1, None)
+evaluate_application = gen.activity('Evaluate application by admissions committee')
+process_fees = gen.activity('Process fees or waivers')
+poset_1 = gen.partial_order(dependencies=[(review_application, choice_1), (review_application, evaluate_application), (review_application, process_fees)])
+
+accept = gen.activity('Send acceptance letter')
+reject = gen.activity('Send rejection letter')
+choice_2 = gen.xor(accept, reject)
+
+confirm_enrollment = gen.activity('Confirm enrollment')
+cancel_application = gen.activity('Cancel application')
+choice_3 = gen.xor(confirm_enrollment, cancel_application)
+
+orientation_materials = gen.activity('Send orientation materials')
+set_up_it_accounts = gen.activity('Set up IT accounts')
+poset_2_dependencies = [(orientation_materials,), (set_up_it_accounts,)]
+poset_2 = gen.partial_order(dependencies=poset_2_dependencies)
+
+assist_visa_processing = gen.activity('Assist with visa processing')
+optional_visa_processing = gen.xor(assist_visa_processing, None)
+
+obtain_student_id = gen.activity('Obtain student ID card')
+create_study_plan = gen.activity('Meet with academic advisor')
+select_courses = gen.activity('Select courses')
+resolve_schedule_conflicts = gen.activity('Resolve schedule conflicts')
+poset_3 = gen.partial_order(dependencies=[(create_study_plan, select_courses), (select_courses, resolve_schedule_conflicts)])
+
+begin_attending_classes = gen.activity('Begin attending classes')
+add_drop_courses = gen.activity('Add/drop courses')
+post_grades = gen.activity('Post grades')
+review_grades = gen.activity('Review grades online')
+poset_4_dependencies = [(add_drop_courses, post_grades), (post_grades, review_grades)]
+poset_4 = gen.partial_order(dependencies=poset_4_dependencies)
+
+submit_appeal = gen.activity('Submit appeal form')
+meet_appeals_committee = gen.activity('Meet with appeals committee')
+await_decision = gen.activity('Await decision')
+poset_5 = gen.partial_order(dependencies=[(submit_appeal, meet_appeals_committee), (meet_appeals_committee, await_decision)])
+optional_appeal = gen.xor(poset_5, None)
+
+graduate = gen.activity('Graduate')
+withdraw = gen.activity('Withdraw')
+choice_4 = gen.xor(graduate, withdraw)
+
+confirm_enrollment_copy = confirm_enrollment.copy()
+obtain_student_id_copy = obtain_student_id.copy()
+begin_attending_classes_copy = begin_attending_classes.copy()
+accept_copy = accept.copy()
+semester_loop = gen.loop(do=poset_4, redo=None)
+loop_back_dependencies = [(confirm_enrollment_copy, poset_2), (poset_2, optional_visa_processing), (optional_visa_processing, obtain_student_id_copy), (obtain_student_id_copy, poset_3), (poset_3, begin_attending_classes_copy), (begin_attending_classes_copy, semester_loop)]
+loop_back = gen.partial_order(dependencies=loop_back_dependencies)
+
+full_enrollment_process_dependencies = [(submit_application, poset_1), (poset_1, choice_2), (accept_copy, choice_3), (choice_3, loop_back), (loop_back, optional_appeal), (optional_appeal, choice_4)]
+full_enrollment_process = gen.partial_order(dependencies=full_enrollment_process_dependencies)
+
+final_model = full_enrollment_process

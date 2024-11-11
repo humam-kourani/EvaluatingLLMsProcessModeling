@@ -1,0 +1,52 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+record_order = gen.activity('Record order details')
+process_payment = gen.activity('Process payment')
+notify_failed_payment = gen.activity('Notify about failed payment')
+check_stock = gen.activity('Check stock availability')
+initiate_back_order = gen.activity('Initiate back-order')
+inform_delay = gen.activity('Inform customer about delay')
+receive_back_order = gen.activity('Receive back-order')
+pick_items = gen.activity('Pick items from warehouse')
+quality_checks = gen.activity('Perform quality control checks')
+gift_wrap = gen.activity('Gift wrap items')
+package_items = gen.activity('Package items')
+prepare_shipping_docs = gen.activity('Prepare shipping documents and labels')
+prepare_customs_docs = gen.activity('Prepare documentation for international orders')
+dispatch_order = gen.activity('Dispatch order')
+send_confirmation = gen.activity('Send shipping confirmation to customer')
+update_inventory = gen.activity('Update inventory levels')
+send_feedback_email = gen.activity('Send follow-up email')
+customer_issues = gen.activity('Customer reports issue')
+send_return_label = gen.activity('Send return shipping label')
+receive_returns = gen.activity('Receive returned items')
+inspect_returns = gen.activity('Inspect returned items')
+process_refund = gen.activity('Process refund')
+process_replacement = gen.activity('Process replacement')
+
+# Process paths
+payment_fail = gen.xor(notify_failed_payment, None)
+stock_check_xor = gen.xor(check_stock, initiate_back_order.copy())  # Use a copy for XOR to keep original for later
+stock_check = gen.xor(check_stock.copy(), initiate_back_order.copy())  # Copy used here for partial order
+back_order_process = gen.partial_order(dependencies=[(initiate_back_order.copy(), inform_delay.copy()), (receive_back_order, pick_items.copy())])
+gift_wrap_optional = gen.xor(gift_wrap, None)
+packaging = gen.partial_order(dependencies=[(pick_items, quality_checks), (quality_checks, package_items), (package_items, gift_wrap_optional)])
+prepare_docs = gen.partial_order(dependencies=[(prepare_shipping_docs.copy(), prepare_customs_docs.copy())])
+shipping_preparation = gen.partial_order(dependencies=[(packaging, prepare_shipping_docs)])
+dispatch_preparation = gen.partial_order(dependencies=[(shipping_preparation, prepare_customs_docs, dispatch_order)])
+dispatch_order_copy = dispatch_order.copy()  # Create a copy for reuse in post_dispatch
+post_dispatch = gen.partial_order(dependencies=[(dispatch_order_copy, send_confirmation), (send_confirmation, update_inventory), (update_inventory, send_feedback_email)])
+returns_process = gen.partial_order(dependencies=[(send_return_label, receive_returns), (receive_returns, inspect_returns), (inspect_returns, gen.xor(process_refund, process_replacement))])
+
+# Full process modeling
+payment_success = gen.partial_order(dependencies=[(record_order, process_payment), (process_payment, stock_check_xor)])  # Original XOR for initial check
+stock_available = gen.partial_order(dependencies=[(stock_check, back_order_process), (back_order_process, dispatch_preparation), (dispatch_preparation, post_dispatch)])
+customer_reporting = gen.xor(customer_issues, None)
+issue_handling = gen.partial_order(dependencies=[(customer_reporting, returns_process)])
+
+# Combine all parts
+process_flow = gen.partial_order(dependencies=[(payment_success, stock_available), (stock_available, issue_handling)])
+final_model = gen.loop(do=process_flow, redo=None)

@@ -1,0 +1,31 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+schedule_audit = gen.activity("Schedule compliance audit")
+prepare_docs = gen.activity("Prepare documentation")
+gather_evidence = gen.activity("Gather evidence")
+self_assessment = gen.activity("Conduct self-assessment")
+external_audit = gen.activity("Conduct external audit")
+identify_gaps = gen.activity("Identify gaps or issues")
+make_corrections = gen.activity("Make necessary corrections or improvements")
+final_audit = gen.activity("Conduct final audit")
+award_cert = gen.activity("Award certification")
+issue_docs = gen.activity("Issue official documents")
+
+# Define concurrent preparation activities
+prep_activities = gen.partial_order(dependencies=[(prepare_docs,), (gather_evidence,), (self_assessment,)])
+
+# Define the main process flow
+main_process = gen.partial_order(dependencies=[
+    (schedule_audit, prep_activities),
+    (prep_activities, external_audit),
+    (external_audit, identify_gaps),
+    (identify_gaps, make_corrections),
+    (make_corrections, final_audit),
+    (final_audit, award_cert),
+    (award_cert, issue_docs)
+])
+
+final_model = main_process

@@ -1,0 +1,70 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+# define activities
+submit_application = gen.activity('Submit application online')
+review_application = gen.activity('Review application and documents')
+notify_missing_documents = gen.activity('Notify applicant of missing documents')
+provide_missing_documents = gen.activity('Provide missing documents')
+evaluate_application = gen.activity('Evaluate application by admissions committee')
+process_fees = gen.activity('Process fees or waivers')
+send_acceptance_letter = gen.activity('Send acceptance letter')
+send_rejection_letter = gen.activity('Send rejection letter')
+cancel_application = gen.activity('Cancel application')
+confirm_enrollment = gen.activity('Confirm enrollment')
+send_orientation_materials = gen.activity('Send orientation materials')
+set_up_it_accounts = gen.activity('Set up IT accounts')
+assist_with_visa = gen.activity('Assist with visa processing')
+obtain_student_id_card = gen.activity('Obtain student ID card')
+meet_with_advisor = gen.activity('Meet with academic advisor')
+select_courses = gen.activity('Select courses')
+resolve_schedule_conflicts = gen.activity('Resolve schedule conflicts')
+begin_attending_classes = gen.activity('Begin attending classes')
+post_grades = gen.activity('Post grades')
+review_grades_online = gen.activity('Review grades online')
+add_drop_courses = gen.activity('Add/drop courses')
+withdraw = gen.activity('Withdraw')
+graduate = gen.activity('Graduate')
+submit_appeal_form = gen.activity('Submit appeal form')
+meet_with_appeals_committee = gen.activity('Meet with appeals committee')
+await_decision = gen.activity('Await decision')
+
+# model loops and choices
+missing_documents_loop = gen.loop(do=notify_missing_documents, redo=provide_missing_documents)
+application_evaluation_choice = gen.xor(evaluate_application, None)
+concurrent_fees_and_evaluation = gen.partial_order(dependencies=[(process_fees,), (application_evaluation_choice,)])
+accept_or_reject_choice = gen.xor(send_acceptance_letter, send_rejection_letter)
+postpone_enrollment_choice = gen.xor(cancel_application, confirm_enrollment.copy())
+orientation_choice = gen.xor(send_orientation_materials, None)
+visa_choice = gen.xor(assist_with_visa, None)
+it_accounts_setup_choice = gen.xor(set_up_it_accounts, None)
+enrollment_poset = gen.partial_order(dependencies=[(confirm_enrollment.copy(), orientation_choice),
+                                                   (confirm_enrollment.copy(), it_accounts_setup_choice),
+                                                   (confirm_enrollment.copy(), visa_choice),
+                                                   (it_accounts_setup_choice, obtain_student_id_card),
+                                                   (orientation_choice, obtain_student_id_card),
+                                                   (visa_choice, obtain_student_id_card)])
+
+course_selection_poset = gen.partial_order(dependencies=[(meet_with_advisor, select_courses),
+                                                         (select_courses, resolve_schedule_conflicts),
+                                                         (resolve_schedule_conflicts, begin_attending_classes)])
+
+graduation_loop = gen.loop(do=gen.partial_order(dependencies=[(add_drop_courses,),
+                                                              (post_grades, review_grades_online),
+                                                              (review_grades_online, submit_appeal_form),
+                                                              (submit_appeal_form, meet_with_appeals_committee),
+                                                              (meet_with_appeals_committee, await_decision)]),
+                           redo=None)
+
+# model entire process
+final_model = gen.partial_order(
+    dependencies=[(submit_application, review_application),
+                  (review_application, missing_documents_loop),
+                  (missing_documents_loop, concurrent_fees_and_evaluation),
+                  (concurrent_fees_and_evaluation, accept_or_reject_choice),
+                  (accept_or_reject_choice, postpone_enrollment_choice),
+                  (postpone_enrollment_choice, enrollment_poset),
+                  (enrollment_poset, course_selection_poset),
+                  (course_selection_poset, graduation_loop),
+                  (graduation_loop, withdraw),
+                  (graduation_loop, graduate)])

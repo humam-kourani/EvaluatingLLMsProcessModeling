@@ -1,0 +1,37 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+sign_up = gen.activity('Customer signs up')
+generate_account = gen.activity('Generate account')
+assign_access = gen.activity('Assign access')
+trigger_billing = gen.activity('Set automatic triggers for billing cycles')
+send_updates = gen.activity('Send regular updates')
+send_enhancements = gen.activity('Send product enhancements')
+send_renewal_notifications = gen.activity('Send renewal notifications')
+submit_cancellation = gen.activity('Customer submits cancellation request')
+process_cancellation = gen.activity('Support team processes cancellation request')
+apply_refund_or_charges = gen.xor(gen.activity('Apply refund'), gen.activity('Apply charges'))
+deactivate_subscription = gen.activity('Deactivate subscription')
+settle_account_balance = gen.activity('Settle final account balance')
+
+# Define the main process flow
+main_process = gen.partial_order(
+    dependencies=[
+        (sign_up, generate_account),
+        (generate_account, assign_access),
+        (assign_access, trigger_billing),
+        (trigger_billing, send_updates),
+        (trigger_billing, send_enhancements),
+        (trigger_billing, send_renewal_notifications),
+        (send_renewal_notifications, submit_cancellation),
+        (submit_cancellation, process_cancellation),
+        (process_cancellation, apply_refund_or_charges),
+        (apply_refund_or_charges, deactivate_subscription),
+        (deactivate_subscription, settle_account_balance),
+    ]
+)
+
+# The entire process is optional in the sense that it can be repeated or skipped
+# This is represented by a self-loop with a skippable do part
+final_model = gen.loop(do=main_process, redo=None)

@@ -1,0 +1,39 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator(True, True)
+
+# Define activities
+check_inventory = gen.activity('Check current inventory level')
+send_automated_alert = gen.activity('Send an automated alert')
+send_manual_alert = gen.activity('Send a manual alert')
+place_order = gen.activity('Place order with suppliers')
+update_delivery_dates = gen.activity('Update inventory system with expected delivery dates')
+receive_stock = gen.activity('Receive stock')
+inspect_stock = gen.activity('Inspect stock for quality')
+record_stock = gen.activity('Record stock in system')
+place_stock_storage = gen.activity('Place stock in storage')
+place_stock_shelves = gen.activity('Place stock on shelves')
+update_inventory_levels = gen.activity('Update inventory levels')
+
+# Define the exclusive choice between automated or manual alert
+alert_choice = gen.xor(send_automated_alert, send_manual_alert)
+
+# Define the loop for checking inventory levels
+check_inventory_loop = gen.loop(do=check_inventory, redo=None)
+
+# Define the sequence of activities after placing an order
+post_order_activities = gen.partial_order(
+    dependencies=[(update_delivery_dates, receive_stock),
+                  (receive_stock, inspect_stock),
+                  (inspect_stock, record_stock),
+                  (record_stock, place_stock_shelves),
+                  (place_stock_shelves, update_inventory_levels)])
+
+# Combine the alert choice and the loop into a single subprocess
+pre_order_subprocess = gen.xor(check_inventory_loop, alert_choice)
+
+# Combine all subprocesses into the final model
+# Ensure 'place_order' is the bridge between the pre-order subprocess and the post-order activities
+final_model = gen.partial_order(
+    dependencies=[(pre_order_subprocess, place_order),
+                  (place_order, update_delivery_dates),
+                  (update_delivery_dates, post_order_activities)])

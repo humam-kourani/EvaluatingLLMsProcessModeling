@@ -1,0 +1,61 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Redefining all activities uniquely for each phase to ensure no reuse whatsoever
+# Initial recruitment process
+identify_need = gen.activity('Identify need for new hire')
+create_job_desc = gen.activity('Create job description')
+post_job_desc = gen.activity('Post job description')
+collect_resumes_1 = gen.activity('Collect resumes')
+
+# Candidate selection process
+collect_resumes_2 = gen.activity('Collect resumes')
+screen_resumes = gen.activity('Screen resumes')
+conduct_phone_interviews = gen.activity('Conduct initial phone interviews')
+invite_interviews = gen.activity('Invite candidates for interviews')
+conduct_in_person = gen.activity('Conduct an in-person interview')
+conduct_virtual = gen.activity('Conduct a virtual interview')
+interview_choice = gen.xor(conduct_in_person, conduct_virtual)
+choose_candidate = gen.activity('Choose candidate')
+
+# Onboarding process
+choose_candidate_2 = gen.activity('Choose candidate')
+extend_offer = gen.activity('Extend offer')
+negotiate_salary = gen.activity('Negotiate salary')
+begin_onboarding = gen.activity('Begin onboarding process')
+complete_paperwork = gen.activity('Complete paperwork')
+complete_orientation = gen.activity('Complete orientation')
+complete_training = gen.activity('Complete training')
+
+# Define partial orders without reusing any nodes across different partial orders
+# Initial recruitment process
+pre_recruitment_process = gen.partial_order(dependencies=[
+    (identify_need, create_job_desc),
+    (create_job_desc, post_job_desc),
+    (post_job_desc, collect_resumes_1)
+])
+
+# Recruitment process
+recruitment_process = gen.partial_order(dependencies=[
+    (collect_resumes_2, screen_resumes),
+    (screen_resumes, conduct_phone_interviews),
+    (conduct_phone_interviews, invite_interviews),
+    (invite_interviews, interview_choice),
+    (interview_choice, choose_candidate)
+])
+
+# Onboarding process
+onboarding_process = gen.partial_order(dependencies=[
+    (choose_candidate_2, extend_offer),
+    (extend_offer, negotiate_salary),
+    (negotiate_salary, begin_onboarding),
+    (begin_onboarding, complete_paperwork),
+    (complete_paperwork, complete_orientation),
+    (complete_orientation, complete_training)
+])
+
+# Final model combining all parts
+final_model = gen.partial_order(dependencies=[
+    (pre_recruitment_process, recruitment_process),
+    (recruitment_process, onboarding_process)
+])

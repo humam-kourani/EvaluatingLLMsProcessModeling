@@ -1,0 +1,54 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Defining activities
+identify_idea = gen.activity('Identify idea for new product or improvement')
+conduct_research = gen.activity('Conduct initial research')
+conduct_studies = gen.activity('Conduct feasibility studies')
+draft_concepts = gen.activity('Draft design concepts')
+select_design = gen.activity('Select promising design')
+build_prototype = gen.activity('Build prototype')
+test_functionality = gen.activity('Test functionality')
+test_safety = gen.activity('Test safety')
+test_market = gen.activity('Test market potential')
+collect_feedback = gen.activity('Collect feedback from testing phase')
+refine_prototype = gen.activity('Refine prototype')
+approve_prototype = gen.activity('Approve prototype for further development')
+discard_prototype = gen.activity('Discard prototype')
+
+# Defining process sequences
+research_sequence = gen.partial_order(dependencies=[(conduct_research, conduct_studies)])
+design_sequence = gen.partial_order(dependencies=[(draft_concepts, select_design)])
+
+# Testing subprocess
+test_sequence = gen.partial_order(dependencies=[
+    (build_prototype, test_functionality),
+    (test_functionality, test_safety),
+    (test_safety, test_market)
+])
+
+# Feedback and refinement loop
+feedback_refinement_loop = gen.loop(
+    do=gen.partial_order(dependencies=[
+        (test_market.copy(), collect_feedback),
+        (collect_feedback, refine_prototype),
+        (refine_prototype, build_prototype.copy())
+    ]),
+    redo=None
+)
+
+# Final decision making
+final_decision = gen.xor(
+    approve_prototype,
+    discard_prototype
+)
+
+# Assembling the final model
+final_model = gen.partial_order(dependencies=[
+    (identify_idea, research_sequence),
+    (research_sequence, design_sequence),
+    (design_sequence, test_sequence),
+    (test_sequence, feedback_refinement_loop),
+    (feedback_refinement_loop, final_decision)
+])

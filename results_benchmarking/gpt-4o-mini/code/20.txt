@@ -1,0 +1,42 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Activities
+call_room_service = gen.activity('Guest calls room service')
+take_order = gen.activity('Manager takes down the order')
+submit_ticket = gen.activity('Manager submits order ticket to kitchen')
+fetch_wine = gen.activity('Sommelier fetches wine and prepare alcoholic beverages')
+prepare_food = gen.activity('Kitchen prepares food')
+assign_order = gen.activity('Manager assigns order to waiter')
+ready_cart = gen.activity('Waiter readies cart')
+prepare_nonalcoholic_drinks = gen.activity('Waiter prepares nonalcoholic drinks')
+deliver_order = gen.activity('Waiter delivers order to guest\'s room')
+return_to_station = gen.activity('Waiter returns to room-service station')
+debit_account = gen.activity('Waiter debits guest\'s account')
+wait_delay_debit = gen.activity('Waiter waits/delays debiting')
+
+# Process Model
+# 80% of orders involve wine/alcoholic beverages, so we will use an xor choice for sommelier task
+sommelier_choice = gen.xor(fetch_wine, None)
+
+# Concurrent activities
+order_process = gen.partial_order(dependencies=[
+    (submit_ticket, prepare_food),
+    (submit_ticket, sommelier_choice),
+    (assign_order, ready_cart),
+    (ready_cart, prepare_nonalcoholic_drinks)
+])
+
+# Final delivery sequence
+final_delivery = gen.partial_order(dependencies=[
+    (order_process, deliver_order),
+    (deliver_order, return_to_station),
+    (return_to_station, wait_delay_debit),
+    (return_to_station, debit_account)
+])
+
+# Complete process model
+final_model = gen.partial_order(dependencies=[
+    (call_room_service, take_order),
+    (take_order, final_delivery)
+])

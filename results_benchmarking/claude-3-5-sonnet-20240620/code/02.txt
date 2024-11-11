@@ -1,0 +1,51 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial activities
+identify_need = gen.activity("Identify need for new hire")
+create_description = gen.activity("Create job description")
+post_description = gen.activity("Post job description")
+
+# Resume collection and screening
+collect_resumes = gen.activity("Collect resumes")
+screen_resumes = gen.activity("Screen resumes")
+
+# Interviews
+phone_interviews = gen.activity("Conduct initial phone interviews")
+invite_candidates = gen.activity("Invite candidates for interviews")
+in_person_interview = gen.activity("Conduct an in-person interview")
+virtual_interview = gen.activity("Conduct a virtual interview")
+interview_choice = gen.xor(in_person_interview, virtual_interview)
+
+# Selection and offer
+choose_candidate = gen.activity("Choose candidate")
+extend_offer = gen.activity("Extend offer")
+negotiate_salary = gen.activity("Negotiate salary")
+optional_negotiation = gen.xor(negotiate_salary, None)
+
+# Onboarding
+begin_onboarding = gen.activity("Begin onboarding process")
+complete_paperwork = gen.activity("Complete paperwork")
+complete_orientation = gen.activity("Complete orientation")
+complete_training = gen.activity("Complete training")
+
+# Construct the process model
+hiring_process = gen.partial_order(dependencies=[
+    (identify_need, create_description),
+    (create_description, post_description),
+    (post_description, collect_resumes),
+    (collect_resumes, screen_resumes),
+    (screen_resumes, phone_interviews),
+    (phone_interviews, invite_candidates),
+    (invite_candidates, interview_choice),
+    (interview_choice, choose_candidate),
+    (choose_candidate, extend_offer),
+    (extend_offer, optional_negotiation),
+    (optional_negotiation, begin_onboarding),
+    (begin_onboarding, complete_paperwork),
+    (begin_onboarding, complete_orientation),
+    (begin_onboarding, complete_training)
+])
+
+final_model = hiring_process

@@ -1,0 +1,169 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml>
+  <net id="imdf_net_1729525636.3271317" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <name>
+      <text>imdf_net_1729525636.3271317</text>
+    </name>
+    <page id="n0">
+      <place id="p_19">
+        <name>
+          <text>p_19</text>
+        </name>
+      </place>
+      <place id="p_16">
+        <name>
+          <text>p_16</text>
+        </name>
+      </place>
+      <place id="sink">
+        <name>
+          <text>sink</text>
+        </name>
+      </place>
+      <place id="p_33">
+        <name>
+          <text>p_33</text>
+        </name>
+      </place>
+      <place id="p_12">
+        <name>
+          <text>p_12</text>
+        </name>
+      </place>
+      <place id="p_15">
+        <name>
+          <text>p_15</text>
+        </name>
+      </place>
+      <place id="p_18">
+        <name>
+          <text>p_18</text>
+        </name>
+      </place>
+      <place id="p_32">
+        <name>
+          <text>p_32</text>
+        </name>
+      </place>
+      <place id="p_11">
+        <name>
+          <text>p_11</text>
+        </name>
+      </place>
+      <place id="source">
+        <name>
+          <text>source</text>
+        </name>
+        <initialMarking>
+          <text>1</text>
+        </initialMarking>
+      </place>
+      <place id="p_22">
+        <name>
+          <text>p_22</text>
+        </name>
+      </place>
+      <place id="p_28">
+        <name>
+          <text>p_28</text>
+        </name>
+      </place>
+      <place id="p_29">
+        <name>
+          <text>p_29</text>
+        </name>
+      </place>
+      <transition id="tauJoin_10">
+        <name>
+          <text>tauJoin_10</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="a9c9bace-9355-4c02-b018-ec13a5c1e90f"/>
+      </transition>
+      <transition id="9281c68e-e633-433e-ae47-d232df703802">
+        <name>
+          <text>Place order</text>
+        </name>
+      </transition>
+      <transition id="13546a01-7a9a-4eda-8e07-a56ee0f05df9">
+        <name>
+          <text>Guide customer in selecting product/service</text>
+        </name>
+      </transition>
+      <transition id="ce0c1273-3c49-4abc-82ac-08fd96799952">
+        <name>
+          <text>Record order in system</text>
+        </name>
+      </transition>
+      <transition id="46015179-b25b-461c-a6e6-5e27474ddd25">
+        <name>
+          <text>Send order confirmation to customer</text>
+        </name>
+      </transition>
+      <transition id="52cb8f0b-1ffb-4d71-90e9-524de1a428e3">
+        <name>
+          <text>Receive customer inquiry</text>
+        </name>
+      </transition>
+      <transition id="7c0daf89-e27e-4fa9-a15c-5edeb43d2d61">
+        <name>
+          <text>Collect customer information</text>
+        </name>
+      </transition>
+      <transition id="ab65738e-98f5-4622-bb1d-9945738e03b5">
+        <name>
+          <text>Address customer concerns or questions</text>
+        </name>
+      </transition>
+      <transition id="4db028a4-b544-4e5a-8f31-09d14365cb41">
+        <name>
+          <text>Provide quote</text>
+        </name>
+      </transition>
+      <transition id="skip_17">
+        <name>
+          <text>skip_17</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="b3daf575-4131-438d-b6b4-7089a99b3828"/>
+      </transition>
+      <transition id="tauJoin_25">
+        <name>
+          <text>tauJoin_25</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="6bcd1cc4-fdb0-400e-b5b5-70e9733e84a1"/>
+      </transition>
+      <arc id="1747624031232" source="4db028a4-b544-4e5a-8f31-09d14365cb41" target="p_22"/>
+      <arc id="1747624029216" source="p_19" target="4db028a4-b544-4e5a-8f31-09d14365cb41"/>
+      <arc id="1747623700528" source="skip_17" target="p_19"/>
+      <arc id="1747623698992" source="p_22" target="9281c68e-e633-433e-ae47-d232df703802"/>
+      <arc id="1747624033392" source="p_33" target="46015179-b25b-461c-a6e6-5e27474ddd25"/>
+      <arc id="1747624029312" source="tauJoin_10" target="p_18"/>
+      <arc id="1747624033920" source="p_32" target="tauJoin_25"/>
+      <arc id="1747623700624" source="p_18" target="skip_17"/>
+      <arc id="1747623696016" source="p_28" target="tauJoin_25"/>
+      <arc id="1747624029888" source="9281c68e-e633-433e-ae47-d232df703802" target="p_33"/>
+      <arc id="1747624029408" source="52cb8f0b-1ffb-4d71-90e9-524de1a428e3" target="p_16"/>
+      <arc id="1747623704320" source="p_12" target="7c0daf89-e27e-4fa9-a15c-5edeb43d2d61"/>
+      <arc id="1747623704848" source="p_11" target="tauJoin_10"/>
+      <arc id="1747623701776" source="p_16" target="ab65738e-98f5-4622-bb1d-9945738e03b5"/>
+      <arc id="1747624029984" source="ce0c1273-3c49-4abc-82ac-08fd96799952" target="p_28"/>
+      <arc id="1747624031520" source="ab65738e-98f5-4622-bb1d-9945738e03b5" target="p_15"/>
+      <arc id="1747624029504" source="52cb8f0b-1ffb-4d71-90e9-524de1a428e3" target="p_12"/>
+      <arc id="1747623700816" source="13546a01-7a9a-4eda-8e07-a56ee0f05df9" target="p_19"/>
+      <arc id="1747623703408" source="p_15" target="tauJoin_10"/>
+      <arc id="1747624029600" source="tauJoin_25" target="sink"/>
+      <arc id="1747623692704" source="p_29" target="ce0c1273-3c49-4abc-82ac-08fd96799952"/>
+      <arc id="1747624031136" source="46015179-b25b-461c-a6e6-5e27474ddd25" target="p_32"/>
+      <arc id="1747624029120" source="source" target="52cb8f0b-1ffb-4d71-90e9-524de1a428e3"/>
+      <arc id="1747624030656" source="7c0daf89-e27e-4fa9-a15c-5edeb43d2d61" target="p_11"/>
+      <arc id="1747623700960" source="p_18" target="13546a01-7a9a-4eda-8e07-a56ee0f05df9"/>
+      <arc id="1747624030176" source="9281c68e-e633-433e-ae47-d232df703802" target="p_29"/>
+    </page>
+    <finalmarkings>
+      <marking>
+        <place idref="sink">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
+  </net>
+</pnml>

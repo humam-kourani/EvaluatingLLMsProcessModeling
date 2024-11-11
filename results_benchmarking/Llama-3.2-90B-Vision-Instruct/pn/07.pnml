@@ -1,0 +1,227 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml>
+  <net id="imdf_net_1729177853.638537" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <name>
+      <text>imdf_net_1729177853.638537</text>
+    </name>
+    <page id="n0">
+      <place id="p_26">
+        <name>
+          <text>p_26</text>
+        </name>
+      </place>
+      <place id="p_13">
+        <name>
+          <text>p_13</text>
+        </name>
+      </place>
+      <place id="p_21">
+        <name>
+          <text>p_21</text>
+        </name>
+      </place>
+      <place id="p_22">
+        <name>
+          <text>p_22</text>
+        </name>
+      </place>
+      <place id="p_40">
+        <name>
+          <text>p_40</text>
+        </name>
+      </place>
+      <place id="p_47">
+        <name>
+          <text>p_47</text>
+        </name>
+      </place>
+      <place id="p_28">
+        <name>
+          <text>p_28</text>
+        </name>
+      </place>
+      <place id="p_51">
+        <name>
+          <text>p_51</text>
+        </name>
+      </place>
+      <place id="p_19">
+        <name>
+          <text>p_19</text>
+        </name>
+      </place>
+      <place id="source">
+        <name>
+          <text>source</text>
+        </name>
+        <initialMarking>
+          <text>1</text>
+        </initialMarking>
+      </place>
+      <place id="p_15">
+        <name>
+          <text>p_15</text>
+        </name>
+      </place>
+      <place id="p_17">
+        <name>
+          <text>p_17</text>
+        </name>
+      </place>
+      <place id="p_25">
+        <name>
+          <text>p_25</text>
+        </name>
+      </place>
+      <place id="p_29">
+        <name>
+          <text>p_29</text>
+        </name>
+      </place>
+      <place id="p_52">
+        <name>
+          <text>p_52</text>
+        </name>
+      </place>
+      <place id="sink">
+        <name>
+          <text>sink</text>
+        </name>
+      </place>
+      <place id="p_11">
+        <name>
+          <text>p_11</text>
+        </name>
+      </place>
+      <place id="p_42">
+        <name>
+          <text>p_42</text>
+        </name>
+      </place>
+      <transition id="bde0a161-d1ca-4f16-97d9-a597f34fc534">
+        <name>
+          <text>Update seat inventory</text>
+        </name>
+      </transition>
+      <transition id="a21bb10d-38df-4169-b6eb-94c7f96b9aa1">
+        <name>
+          <text>Send reminder</text>
+        </name>
+      </transition>
+      <transition id="1f0edb7e-7f56-418b-af1d-fb4096bac68c">
+        <name>
+          <text>Customer completes journey</text>
+        </name>
+      </transition>
+      <transition id="tauJoin_8">
+        <name>
+          <text>tauJoin_8</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="3cf0542c-8f26-4ef8-b57a-93278b652a69"/>
+      </transition>
+      <transition id="b98cca2e-38a9-4ab0-9309-33eb074eabf9">
+        <name>
+          <text>Customer searches for ticket</text>
+        </name>
+      </transition>
+      <transition id="3443a770-7f21-4a1e-ac9e-0be7313a7f15">
+        <name>
+          <text>Generate ticket</text>
+        </name>
+      </transition>
+      <transition id="4e48198d-987f-446e-859c-32c6280b2602">
+        <name>
+          <text>Send instructions</text>
+        </name>
+      </transition>
+      <transition id="74dfba3d-007f-4792-abab-d6d523b2c1d5">
+        <name>
+          <text>Select route</text>
+        </name>
+      </transition>
+      <transition id="c23839b0-5563-4659-8f20-cd1a996f53c7">
+        <name>
+          <text>Select date and time</text>
+        </name>
+      </transition>
+      <transition id="2d5f1b0d-1e85-4147-813c-fb786dfc02d8">
+        <name>
+          <text>Send ticket via email</text>
+        </name>
+      </transition>
+      <transition id="52ad679f-cc0f-4f0c-b2b9-73a995abc0be">
+        <name>
+          <text>Post-travel feedback or services</text>
+        </name>
+      </transition>
+      <transition id="652a76bb-786d-4ece-9f84-5e84ca1e0b9e">
+        <name>
+          <text>Provide payment details</text>
+        </name>
+      </transition>
+      <transition id="03d9acca-b2f4-4203-8cb5-d4e858fd2c19">
+        <name>
+          <text>Send ticket via SMS</text>
+        </name>
+      </transition>
+      <transition id="124b6899-124d-492e-a5e0-3fef363f2257">
+        <name>
+          <text>Provide personal information</text>
+        </name>
+      </transition>
+      <transition id="c82e8dc1-356d-4c9f-b0e8-72352b2196cd">
+        <name>
+          <text>Send instructions</text>
+        </name>
+      </transition>
+      <transition id="2c0f2023-a8d5-4e46-960f-a1e39eed9180">
+        <name>
+          <text>Send reminder</text>
+        </name>
+      </transition>
+      <arc id="1913692411920" source="2c0f2023-a8d5-4e46-960f-a1e39eed9180" target="p_51"/>
+      <arc id="1913702231072" source="p_11" target="74dfba3d-007f-4792-abab-d6d523b2c1d5"/>
+      <arc id="1913692413984" source="b98cca2e-38a9-4ab0-9309-33eb074eabf9" target="p_11"/>
+      <arc id="1913702225456" source="p_28" target="tauJoin_8"/>
+      <arc id="1913692414512" source="74dfba3d-007f-4792-abab-d6d523b2c1d5" target="p_13"/>
+      <arc id="1913702225984" source="p_26" target="a21bb10d-38df-4169-b6eb-94c7f96b9aa1"/>
+      <arc id="1913702227520" source="p_17" target="652a76bb-786d-4ece-9f84-5e84ca1e0b9e"/>
+      <arc id="1913692417104" source="p_51" target="1f0edb7e-7f56-418b-af1d-fb4096bac68c"/>
+      <arc id="1913692411488" source="source" target="b98cca2e-38a9-4ab0-9309-33eb074eabf9"/>
+      <arc id="1913692414560" source="p_40" target="2c0f2023-a8d5-4e46-960f-a1e39eed9180"/>
+      <arc id="1913692416096" source="652a76bb-786d-4ece-9f84-5e84ca1e0b9e" target="p_19"/>
+      <arc id="1913692413024" source="4e48198d-987f-446e-859c-32c6280b2602" target="p_52"/>
+      <arc id="1913702230640" source="p_21" target="2d5f1b0d-1e85-4147-813c-fb786dfc02d8"/>
+      <arc id="1913702223008" source="p_15" target="124b6899-124d-492e-a5e0-3fef363f2257"/>
+      <arc id="1913692412064" source="124b6899-124d-492e-a5e0-3fef363f2257" target="p_17"/>
+      <arc id="1913702231216" source="p_19" target="3443a770-7f21-4a1e-ac9e-0be7313a7f15"/>
+      <arc id="1913692406448" source="bde0a161-d1ca-4f16-97d9-a597f34fc534" target="p_29"/>
+      <arc id="1913692413120" source="a21bb10d-38df-4169-b6eb-94c7f96b9aa1" target="p_25"/>
+      <arc id="1913702228192" source="p_29" target="c82e8dc1-356d-4c9f-b0e8-72352b2196cd"/>
+      <arc id="1913692414176" source="p_42" target="4e48198d-987f-446e-859c-32c6280b2602"/>
+      <arc id="1913692418784" source="c82e8dc1-356d-4c9f-b0e8-72352b2196cd" target="p_28"/>
+      <arc id="1913692417776" source="p_52" target="1f0edb7e-7f56-418b-af1d-fb4096bac68c"/>
+      <arc id="1913692408560" source="1f0edb7e-7f56-418b-af1d-fb4096bac68c" target="p_47"/>
+      <arc id="1913692406016" source="52ad679f-cc0f-4f0c-b2b9-73a995abc0be" target="sink"/>
+      <arc id="1913692413696" source="3443a770-7f21-4a1e-ac9e-0be7313a7f15" target="p_21"/>
+      <arc id="1913702231840" source="p_21" target="03d9acca-b2f4-4203-8cb5-d4e858fd2c19"/>
+      <arc id="1913702235968" source="p_13" target="c23839b0-5563-4659-8f20-cd1a996f53c7"/>
+      <arc id="1913702229824" source="2d5f1b0d-1e85-4147-813c-fb786dfc02d8" target="p_22"/>
+      <arc id="1913702222672" source="p_25" target="tauJoin_8"/>
+      <arc id="1913692417392" source="bde0a161-d1ca-4f16-97d9-a597f34fc534" target="p_26"/>
+      <arc id="1913692407168" source="p_47" target="52ad679f-cc0f-4f0c-b2b9-73a995abc0be"/>
+      <arc id="1913692418448" source="tauJoin_8" target="p_42"/>
+      <arc id="1913692411296" source="tauJoin_8" target="p_40"/>
+      <arc id="1913692417968" source="p_22" target="bde0a161-d1ca-4f16-97d9-a597f34fc534"/>
+      <arc id="1913692412352" source="c23839b0-5563-4659-8f20-cd1a996f53c7" target="p_15"/>
+      <arc id="1913702231504" source="03d9acca-b2f4-4203-8cb5-d4e858fd2c19" target="p_22"/>
+    </page>
+    <finalmarkings>
+      <marking>
+        <place idref="sink">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
+  </net>
+</pnml>

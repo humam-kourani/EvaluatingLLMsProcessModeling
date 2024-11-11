@@ -1,0 +1,41 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+approve_final_budget = gen.activity('Approve final budget')
+provide_feedback = gen.activity('Provide feedback')
+implement_plan = gen.activity('Implement plan')
+distribute_budget = gen.activity('Distribute budget')
+adjust_plan = gen.activity('Adjust Plan')
+document_adjustment = gen.activity('Documented and approve adjustment')
+conduct_meeting = gen.activity('Conduct strategic alignment meeting')
+outline_objectives = gen.activity('Outline objectives')
+review_feasibility = gen.activity('Review budget feasibility')
+draft_plan = gen.activity('Draft plan')
+
+# Create a loop for the review and adjustment process
+review_loop = gen.loop(
+    do=gen.partial_order(
+        dependencies=[
+            (conduct_meeting, review_feasibility),
+            (review_feasibility, adjust_plan),
+            (adjust_plan, document_adjustment),
+            (document_adjustment, provide_feedback),
+        ]
+    ),
+    redo=None,
+)
+
+# Create a partial order for the main process
+main_process = gen.partial_order(
+    dependencies=[
+        (outline_objectives, draft_plan),
+        (draft_plan, review_loop),
+        (review_loop, approve_final_budget),
+        (approve_final_budget, distribute_budget),
+        (distribute_budget, implement_plan),
+    ]
+)
+
+# Make the main process optional
+final_model = gen.xor(main_process, None)

@@ -1,0 +1,54 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+identify = gen.activity('Identify idea for new product or improvement')
+conduct_initial_research = gen.activity('Conduct initial research')
+conduct_feasibility = gen.activity('Conduct feasibility studies')
+draft_design = gen.activity('Draft design concepts')
+select_design = gen.activity('Select promising design')
+build_prototype = gen.activity('Build prototype')
+test_functionality = gen.activity('Test functionality')
+test_safety = gen.activity('Test safety')
+test_market_potential = gen.activity('Test market potential')
+collect_feedback = gen.activity('Collect feedback from testing phase')
+refine_prototype = gen.activity('Refine prototype')
+approve = gen.activity('Approve prototype for further development')
+discard = gen.activity('Discard prototype')
+
+# Define sequential dependencies up to build_prototype
+seq_dependencies = [
+    (identify, conduct_initial_research),
+    (conduct_initial_research, conduct_feasibility),
+    (conduct_feasibility, draft_design),
+    (draft_design, select_design),
+    (select_design, build_prototype)
+]
+seq1 = gen.partial_order(dependencies=seq_dependencies)
+
+# Define testing phase as concurrent tests
+testing_phase = gen.partial_order(dependencies=[
+    (test_functionality,),
+    (test_safety,),
+    (test_market_potential,)
+])
+
+# Define testing and feedback
+testing_and_feedback = gen.partial_order(dependencies=[
+    (testing_phase, collect_feedback)
+])
+
+# Define loop for refinement
+loop = gen.loop(do=testing_and_feedback, redo=refine_prototype)
+
+# Define choice between approval and discarding
+choice = gen.xor(approve, discard)
+
+# Assemble main process dependencies
+main_dependencies = [
+    (seq1, loop),
+    (loop, choice)
+]
+main_process = gen.partial_order(dependencies=main_dependencies)
+
+final_model = main_process

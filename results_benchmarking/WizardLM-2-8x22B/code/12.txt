@@ -1,0 +1,30 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define the individual activities
+identify_needs = gen.activity('Identify development needs or career aspirations')
+create_plan = gen.activity('Create personal development plan')
+work_on_skills = gen.activity('Work on skill enhancement')
+receive_feedback = gen.activity('Receive feedback and evaluation from supervisors')
+consider_promotion = gen.activity('Consider employee for promotion or new role')
+conduct_review = gen.activity('Conducts formal performance review')
+approve_promotion = gen.activity('Approve promotion')
+adjust_compensation = gen.activity('Adjust compensation')
+set_new_responsibilities = gen.activity('Set new responsibilities')
+transition_role = gen.activity('Transition into new role')
+
+# Combine activities into a partial order with sequential dependencies
+poset_main = gen.partial_order(dependencies=[
+    (identify_needs, create_plan),
+    (create_plan, work_on_skills),
+    (work_on_skills, receive_feedback),
+    (receive_feedback, consider_promotion),
+    (consider_promotion, conduct_review),
+    (conduct_review, approve_promotion),
+    (approve_promotion, adjust_compensation),
+    (adjust_compensation, set_new_responsibilities),
+    (set_new_responsibilities, transition_role)
+])
+
+# The entire process is not optional, so we do not need to wrap it in an xor with None
+final_model = poset_main

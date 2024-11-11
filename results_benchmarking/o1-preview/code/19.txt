@@ -1,0 +1,32 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+login = gen.activity('Login')
+select_items = gen.activity('Select items')
+set_payment_method = gen.activity('Set payment method')
+pay = gen.activity('Pay')
+installment_agreement = gen.activity('Complete installment agreement')
+select_free_reward = gen.activity('Select free reward')
+deliver_items = gen.activity('Deliver items')
+return_items = gen.activity('Return items')
+
+# Define exclusive choice between paying and completing an installment agreement
+pay_or_installment = gen.xor(pay, installment_agreement)
+
+# Define loop between delivering items and returning items
+deliver_loop = gen.loop(do=deliver_items, redo=return_items)
+
+# Define dependencies in the partial order
+dependencies = [
+    (login, select_items),
+    (login, set_payment_method),
+    (select_items, select_free_reward),
+    (select_items, pay_or_installment),
+    (set_payment_method, pay_or_installment),
+    (select_free_reward, deliver_loop),
+    (pay_or_installment, deliver_loop),
+]
+
+# Create the final model
+final_model = gen.partial_order(dependencies=dependencies)

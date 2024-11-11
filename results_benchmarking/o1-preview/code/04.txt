@@ -1,0 +1,23 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+A1 = gen.activity('Define campaign objectives')
+A2 = gen.activity('Create content')
+A3 = gen.activity('Design visuals')
+A4 = gen.activity('Select promotion channels')
+A5 = gen.activity('Launch campaign')
+A6 = gen.activity('Track performance in real-time')
+A7 = gen.activity('Collect leads in CRM system')
+A8 = gen.activity('Sales teams follows up on leads')
+A9 = gen.activity('Campaign period ends')
+A10 = gen.activity('Analyze performance for future optimization')
+
+dependencies = [
+    (A1, A2), (A1, A3), (A1, A4),
+    (A2, A5), (A3, A5), (A4, A5),
+    (A5, A6), (A5, A7), (A5, A9),
+    (A7, A8),
+    (A9, A10)
+]
+
+final_model = gen.partial_order(dependencies=dependencies)

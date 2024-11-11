@@ -1,0 +1,25 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+define_objectives = gen.activity('Define campaign objectives')
+create_content = gen.activity('Create content')
+design_visuals = gen.activity('Design visuals')
+select_channels = gen.activity('Select promotion channels')
+launch_campaign = gen.activity('Launch campaign')
+track_performance = gen.activity('Track performance in real-time')
+collect_leads = gen.activity('Collect leads in CRM system')
+follow_up_leads = gen.activity('Sales teams follows up on leads')
+campaign_ends = gen.activity('Campaign period ends')
+analyze_performance = gen.activity('Analyze performance for future optimization')
+
+# Define subprocesses
+content_creation = gen.partial_order(dependencies=[(create_content,), (design_visuals,)])
+campaign_setup = gen.partial_order(dependencies=[(define_objectives, content_creation), (content_creation, select_channels)])
+select_channels_copy = select_channels.copy()
+campaign_execution = gen.partial_order(dependencies=[(select_channels_copy, launch_campaign), (launch_campaign, track_performance)])
+track_performance_copy = track_performance.copy()
+lead_management = gen.partial_order(dependencies=[(track_performance_copy, collect_leads), (collect_leads, follow_up_leads)])
+
+# Define the full process
+final_model = gen.partial_order(dependencies=[(campaign_setup, campaign_execution), (campaign_execution, lead_management), (lead_management, campaign_ends), (campaign_ends, analyze_performance)])

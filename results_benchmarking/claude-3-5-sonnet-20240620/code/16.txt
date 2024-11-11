@@ -1,0 +1,82 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Initial activities
+send_notification = gen.activity('Send notification')
+prepare_statements = gen.activity('Prepare financial statements')
+gather_documents = gen.activity('Gather necessary documents')
+check_updates = gen.activity('Check regulatory updates')
+submit_documents = gen.activity('Submit documents')
+
+# Document review and clarification loop
+review_submission = gen.activity('Review submission')
+request_clarifications = gen.activity('Request clarifications of discrepancies')
+receive_clarifications = gen.activity('Receive clarifications')
+clarification_loop = gen.loop(
+    do=gen.partial_order(dependencies=[(request_clarifications, receive_clarifications)]),
+    redo=None
+)
+review_process = gen.partial_order(dependencies=[
+    (review_submission, gen.xor(clarification_loop, None))
+])
+
+# Risk assessment
+evaluate_financial = gen.activity('Evaluate financial risks')
+evaluate_operational = gen.activity('Evaluate operational risks')
+evaluate_compliance = gen.activity('Evaluate compliance risks')
+risk_assessment = gen.partial_order(dependencies=[
+    (evaluate_financial,), (evaluate_operational,), (evaluate_compliance,)
+])
+complete_assessment = gen.activity('Complete risk assessment/mitigation')
+
+# Detailed investigation (optional)
+data_analysis = gen.activity('Conduct data analysis')
+interviews = gen.activity('Conduct interviews')
+site_visits = gen.activity('Perform site visits')
+investigation = gen.partial_order(dependencies=[
+    (data_analysis,), (interviews,), (gen.xor(site_visits, None),)
+])
+launch_investigation = gen.activity('Launch detailed investigation')
+optional_investigation = gen.xor(
+    gen.partial_order(dependencies=[(launch_investigation, investigation)]),
+    None
+)
+
+# Report compilation and review
+compile_report = gen.activity('Compile audit report')
+review_report = gen.activity('Review report by audit director')
+approve_report = gen.activity('Approve report')
+send_revision = gen.activity('Send report for revision')
+update_report = gen.activity('Update and resubmit report')
+
+report_review_loop = gen.loop(
+    do=review_report,
+    redo=gen.partial_order(dependencies=[(send_revision, update_report)])
+)
+
+# Final activities
+distribute_report = gen.activity('Distribute final report')
+archive_report = gen.activity('Archive report')
+close_audit = gen.activity('Close audit process')
+
+# Construct the full process
+audit_process = gen.partial_order(dependencies=[
+    (send_notification, prepare_statements),
+    (send_notification, gather_documents),
+    (send_notification, check_updates),
+    (prepare_statements, submit_documents),
+    (gather_documents, submit_documents),
+    (check_updates, submit_documents),
+    (submit_documents, review_process),
+    (review_process, risk_assessment),
+    (risk_assessment, complete_assessment),
+    (complete_assessment, optional_investigation),
+    (optional_investigation, compile_report),
+    (compile_report, report_review_loop),
+    (report_review_loop, approve_report),
+    (approve_report, distribute_report),
+    (distribute_report, archive_report),
+    (archive_report, close_audit)
+])
+
+final_model = audit_process

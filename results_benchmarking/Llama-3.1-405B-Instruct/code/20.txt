@@ -1,0 +1,39 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+guest_calls_room_service = gen.activity('Guest calls room service')
+manager_takes_down_order = gen.activity('Manager takes down the order')
+manager_submits_order_ticket_to_kitchen = gen.activity('Manager submits order ticket to kitchen')
+manager_gives_order_to_sommelier = gen.activity('Manager gives order to sommelier')
+manager_assigns_order_to_waiter = gen.activity('Manager assigns order to waiter')
+kitchen_prepares_food = gen.activity('Kitchen prepares food')
+sommelier_fetches_wine_and_prepare_alcoholic_beverages = gen.activity('Sommelier fetches wine and prepare alcoholic beverages')
+waiter_readies_cart = gen.activity('Waiter readies cart')
+waiter_prepares_nonalcoholic_drinks = gen.activity('Waiter prepares nonalcoholic drinks')
+waiter_delivers_order_to_guests_room = gen.activity('Waiter delivers order to guest\'s room')
+waiter_returns_to_room_service_station = gen.activity('Waiter returns to room-service station')
+waiter_debits_guests_account = gen.activity('Waiter debits guest\'s account')
+waiter_waits_delays_debiting = gen.xor(waiter_debits_guests_account, None)
+
+# concurrent preparation of food, wine, and cart
+preparation = gen.partial_order(dependencies=[
+    (kitchen_prepares_food, waiter_delivers_order_to_guests_room),
+    (sommelier_fetches_wine_and_prepare_alcoholic_beverages, waiter_delivers_order_to_guests_room),
+    (waiter_readies_cart, waiter_delivers_order_to_guests_room),
+    (waiter_prepares_nonalcoholic_drinks, waiter_delivers_order_to_guests_room)
+])
+
+# manager's tasks
+manager_tasks = gen.partial_order(dependencies=[
+    (guest_calls_room_service, manager_takes_down_order),
+    (manager_takes_down_order, manager_submits_order_ticket_to_kitchen),
+    (manager_takes_down_order, manager_gives_order_to_sommelier),
+    (manager_takes_down_order, manager_assigns_order_to_waiter)
+])
+
+# final model
+final_model = gen.partial_order(dependencies=[
+    (manager_tasks, preparation),
+    (preparation, waiter_returns_to_room_service_station),
+    (waiter_returns_to_room_service_station, waiter_waits_delays_debiting)
+])

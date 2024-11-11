@@ -1,0 +1,30 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+file_complaint = gen.activity('File complaint')
+log_complaint = gen.activity('Log complaint')
+assign_complaint = gen.activity('Assign complaint to relevant department')
+review_details = gen.activity('Review complaint details')
+reject_and_notify = gen.activity('Reject and notify customer')
+approve_and_notify = gen.activity('Approve and notify customer')
+approve_and_notify_copy = approve_and_notify.copy()
+process_reimbursement = gen.activity('Process reimbursement')
+resolve_complaint = gen.activity('Resolve complaint')
+resolve_complaint_copy = resolve_complaint.copy()
+provide_feedback = gen.activity('Provide feedback')
+
+# Decision between rejecting and approving the refund
+decision = gen.xor(reject_and_notify, approve_and_notify)
+
+# Process for approving the refund
+approve_process = gen.partial_order(dependencies=[(approve_and_notify_copy, process_reimbursement), (process_reimbursement, resolve_complaint_copy)])
+
+# Final process with the decision
+final_process = gen.partial_order(dependencies=[(file_complaint, log_complaint),
+                                                (log_complaint, assign_complaint),
+                                                (assign_complaint, review_details),
+                                                (review_details, decision),
+                                                (decision, approve_process),
+                                                (resolve_complaint, provide_feedback)])
+
+final_model = final_process

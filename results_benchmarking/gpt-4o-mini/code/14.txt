@@ -1,0 +1,49 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Unique Activities
+outline_objectives = gen.activity('Outline objectives')
+draft_plan_1 = gen.activity('Draft plan')
+conduct_meeting = gen.activity('Conduct strategic alignment meeting')
+review_budget = gen.activity('Review budget feasibility')
+provide_feedback = gen.activity('Provide feedback')
+adjust_plan = gen.activity('Adjust Plan')
+document_approval = gen.activity('Documented and approve adjustment')
+approve_budget = gen.activity('Approve final budget')
+distribute_budget = gen.activity('Distribute budget')
+implement_plan = gen.activity('Implement plan')
+
+# Review process
+review_process = gen.partial_order(dependencies=[
+    (conduct_meeting, review_budget),
+    (review_budget, provide_feedback),
+    (provide_feedback, adjust_plan),
+    (adjust_plan, document_approval),
+])
+
+# Loop for possible adjustments
+review_loop = gen.loop(do=review_process, redo=None)
+
+# Finalization process with unique copies
+draft_plan_2 = draft_plan_1.copy()  # Unique copy of draft_plan
+approve_budget_copy = approve_budget.copy()  # Unique copy of approve_budget
+
+finalization_process = gen.partial_order(dependencies=[
+    (draft_plan_2, review_loop),
+    (review_loop, approve_budget_copy),
+])
+
+# Unique copies for implementation
+distribute_budget_copy = distribute_budget.copy()
+implement_plan_copy = implement_plan.copy()
+
+# Implementation process
+implementation_process = gen.partial_order(dependencies=[
+    (distribute_budget_copy, implement_plan_copy),
+])
+
+# Overall process with unique activity references
+final_model = gen.partial_order(dependencies=[
+    (outline_objectives, draft_plan_1),
+    (finalization_process, implementation_process)
+])

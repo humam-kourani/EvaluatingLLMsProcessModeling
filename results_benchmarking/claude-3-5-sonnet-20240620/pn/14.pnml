@@ -1,0 +1,165 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml>
+  <net id="imdf_net_1729525831.490369" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <name>
+      <text>imdf_net_1729525831.490369</text>
+    </name>
+    <page id="n0">
+      <place id="source">
+        <name>
+          <text>source</text>
+        </name>
+        <initialMarking>
+          <text>1</text>
+        </initialMarking>
+      </place>
+      <place id="p_37">
+        <name>
+          <text>p_37</text>
+        </name>
+      </place>
+      <place id="sink">
+        <name>
+          <text>sink</text>
+        </name>
+      </place>
+      <place id="p_12">
+        <name>
+          <text>p_12</text>
+        </name>
+      </place>
+      <place id="p_17">
+        <name>
+          <text>p_17</text>
+        </name>
+      </place>
+      <place id="p_27">
+        <name>
+          <text>p_27</text>
+        </name>
+      </place>
+      <place id="p_34">
+        <name>
+          <text>p_34</text>
+        </name>
+      </place>
+      <place id="p_8">
+        <name>
+          <text>p_8</text>
+        </name>
+      </place>
+      <place id="p_16">
+        <name>
+          <text>p_16</text>
+        </name>
+      </place>
+      <place id="p_22">
+        <name>
+          <text>p_22</text>
+        </name>
+      </place>
+      <place id="p_24">
+        <name>
+          <text>p_24</text>
+        </name>
+      </place>
+      <place id="p_10">
+        <name>
+          <text>p_10</text>
+        </name>
+      </place>
+      <transition id="1f5689fd-d493-49d5-bd66-bca7d40c2e7f">
+        <name>
+          <text>Provide feedback</text>
+        </name>
+      </transition>
+      <transition id="skip_17">
+        <name>
+          <text>skip_17</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="f58599ea-4a5d-4ca5-86f1-a79f1b4c7c53"/>
+      </transition>
+      <transition id="2cf550e0-f99d-4ce2-9be2-aa1612dd0f38">
+        <name>
+          <text>Approve final budget</text>
+        </name>
+      </transition>
+      <transition id="3e267a07-59bb-4088-8b29-c619aebf39cc">
+        <name>
+          <text>Draft plan</text>
+        </name>
+      </transition>
+      <transition id="41b5c6c5-79ca-4c90-b34b-481b660833bc">
+        <name>
+          <text>Conduct strategic alignment meeting</text>
+        </name>
+      </transition>
+      <transition id="f860803e-f490-4276-a424-ee1323376402">
+        <name>
+          <text>Review budget feasibility</text>
+        </name>
+      </transition>
+      <transition id="6fc9603f-0031-4652-862e-7f582fed1880">
+        <name>
+          <text>Implement plan</text>
+        </name>
+      </transition>
+      <transition id="d46de588-5627-4907-9ea3-d9d1e2ec282a">
+        <name>
+          <text>Outline objectives</text>
+        </name>
+      </transition>
+      <transition id="2bad3bb6-4c62-489e-9b97-5343512e0fb6">
+        <name>
+          <text>Documented and approve adjustment</text>
+        </name>
+      </transition>
+      <transition id="1216f2fa-83cb-4538-b515-7169cca71f44">
+        <name>
+          <text>Review budget feasibility</text>
+        </name>
+      </transition>
+      <transition id="c64fce03-099f-4eca-894d-2563ce025eb5">
+        <name>
+          <text>Adjust Plan</text>
+        </name>
+      </transition>
+      <transition id="61e88114-55af-4ad5-a4fc-aaf809a40109">
+        <name>
+          <text>Distribute budget</text>
+        </name>
+      </transition>
+      <arc id="1747642575904" source="p_16" target="skip_17"/>
+      <arc id="1747646036000" source="f860803e-f490-4276-a424-ee1323376402" target="p_16"/>
+      <arc id="1747646034464" source="2bad3bb6-4c62-489e-9b97-5343512e0fb6" target="p_27"/>
+      <arc id="1747642577968" source="p_22" target="c64fce03-099f-4eca-894d-2563ce025eb5"/>
+      <arc id="1747646036048" source="3e267a07-59bb-4088-8b29-c619aebf39cc" target="p_10"/>
+      <arc id="1747646035040" source="1f5689fd-d493-49d5-bd66-bca7d40c2e7f" target="p_22"/>
+      <arc id="1747646035568" source="d46de588-5627-4907-9ea3-d9d1e2ec282a" target="p_8"/>
+      <arc id="1747642573456" source="p_24" target="2bad3bb6-4c62-489e-9b97-5343512e0fb6"/>
+      <arc id="1747623704272" source="p_8" target="3e267a07-59bb-4088-8b29-c619aebf39cc"/>
+      <arc id="1747646035664" source="6fc9603f-0031-4652-862e-7f582fed1880" target="sink"/>
+      <arc id="1747646036720" source="p_17" target="1f5689fd-d493-49d5-bd66-bca7d40c2e7f"/>
+      <arc id="1747642566400" source="p_34" target="61e88114-55af-4ad5-a4fc-aaf809a40109"/>
+      <arc id="1747642575616" source="2cf550e0-f99d-4ce2-9be2-aa1612dd0f38" target="p_34"/>
+      <arc id="1746354119984" source="p_12" target="1216f2fa-83cb-4538-b515-7169cca71f44"/>
+      <arc id="1747642568512" source="p_37" target="6fc9603f-0031-4652-862e-7f582fed1880"/>
+      <arc id="1747646035280" source="c64fce03-099f-4eca-894d-2563ce025eb5" target="p_24"/>
+      <arc id="1747646036816" source="p_17" target="2cf550e0-f99d-4ce2-9be2-aa1612dd0f38"/>
+      <arc id="1747642578784" source="p_27" target="f860803e-f490-4276-a424-ee1323376402"/>
+      <arc id="1747646036336" source="61e88114-55af-4ad5-a4fc-aaf809a40109" target="p_37"/>
+      <arc id="1747623700864" source="p_10" target="41b5c6c5-79ca-4c90-b34b-481b660833bc"/>
+      <arc id="1747646036384" source="1216f2fa-83cb-4538-b515-7169cca71f44" target="p_16"/>
+      <arc id="1747646035376" source="41b5c6c5-79ca-4c90-b34b-481b660833bc" target="p_12"/>
+      <arc id="1747646036432" source="source" target="d46de588-5627-4907-9ea3-d9d1e2ec282a"/>
+      <arc id="1747642579936" source="skip_17" target="p_17"/>
+    </page>
+    <finalmarkings>
+      <marking>
+        <place idref="sink">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
+  </net>
+</pnml>

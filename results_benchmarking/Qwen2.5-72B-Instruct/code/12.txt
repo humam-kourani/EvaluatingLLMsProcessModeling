@@ -1,0 +1,41 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+identify_needs = gen.activity('Identify development needs or career aspirations')
+create_plan = gen.activity('Create personal development plan')
+work_on_skills = gen.activity('Work on skill enhancement')
+receive_feedback = gen.activity('Receive feedback and evaluation from supervisors')
+consider_promotion = gen.activity('Consider employee for promotion or new role')
+conduct_review = gen.activity('Conducts formal performance review')
+approve_promotion = gen.activity('Approve promotion')
+set_responsibilities = gen.activity('Set new responsibilities')
+adjust_compensation = gen.activity('Adjust compensation')
+transition_role = gen.activity('Transition into new role')
+
+# Define sub-process for skill enhancement and feedback
+skill_feedback_loop = gen.loop(do=work_on_skills, redo=receive_feedback)
+
+# Define sub-process for promotion approval
+promotion_approval = gen.partial_order(dependencies=[
+    (consider_promotion, conduct_review),
+    (conduct_review, approve_promotion)
+])
+
+# Create a copy of the approve_promotion activity
+approve_promotion_copy = approve_promotion.copy()
+
+# Define sub-process for setting new responsibilities and compensation
+set_new_role = gen.partial_order(dependencies=[
+    (approve_promotion_copy, set_responsibilities),
+    (approve_promotion_copy, adjust_compensation),
+    (set_responsibilities, transition_role)
+])
+
+# Define full process
+final_model = gen.partial_order(dependencies=[
+    (identify_needs, create_plan),
+    (create_plan, skill_feedback_loop),
+    (skill_feedback_loop, promotion_approval),
+    (promotion_approval, set_new_role)
+])

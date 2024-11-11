@@ -1,0 +1,84 @@
+from utils.model_generation import ModelGenerator
+
+# Initialize ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+send_notification = gen.activity('Send notification')
+prepare_financial_statements = gen.activity('Prepare financial statements')
+gather_necessary_documents = gen.activity('Gather necessary documents')
+check_regulatory_updates = gen.activity('Check regulatory updates')
+submit_documents_initial = gen.activity('Submit documents (Initial)')
+submit_documents_for_review = gen.activity('Submit documents (For Review)')
+review_submission = gen.activity('Review submission')
+request_clarifications = gen.activity('Request clarifications of discrepancies')
+receive_clarifications = gen.activity('Receive clarifications')
+re_review_submission = gen.activity('Re-review submission after clarification')
+evaluate_financial_risks = gen.activity('Evaluate financial risks')
+evaluate_operational_risks = gen.activity('Evaluate operational risks')
+evaluate_compliance_risks = gen.activity('Evaluate compliance risks')
+launch_detailed_investigation = gen.activity('Launch detailed investigation')
+conduct_data_analysis = gen.activity('Conduct data analysis')
+conduct_interviews = gen.activity('Conduct interviews')
+perform_site_visits = gen.activity('Perform site visits')
+compile_audit_report = gen.activity('Compile audit report')
+review_report_by_audit_director_initial = gen.activity('Review report by audit director (Initial)')
+review_report_by_audit_director_loop = gen.activity('Review report by audit director (Loop)')
+send_report_for_revision = gen.activity('Send report for revision')
+update_and_resubmit_report = gen.activity('Update and resubmit report')
+approve_report = gen.activity('Approve report')
+distribute_final_report = gen.activity('Distribute final report')
+archive_report = gen.activity('Archive report')
+close_audit_process = gen.activity('Close audit process')
+complete_risk_assessment = gen.activity('Complete risk assessment/mitigation')
+
+# Define subprocesses
+regional_office_tasks = gen.partial_order(dependencies=[
+    (prepare_financial_statements, gather_necessary_documents),
+    (gather_necessary_documents, submit_documents_initial)
+])
+
+compliance_team_task = gen.activity('Check regulatory updates')
+
+pre_audit_tasks = gen.partial_order(dependencies=[
+    (regional_office_tasks, check_regulatory_updates)
+])
+
+submission_discrepancy_handling = gen.partial_order(dependencies=[
+    (submit_documents_for_review, review_submission),
+    (review_submission, request_clarifications),
+    (request_clarifications, receive_clarifications),
+    (receive_clarifications, re_review_submission)  # Re-reviewed after clarification
+])
+
+risk_assessment = gen.partial_order(dependencies=[
+    (evaluate_financial_risks, complete_risk_assessment),
+    (evaluate_operational_risks, complete_risk_assessment),
+    (evaluate_compliance_risks, complete_risk_assessment)
+])
+
+investigation = gen.partial_order(dependencies=[
+    (conduct_data_analysis, perform_site_visits),
+    (conduct_interviews, perform_site_visits)
+])
+
+report_revision_loop = gen.loop(do=gen.partial_order(dependencies=[
+    (send_report_for_revision, update_and_resubmit_report),
+    (update_and_resubmit_report, review_report_by_audit_director_loop)
+]), redo=None)
+
+# Define final model, ensuring unique submodel usage
+final_model = gen.partial_order(dependencies=[
+    (send_notification, pre_audit_tasks),
+    (pre_audit_tasks, submission_discrepancy_handling),
+    (submission_discrepancy_handling, risk_assessment),
+    (risk_assessment, launch_detailed_investigation),
+    (launch_detailed_investigation, investigation),
+    (investigation, compile_audit_report),
+    (compile_audit_report, review_report_by_audit_director_initial),
+    (review_report_by_audit_director_initial, report_revision_loop),
+    (report_revision_loop, approve_report),
+    (approve_report, distribute_final_report),
+    (distribute_final_report, archive_report),
+    (archive_report, close_audit_process)
+])

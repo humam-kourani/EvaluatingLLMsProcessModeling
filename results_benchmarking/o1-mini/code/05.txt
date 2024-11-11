@@ -1,0 +1,31 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+identify_need = gen.activity('Identify need for new supplier or vendor')
+issue_rfp = gen.activity('Issue request for proposals (RFP)')
+receive_proposals = gen.activity('Receive supplier proposals')
+evaluate_proposal = gen.activity('Evaluate proposal')
+conduct_site_visit = gen.activity('Conduct site visit')
+conduct_interview = gen.activity('Conduct interview')
+select_supplier = gen.activity('Select supplier')
+begin_contract_negotiations = gen.activity('Begin contract negotiations')
+sign_contract = gen.activity('Sign contract')
+onboard_supplier = gen.activity('Onboard supplier')
+execute_contract = gen.activity('Execute contract')
+
+# Define exclusive choice for conducting site visit or interview, or skipping
+choice_conduct = gen.xor(conduct_site_visit, conduct_interview, None)
+
+# Define the final partial order with all dependencies
+final_model = gen.partial_order(dependencies=[
+    (identify_need, issue_rfp),
+    (issue_rfp, receive_proposals),
+    (receive_proposals, evaluate_proposal),
+    (evaluate_proposal, choice_conduct),
+    (choice_conduct, select_supplier),
+    (select_supplier, begin_contract_negotiations),
+    (begin_contract_negotiations, sign_contract),
+    (sign_contract, onboard_supplier),
+    (sign_contract, execute_contract)
+])

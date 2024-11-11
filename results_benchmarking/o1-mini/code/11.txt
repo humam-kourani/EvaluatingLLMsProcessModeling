@@ -1,0 +1,53 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities with exact labels
+customer_signs_up = gen.activity('Customer signs up')
+generate_account = gen.activity('Generate account')
+assign_access = gen.activity('Assign access')
+set_automatic_triggers_for_billing_cycles = gen.activity('Set automatic triggers for billing cycles')
+send_regular_updates = gen.activity('Send regular updates')
+send_product_enhancements = gen.activity('Send product enhancements')
+send_renewal_notifications = gen.activity('Send renewal notifications')
+customer_submits_cancellation_request = gen.activity('Customer submits cancellation request')
+apply_refund = gen.activity('apply refund')
+apply_charges = gen.activity('apply charges')
+deactivate_subscription = gen.activity('Deactivate subscription')
+settle_final_account_balance = gen.activity('Settle final account balance')
+
+# Initial setup sequence
+initial_setup = gen.partial_order(dependencies=[
+    (customer_signs_up, generate_account),
+    (generate_account, assign_access),
+    (assign_access, set_automatic_triggers_for_billing_cycles)
+])
+
+# Subscription activities that occur regularly
+subscription_cycle = gen.partial_order(dependencies=[
+    (send_regular_updates,),
+    (send_product_enhancements,),
+    (send_renewal_notifications,)
+])
+
+# Cancellation process
+cancellation_choice = gen.xor(apply_refund, apply_charges)
+cancellation_path = gen.partial_order(dependencies=[
+    (customer_submits_cancellation_request, cancellation_choice),
+    (cancellation_choice, deactivate_subscription),
+    (deactivate_subscription, settle_final_account_balance)
+])
+
+# Loop to repeat subscription cycle or proceed to cancellation
+loop_part = gen.loop(
+    do=subscription_cycle,
+    redo=gen.xor(
+        subscription_cycle.copy(),
+        cancellation_path
+    )
+)
+
+# Combine initial setup with the looping subscription process
+final_model = gen.partial_order(dependencies=[
+    (initial_setup, loop_part)
+])

@@ -1,0 +1,45 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+customer_searches_ticket = gen.activity('Customer searches for ticket')
+select_route = gen.activity('Select route')
+select_date_time = gen.activity('Select date and time')
+provide_personal_info = gen.activity('Provide personal information')
+provide_payment_details = gen.activity('Provide payment details')
+generate_ticket = gen.activity('Generate ticket')
+send_ticket_email = gen.activity('Send ticket via email')
+send_ticket_sms = gen.activity('Send ticket via SMS')
+update_seat_inventory = gen.activity('Update seat inventory')
+send_reminder = gen.activity('Send reminder')
+send_instructions = gen.activity('Send instructions')
+customer_completes_journey = gen.activity('Customer completes journey')
+post_travel_feedback = gen.activity('Post-travel feedback or services')
+
+# Define exclusive choice for sending ticket
+send_ticket_choice = gen.xor(send_ticket_email, send_ticket_sms)
+
+# Define optional activities
+optional_send_reminder = gen.xor(send_reminder, None)
+optional_send_instructions = gen.xor(send_instructions, None)
+optional_post_travel_feedback = gen.xor(post_travel_feedback, None)
+
+# Define dependencies
+dependencies = [
+    (customer_searches_ticket, select_route),
+    (select_route, select_date_time),
+    (select_date_time, provide_personal_info),
+    (provide_personal_info, provide_payment_details),
+    (provide_payment_details, generate_ticket),
+    (generate_ticket, send_ticket_choice),
+    (send_ticket_choice, update_seat_inventory),
+    (update_seat_inventory, optional_send_reminder),
+    (update_seat_inventory, optional_send_instructions),
+    (update_seat_inventory, customer_completes_journey),
+    (optional_send_reminder, customer_completes_journey),
+    (optional_send_instructions, customer_completes_journey),
+    (customer_completes_journey, optional_post_travel_feedback)
+]
+
+# Create final model
+final_model = gen.partial_order(dependencies=dependencies)

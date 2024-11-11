@@ -1,0 +1,65 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# send notification and prepare financial statements and gather necessary documents
+send_notification = gen.activity('Send notification')
+prepare_financial_statements = gen.activity('Prepare financial statements')
+gather_necessary_documents = gen.activity('Gather necessary documents')
+partial_order_1 = gen.partial_order(dependencies=[(prepare_financial_statements, gather_necessary_documents)])
+
+# check regulatory updates
+check_regulatory_updates = gen.activity('Check regulatory updates')
+
+# submit documents
+submit_documents = gen.activity('Submit documents')
+partial_order_2 = gen.partial_order(dependencies=[(partial_order_1, submit_documents)])
+
+# review submission, request clarifications, receive clarifications
+review_submission = gen.activity('Review submission')
+request_clarifications = gen.activity('Request clarifications of discrepancies')
+receive_clarifications = gen.activity('Receive clarifications')
+clarification_loop = gen.loop(do=request_clarifications, redo=receive_clarifications)
+partial_order_3 = gen.partial_order(dependencies=[(review_submission, clarification_loop)])
+
+# conduct risk assessment
+evaluate_financial_risks = gen.activity('Evaluate financial risks')
+evaluate_operational_risks = gen.activity('Evaluate operational risks')
+evaluate_compliance_risks = gen.activity('Evaluate compliance risks')
+partial_order_4 = gen.partial_order(dependencies=[(evaluate_financial_risks,), (evaluate_operational_risks,), (evaluate_compliance_risks,)])
+
+# launch detailed investigation
+launch_detailed_investigation = gen.activity('Launch detailed investigation')
+conduct_data_analysis = gen.activity('Conduct data analysis')
+conduct_interviews = gen.activity('Conduct interviews')
+perform_site_visits = gen.activity('Perform site visits')
+partial_order_5 = gen.partial_order(dependencies=[(conduct_data_analysis,), (conduct_interviews,), (perform_site_visits,)])
+investigation_choice = gen.xor(partial_order_5, None)
+partial_order_6 = gen.partial_order(dependencies=[(partial_order_4, investigation_choice)])
+
+# compile audit report
+compile_audit_report = gen.activity('Compile audit report')
+partial_order_7 = gen.partial_order(dependencies=[(partial_order_6, compile_audit_report)])
+
+# review report by audit director, send report for revision, update and resubmit report
+review_report = gen.activity('Review report by audit director')
+send_report_for_revision = gen.activity('Send report for revision')
+update_and_resubmit_report = gen.activity('Update and resubmit report')
+revision_loop = gen.loop(do=send_report_for_revision, redo=update_and_resubmit_report)
+approval_choice = gen.xor(revision_loop, None)
+partial_order_8 = gen.partial_order(dependencies=[(review_report, approval_choice)])
+
+# approve report, distribute final report, archive report, close audit process
+approve_report = gen.activity('Approve report')
+distribute_final_report = gen.activity('Distribute final report')
+archive_report = gen.activity('Archive report')
+close_audit_process = gen.activity('Close audit process')
+final_partial_order = gen.partial_order(dependencies=[(partial_order_2, check_regulatory_updates), 
+                                                      (check_regulatory_updates, partial_order_3),
+                                                      (partial_order_3, partial_order_7), 
+                                                      (partial_order_7, partial_order_8),
+                                                      (partial_order_8, distribute_final_report),
+                                                      (partial_order_8, archive_report),
+                                                      (archive_report, close_audit_process)])
+
+final_model = gen.partial_order(dependencies=[(send_notification, final_partial_order)])

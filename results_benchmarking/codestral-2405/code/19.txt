@@ -1,0 +1,21 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+login = gen.activity('Login')
+select_items = gen.activity('Select items')
+set_payment_method = gen.activity('Set payment method')
+pay = gen.activity('Pay')
+complete_installment_agreement = gen.activity('Complete installment agreement')
+select_free_reward = gen.activity('Select free reward')
+deliver_items = gen.activity('Deliver items')
+return_items = gen.activity('Return items')
+
+# Define subprocesses
+payment_choice = gen.xor(pay, complete_installment_agreement)
+item_selection_payment = gen.partial_order(dependencies=[(select_items, set_payment_method), (set_payment_method, payment_choice)])
+select_reward = gen.xor(select_free_reward, None)
+delivery_return = gen.loop(do=deliver_items, redo=return_items)
+
+# Define final model
+final_model = gen.partial_order(dependencies=[(login, item_selection_payment), (item_selection_payment, select_reward), (select_reward, delivery_return)])

@@ -1,0 +1,38 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities with specified labels
+identify_development_needs = gen.activity('Identify development needs or career aspirations')
+create_personal_development_plan = gen.activity('Create personal development plan')
+work_on_skill_enhancement = gen.activity('Work on skill enhancement')
+receive_feedback_and_evaluation_from_supervisors = gen.activity('Receive feedback and evaluation from supervisors')
+consider_employee_for_promotion_or_new_role = gen.activity('Consider employee for promotion or new role')
+conducts_formal_performance_review = gen.activity('Conducts formal performance review')
+set_new_responsibilities = gen.activity('Set new responsibilities')
+adjust_compensation = gen.activity('Adjust compensation')
+transition_into_new_role = gen.activity('Transition into new role')
+
+# Define the promotion path as a partial order
+promotion_path = gen.partial_order(
+    dependencies=[
+        (set_new_responsibilities, transition_into_new_role),
+        (adjust_compensation, transition_into_new_role)
+    ]
+)
+
+# Define the choice between approving the promotion or skipping it
+approve_promotion_choice = gen.xor(promotion_path, None)
+
+# Define the final model with all dependencies
+final_model = gen.partial_order(
+    dependencies=[
+        (identify_development_needs, create_personal_development_plan),
+        (create_personal_development_plan, work_on_skill_enhancement),
+        (create_personal_development_plan, receive_feedback_and_evaluation_from_supervisors),
+        (work_on_skill_enhancement, consider_employee_for_promotion_or_new_role),
+        (receive_feedback_and_evaluation_from_supervisors, consider_employee_for_promotion_or_new_role),
+        (consider_employee_for_promotion_or_new_role, conducts_formal_performance_review),
+        (conducts_formal_performance_review, approve_promotion_choice)
+    ]
+)

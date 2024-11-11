@@ -1,0 +1,42 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+guest_calls = gen.activity('Guest calls room service')
+manager_takes_order = gen.activity('Manager takes down the order')
+manager_submits_kitchen = gen.activity('Manager submits order ticket to kitchen')
+manager_gives_sommelier = gen.activity('Manager gives order to sommelier')
+manager_assigns_waiter = gen.activity('Manager assigns order to waiter')
+kitchen_prepares_food = gen.activity('Kitchen prepares food')
+sommelier_fetches_wine = gen.activity('Sommelier fetches wine and prepare alcoholic beverages')
+waiter_readies_cart = gen.activity('Waiter readies cart')
+waiter_prepares_nonalcoholic = gen.activity('Waiter prepares nonalcoholic drinks')
+waiter_delivers_order = gen.activity("Waiter delivers order to guest's room")
+waiter_returns = gen.activity('Waiter returns to room-service station')
+waiter_debits = gen.activity("Waiter debits guest's account")
+waiter_waits = gen.activity("Waiter waits/delays debiting")
+
+# Define optional sommelier step
+sommelier_optional = gen.xor(sommelier_fetches_wine, None)
+
+# Define loop for debiting account
+loop_debit = gen.loop(do=waiter_debits, redo=waiter_waits)
+
+# Define final partial order with all dependencies
+final_model = gen.partial_order(dependencies=[
+    (guest_calls, manager_takes_order),
+    (manager_takes_order, manager_submits_kitchen),
+    (manager_takes_order, manager_gives_sommelier),
+    (manager_submits_kitchen, manager_assigns_waiter),
+    (manager_gives_sommelier, sommelier_optional),
+    (manager_assigns_waiter, kitchen_prepares_food),
+    (manager_assigns_waiter, waiter_readies_cart),
+    (manager_assigns_waiter, waiter_prepares_nonalcoholic),
+    (kitchen_prepares_food, waiter_delivers_order),
+    (sommelier_optional, waiter_delivers_order),
+    (waiter_readies_cart, waiter_delivers_order),
+    (waiter_prepares_nonalcoholic, waiter_delivers_order),
+    (waiter_delivers_order, waiter_returns),
+    (waiter_returns, loop_debit),
+])

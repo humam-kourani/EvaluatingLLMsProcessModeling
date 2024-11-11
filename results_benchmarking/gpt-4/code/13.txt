@@ -1,0 +1,42 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Defining activities
+log_complaint = gen.activity('Log complaint')
+file_complaint = gen.activity('File complaint')
+assign_complaint = gen.activity('Assign complaint to relevant department')
+review_details = gen.activity('Review complaint details')
+approve_notify = gen.activity('Approve and notify customer')
+reject_notify = gen.activity('Reject and notify customer')
+process_reimbursement = gen.activity('Process reimbursement')
+resolve_complaint = gen.activity('Resolve complaint')
+provide_feedback = gen.activity('Provide feedback')
+
+# Making copies for unique usage in separate paths
+approve_notify_copy = approve_notify.copy()
+process_reimbursement_copy = process_reimbursement.copy()
+resolve_complaint_copy = resolve_complaint.copy()
+reject_notify_copy = reject_notify.copy()
+
+# Decision point: whether to approve or reject the complaint
+decision = gen.xor(approve_notify, reject_notify_copy)
+
+# Handling the complaint approval path
+approved_path = gen.partial_order(dependencies=[(approve_notify_copy, process_reimbursement), (process_reimbursement_copy, resolve_complaint)])
+
+# Resolving the complaint directly after rejection
+rejected_path = gen.partial_order(dependencies=[(reject_notify, resolve_complaint_copy)])
+
+# Combining the paths based on the decision
+resolution_path = gen.xor(approved_path, rejected_path)
+
+# Defining the complete process
+final_model = gen.partial_order(dependencies=[
+    (file_complaint, log_complaint),
+    (log_complaint, assign_complaint),
+    (assign_complaint, review_details),
+    (review_details, decision),
+    (decision, resolution_path),
+    (resolution_path, provide_feedback)
+])

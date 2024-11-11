@@ -1,0 +1,97 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator(True, True)
+
+# Activities
+record_order = gen.activity('Record order details')
+process_payment = gen.activity('Process payment')
+notify_failed_payment = gen.activity('Notify about failed payment')
+check_stock = gen.activity('Check stock availability')
+initiate_back_order = gen.activity('Initiate back-order')
+inform_customer_about_delay = gen.activity('Inform customer about delay')
+receive_back_order = gen.activity('Receive back-order')
+pick_items = gen.activity('Pick items from warehouse')
+perform_quality_control = gen.activity('Perform quality control checks')
+gift_wrap = gen.activity('Gift wrap items')
+package_items = gen.activity('Package items')
+prepare_docs = gen.activity('Prepare shipping documents and labels')
+prepare_international_docs = gen.activity('Prepare documentation for international orders')
+dispatch_order = gen.activity('Dispatch order')
+send_shipping_confirmation = gen.activity('Send shipping confirmation to customer')
+update_inventory = gen.activity('Update inventory levels')
+send_follow_up_email = gen.activity('Send follow-up email')
+customer_reports_issue = gen.activity('Customer reports issue')
+send_return_shipping_label = gen.activity('Send return shipping label')
+inspect_returned_items = gen.activity('Inspect returned items')
+process_refund = gen.activity('Process refund')
+process_replacement = gen.activity('Process replacement')
+
+# Payment process
+payment_choice = gen.xor(process_payment, notify_failed_payment)
+
+# Inventory check and back-order process
+check_stock_copy_1 = check_stock.copy()  # Unique copy for stock check choice
+initiate_back_order_copy_1 = initiate_back_order.copy()  # Unique copy for stock check choice
+initiate_back_order_copy_2 = initiate_back_order.copy()  # Unique copy for back-order process
+stock_check_choice = gen.xor(check_stock_copy_1, initiate_back_order_copy_1)
+
+# Back-order notification and receiving
+inform_customer_copy = inform_customer_about_delay.copy()  # Create a copy for use in the back-order process
+receive_back_order_copy = receive_back_order.copy()  # Create a copy for use in the back-order process
+check_stock_copy_2 = check_stock.copy()  # Another unique copy for the back-order process
+
+# Create a new unique instance for back_order_process
+back_order_process = gen.partial_order(
+    dependencies=[
+        (initiate_back_order_copy_2, inform_customer_copy),
+        (receive_back_order_copy, check_stock_copy_2)
+    ]
+)
+
+# Picking and quality control
+pick_process = gen.partial_order(
+    dependencies=[
+        (pick_items, perform_quality_control),
+        (perform_quality_control, gift_wrap)
+    ]
+)
+
+# Packaging and documentation
+packaging_docs_process = gen.partial_order(
+    dependencies=[
+        (package_items, prepare_docs),
+        (prepare_docs, prepare_international_docs)
+    ]
+)
+
+# Dispatch process
+dispatch_process = gen.partial_order(
+    dependencies=[
+        (packaging_docs_process, dispatch_order),
+        (dispatch_order, send_shipping_confirmation),
+        (send_shipping_confirmation, update_inventory),
+        (update_inventory, send_follow_up_email)
+    ]
+)
+
+# Returns process
+returns_process = gen.partial_order(
+    dependencies=[
+        (customer_reports_issue, send_return_shipping_label),
+        (send_return_shipping_label, inspect_returned_items),
+        (inspect_returned_items, process_refund),
+        (inspect_returned_items, process_replacement)
+    ]
+)
+
+# Final model - ensuring each dependency is a unique instance
+final_model = gen.partial_order(
+    dependencies=[
+        (record_order, payment_choice),
+        (payment_choice, stock_check_choice),
+        (stock_check_choice, back_order_process),  # Use the unique instance for back-order
+        (back_order_process, pick_process),  # Ensure pick_process is also a unique instance
+        (pick_process, packaging_docs_process),  # Unique instance for packaging_docs_process
+        (packaging_docs_process, dispatch_process),  # Unique instance for dispatch_process
+        (dispatch_process, returns_process)  # Unique instance for returns_process
+    ]
+)

@@ -1,0 +1,34 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Steps 1-5 are sequential
+log_report = gen.activity('Log report into tracking system')
+assign_report = gen.activity('Assign report to appropriate team')
+gather_info = gen.activity('Gather necessary information')
+identify_cause = gen.activity('Identify cause of incident')
+propose_actions = gen.activity('Propose corrective actions')
+
+# Step 6 is an exclusive choice between implementing a fix, changing a policy, or conducting training
+implement_fix = gen.activity('Implement fix')
+change_policy = gen.activity('Change policy')
+conduct_training = gen.activity('Conduct training')
+corrective_actions_choice = gen.xor(implement_fix, change_policy, conduct_training)
+
+# Step 7 is sequential after the choice
+conduct_follow_up = gen.activity('Conduct follow-up')
+
+# Step 8 is sequential after the follow-up
+close_report = gen.activity('Close incident report')
+
+# Step 9 is sequential after closing the report
+notify_stakeholders = gen.activity('Notify all stakeholders')
+
+# The full process model
+full_process = gen.partial_order(
+    dependencies=[(log_report, assign_report), (assign_report, gather_info), (gather_info, identify_cause),
+                  (identify_cause, propose_actions), (propose_actions, corrective_actions_choice),
+                  (corrective_actions_choice, conduct_follow_up), (conduct_follow_up, close_report),
+                  (close_report, notify_stakeholders)])
+
+# The entire process is not optional, so we do not need to wrap it in an xor or loop
+final_model = full_process

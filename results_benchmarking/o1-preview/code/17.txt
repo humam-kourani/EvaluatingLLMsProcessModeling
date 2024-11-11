@@ -1,0 +1,90 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Activities
+place_order = gen.activity('Place order')
+record_order_details = gen.activity('Record order details')
+process_payment = gen.activity('Process payment')
+notify_about_failed_payment = gen.activity('Notify about failed payment')
+check_stock_availability = gen.activity('Check stock availability')
+initiate_back_order = gen.activity('Initiate back-order')
+inform_customer_about_delay = gen.activity('Inform customer about delay')
+receive_back_order = gen.activity('Receive back-order')
+pick_items_from_warehouse = gen.activity('Pick items from warehouse')
+perform_quality_control_checks = gen.activity('Perform quality control checks')
+package_items = gen.activity('Package items')
+gift_wrap_items = gen.activity('Gift wrap items')
+prepare_shipping_documents_and_labels = gen.activity('Prepare shipping documents and labels')
+prepare_documentation_for_international_orders = gen.activity('Prepare documentation for international orders')
+dispatch_order = gen.activity('Dispatch order')
+send_shipping_confirmation_to_customer = gen.activity('Send shipping confirmation to customer')
+update_inventory_levels = gen.activity('Update inventory levels')
+confirm_delivery = gen.activity('Confirm delivery')
+send_follow_up_email = gen.activity('Send follow-up email')
+customer_reports_issue = gen.activity('Customer reports issue')
+send_return_shipping_label = gen.activity('Send return shipping label')
+receive_returned_items = gen.activity('Receive returned items')
+inspect_returned_items = gen.activity('Inspect returned items')
+process_refund = gen.activity('Process refund')
+process_replacement = gen.activity('Process replacement')
+
+# Initial order placement and payment
+initial_order_process = gen.partial_order(dependencies=[
+    (place_order, record_order_details),
+    (record_order_details, process_payment)
+])
+
+# Payment failure path
+payment_failed_path = notify_about_failed_payment
+
+# Back-order process
+back_order_process = gen.partial_order(dependencies=[
+    (initiate_back_order, inform_customer_about_delay),
+    (inform_customer_about_delay, receive_back_order)
+])
+optional_back_order_process = gen.xor(back_order_process, None)
+
+# Gift wrapping (optional)
+gift_wrap_items_optional = gen.xor(gift_wrap_items, None)
+
+# International documentation (optional)
+prepare_documentation_optional = gen.xor(prepare_documentation_for_international_orders, None)
+
+# Process refund or replacement
+process_refund_or_replacement = gen.xor(process_refund, process_replacement)
+
+# Returns process including customer reporting issue
+returns_process = gen.partial_order(dependencies=[
+    (customer_reports_issue, send_return_shipping_label),
+    (send_return_shipping_label, receive_returned_items),
+    (receive_returned_items, inspect_returned_items),
+    (inspect_returned_items, process_refund_or_replacement)
+])
+returns_process_optional = gen.xor(returns_process, None)
+
+# Payment succeeded path
+payment_succeeded_dependencies = [
+    (check_stock_availability, optional_back_order_process),
+    (optional_back_order_process, pick_items_from_warehouse),
+    (pick_items_from_warehouse, perform_quality_control_checks),
+    (perform_quality_control_checks, package_items),
+    (package_items, gift_wrap_items_optional),
+    (perform_quality_control_checks, prepare_shipping_documents_and_labels),
+    (prepare_shipping_documents_and_labels, prepare_documentation_optional),
+    (gift_wrap_items_optional, dispatch_order),
+    (prepare_documentation_optional, dispatch_order),
+    (dispatch_order, send_shipping_confirmation_to_customer),
+    (dispatch_order, update_inventory_levels),
+    (dispatch_order, confirm_delivery),
+    (confirm_delivery, send_follow_up_email),
+    (send_follow_up_email, returns_process_optional)
+]
+payment_succeeded_path = gen.partial_order(dependencies=payment_succeeded_dependencies)
+
+# Payment outcome choice
+payment_outcome = gen.xor(payment_failed_path, payment_succeeded_path)
+
+# Final process model
+final_model = gen.partial_order(dependencies=[
+    (initial_order_process, payment_outcome)
+])

@@ -1,0 +1,23 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+outline_objectives = gen.activity('Outline objectives')
+draft_plan = gen.activity('Draft plan')
+strategic_alignment_meeting = gen.activity('Conduct strategic alignment meeting')
+review_budget_feasibility = gen.activity('Review budget feasibility')
+adjust_plan = gen.activity('Adjust Plan')
+provide_feedback = gen.activity('Provide feedback')
+document_approve_adjustment = gen.activity('Documented and approve adjustment')
+approve_final_budget = gen.activity('Approve final budget')
+distribute_budget = gen.activity('Distribute budget')
+implement_plan = gen.activity('Implement plan')
+
+review_budget_feasibility_copy = review_budget_feasibility.copy()
+
+adjustment_loop = gen.partial_order(dependencies=[(review_budget_feasibility_copy, provide_feedback), (provide_feedback, adjust_plan), (adjust_plan, document_approve_adjustment)])
+
+review_adjustment_loop = gen.loop(do=review_budget_feasibility, redo=adjustment_loop)
+
+poset_1 = gen.partial_order(dependencies=[(outline_objectives, draft_plan), (draft_plan, strategic_alignment_meeting), (strategic_alignment_meeting, review_adjustment_loop), (review_adjustment_loop, approve_final_budget), (approve_final_budget, distribute_budget), (distribute_budget, implement_plan)])
+
+final_model = poset_1

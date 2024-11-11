@@ -1,0 +1,52 @@
+from utils.model_generation import ModelGenerator
+
+# Instantiate a ModelGenerator object
+gen = ModelGenerator(True, True)
+
+# Define activities
+file_complaint = gen.activity('File complaint')
+log_complaint = gen.activity('Log complaint')
+assign_complaint = gen.activity('Assign complaint to relevant department')
+review_complaint_details = gen.activity('Review complaint details')
+approve_notify_customer_original = gen.activity('Approve and notify customer')
+reject_notify_customer_original = gen.activity('Reject and notify customer')
+process_reimbursement = gen.activity('Process reimbursement')
+resolve_complaint_original = gen.activity('Resolve complaint')
+provide_feedback = gen.activity('Provide feedback')
+
+# Define the exclusive choice between approving or rejecting the complaint
+approval_choice = gen.xor(approve_notify_customer_original, reject_notify_customer_original)
+
+# Create a copy of the 'Approve and notify customer' activity for the refund processing
+approve_notify_customer_copy = approve_notify_customer_original.copy()
+
+# Define the partial order for the refund processing
+refund_poset = gen.partial_order(
+    dependencies=[(approve_notify_customer_copy, process_reimbursement), (process_reimbursement, resolve_complaint_original)]
+)
+
+# Create a new instance of the 'Reject and notify customer' activity for the complaint resolution
+reject_notify_customer_copy = reject_notify_customer_original.copy()
+
+# Create a new instance of the 'Resolve complaint' activity for the complaint resolution poset
+resolve_complaint_copy = resolve_complaint_original.copy()
+
+# Define the partial order for the complaint resolution
+complaint_resolution_poset = gen.partial_order(
+    dependencies=[(log_complaint, assign_complaint), (assign_complaint, review_complaint_details), (review_complaint_details, approval_choice), (reject_notify_customer_copy, resolve_complaint_copy)]
+)
+
+# Combine the complaint resolution and refund processing partial orders
+combined_poset = gen.partial_order(
+    dependencies=[(complaint_resolution_poset, resolve_complaint_copy), (refund_poset, resolve_complaint_original)]
+)
+
+# Define the optional feedback after resolving the complaint
+optional_feedback = gen.xor(provide_feedback, None)
+
+# Define the final model
+final_model = gen.partial_order(
+    dependencies=[(combined_poset, optional_feedback)]
+)
+
+# The final_model variable should now contain the complete POWL model

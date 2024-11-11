@@ -1,0 +1,33 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+identify_idea = gen.activity('Identify idea for new product or improvement')
+conduct_initial_research = gen.activity('Conduct initial research')
+draft_design_concepts = gen.activity('Draft design concepts')
+conduct_feasibility_studies = gen.activity('Conduct feasibility studies')
+select_design = gen.activity('Select promising design')
+build_prototype = gen.activity('Build prototype')
+test_functionality = gen.activity('Test functionality')
+test_safety = gen.activity('Test safety')
+test_market_potential = gen.activity('Test market potential')
+collect_feedback = gen.activity('Collect feedback from testing phase')
+refine_prototype = gen.activity('Refine prototype')
+approve_prototype = gen.activity('Approve prototype for further development')
+discard_prototype = gen.activity('Discard prototype')
+
+# Define testing phase
+testing_phase = gen.partial_order(
+    dependencies=[(test_functionality, collect_feedback), (test_safety, collect_feedback), (test_market_potential, collect_feedback)])
+
+# Define refinement loop
+refinement_loop = gen.loop(do=gen.partial_order(dependencies=[(refine_prototype, testing_phase.copy())]), redo=collect_feedback.copy())
+
+# Define main process
+main_process = gen.partial_order(
+    dependencies=[(identify_idea, conduct_initial_research), (conduct_initial_research, draft_design_concepts),
+                  (draft_design_concepts, conduct_feasibility_studies), (conduct_feasibility_studies, select_design),
+                  (select_design, build_prototype), (build_prototype, testing_phase),
+                  (refinement_loop, gen.xor(approve_prototype, discard_prototype))])
+
+final_model = main_process

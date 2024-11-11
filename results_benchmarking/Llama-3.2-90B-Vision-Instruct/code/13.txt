@@ -1,0 +1,37 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+file_complaint = gen.activity('File complaint')
+log_complaint = gen.activity('Log complaint')
+assign_complaint = gen.activity('Assign complaint to relevant department')
+review_complaint_details = gen.activity('Review complaint details')
+
+approve_and_notify_customer = gen.activity('Approve and notify customer')
+reject_and_notify_customer = gen.activity('Reject and notify customer')
+
+process_reimbursement = gen.activity('Process reimbursement')
+resolve_complaint_approve = gen.activity('Resolve complaint')
+resolve_complaint_reject = gen.activity('Resolve complaint')
+provide_feedback_approve = gen.activity('Provide feedback')
+provide_feedback_reject = gen.activity('Provide feedback')
+
+poset_approve = gen.partial_order(dependencies=[
+    (approve_and_notify_customer, process_reimbursement),
+    (process_reimbursement, resolve_complaint_approve),
+    (resolve_complaint_approve, provide_feedback_approve)
+])
+
+poset_reject = gen.partial_order(dependencies=[
+    (reject_and_notify_customer, resolve_complaint_reject),
+    (resolve_complaint_reject, provide_feedback_reject)
+])
+
+choice = gen.xor(poset_approve, poset_reject)
+
+final_model = gen.partial_order(dependencies=[
+    (file_complaint, log_complaint),
+    (log_complaint, assign_complaint),
+    (assign_complaint, review_complaint_details),
+    (review_complaint_details, choice)
+])

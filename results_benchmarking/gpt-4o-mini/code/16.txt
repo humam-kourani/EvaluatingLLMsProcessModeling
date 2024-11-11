@@ -1,0 +1,107 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator(True, True)
+
+# Activities
+send_notification = gen.activity('Send notification')
+prepare_financial_statements = gen.activity('Prepare financial statements')
+gather_necessary_documents_1 = gen.activity('Gather necessary documents')  # First instance
+gather_necessary_documents_2 = gen.activity('Gather necessary documents')  # Second instance
+check_regulatory_updates = gen.activity('Check regulatory updates')
+submit_documents = gen.activity('Submit documents')
+
+# Unique instances for review submissions
+review_submission_1 = gen.activity('Review submission - for submission')  # Unique instance for submission review
+request_clarifications = gen.activity('Request clarifications of discrepancies')
+receive_clarifications = gen.activity('Receive clarifications')
+conduct_risk_assessment = gen.activity('Complete risk assessment/mitigation')
+evaluate_financial_risks = gen.activity('Evaluate financial risks')
+evaluate_operational_risks = gen.activity('Evaluate operational risks')
+evaluate_compliance_risks = gen.activity('Evaluate compliance risks')
+launch_detailed_investigation = gen.activity('Launch detailed investigation')
+conduct_data_analysis = gen.activity('Conduct data analysis')
+conduct_interviews = gen.activity('Conduct interviews')
+perform_site_visits = gen.activity('Perform site visits')
+compile_audit_report = gen.activity('Compile audit report')
+review_report_by_audit_director = gen.activity('Review report by audit director')
+approve_report = gen.activity('Approve report')
+send_report_for_revision = gen.activity('Send report for revision')
+update_and_resubmit_report = gen.activity('Update and resubmit report')
+distribute_final_report = gen.activity('Distribute final report')
+archive_report = gen.activity('Archive report')
+close_audit_process = gen.activity('Close audit process')
+
+# Unique instances for director review and resubmission review
+review_submission_2 = gen.activity('Review submission - for director review')  # Unique instance for director review
+review_submission_3 = gen.activity('Review submission - for resubmission')  # Unique instance for resubmission review
+
+# Process Flow
+# Initial notification and document preparation
+initial_process = gen.partial_order(dependencies=[
+    (send_notification, prepare_financial_statements),
+    (prepare_financial_statements, gather_necessary_documents_1)
+])
+
+# Compliance check happens concurrently
+compliance_check = gen.loop(do=check_regulatory_updates, redo=None)
+
+# Submission and review
+submission_process = gen.partial_order(dependencies=[
+    (gather_necessary_documents_2, submit_documents),
+    (submit_documents, review_submission_1)  # Use unique instance for submission review
+])
+
+# Handling discrepancies
+clarification_process = gen.partial_order(dependencies=[
+    (review_submission_1.copy(), request_clarifications),  # Create a new instance to avoid reuse
+    (request_clarifications, receive_clarifications)
+])
+
+# Risk assessment and investigation
+risk_assessment_process = gen.partial_order(dependencies=[
+    (receive_clarifications, conduct_risk_assessment),
+    (conduct_risk_assessment, evaluate_financial_risks),
+    (conduct_risk_assessment, evaluate_operational_risks),
+    (conduct_risk_assessment, evaluate_compliance_risks)
+])
+
+# Evaluate risks in any order
+evaluate_risks = gen.partial_order(dependencies=[
+    (evaluate_financial_risks, conduct_data_analysis),
+    (evaluate_operational_risks, conduct_data_analysis),
+    (evaluate_compliance_risks, conduct_data_analysis),
+    (conduct_data_analysis, conduct_interviews),
+    (conduct_data_analysis, perform_site_visits)
+])
+
+# Final report compilation and review
+final_report_process = gen.partial_order(dependencies=[
+    (conduct_interviews, compile_audit_report),
+    (perform_site_visits, compile_audit_report),
+    (compile_audit_report, review_report_by_audit_director)
+])
+
+# Review and revisions
+revision_process = gen.xor(approve_report, send_report_for_revision)
+revision_flow = gen.partial_order(dependencies=[
+    (review_report_by_audit_director, revision_process),
+    (revision_process, update_and_resubmit_report),
+    (update_and_resubmit_report, review_submission_3)  # Use unique instance for resubmission review
+])
+
+# Final distribution and archiving
+finalization_process = gen.partial_order(dependencies=[
+    (revision_flow, distribute_final_report),
+    (distribute_final_report, archive_report),
+    (archive_report, close_audit_process)
+])
+
+# Combine all processes
+final_model = gen.partial_order(dependencies=[
+    (initial_process, compliance_check),
+    (compliance_check, submission_process),
+    (submission_process, clarification_process),
+    (clarification_process, risk_assessment_process),
+    (risk_assessment_process, evaluate_risks),
+    (evaluate_risks, final_report_process),
+    (final_report_process, finalization_process)
+])

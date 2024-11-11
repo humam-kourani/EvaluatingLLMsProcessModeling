@@ -1,0 +1,33 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+define_objectives = gen.activity('Define campaign objectives')
+create_content = gen.activity('Create content')
+design_visuals = gen.activity('Design visuals')
+select_channels = gen.activity('Select promotion channels')
+launch_campaign = gen.activity('Launch campaign')
+track_performance = gen.activity('Track performance in real-time')
+collect_leads = gen.activity('Collect leads in CRM system')
+follow_up_leads = gen.activity('Sales teams follows up on leads')
+campaign_ends = gen.activity('Campaign period ends')
+analyze_performance = gen.activity('Analyze performance for future optimization')
+
+# Create partial order for concurrent activities after defining objectives
+preparation = gen.partial_order(dependencies=[(create_content,), (design_visuals,), (select_channels,)])
+
+# Create partial order for lead collection and follow-up
+lead_process = gen.partial_order(dependencies=[(collect_leads, follow_up_leads)])
+
+# Create partial order for concurrent activities after launching
+concurrent_activities = gen.partial_order(dependencies=[(track_performance,), (lead_process,)])
+
+# Create the final model
+final_model = gen.partial_order(dependencies=[
+    (define_objectives, preparation),
+    (preparation, launch_campaign),
+    (launch_campaign, concurrent_activities),
+    (concurrent_activities, campaign_ends),
+    (campaign_ends, analyze_performance)
+])

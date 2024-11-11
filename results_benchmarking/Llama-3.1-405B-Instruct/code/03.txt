@@ -1,0 +1,33 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+check_current_inventory_level = gen.activity('Check current inventory level')
+send_an_automated_alert = gen.activity('Send an automated alert')
+send_a_manual_alert = gen.activity('Send a manual alert')
+choice_alert = gen.xor(send_an_automated_alert, send_a_manual_alert)
+
+place_order_with_suppliers = gen.activity('Place order with suppliers')
+update_inventory_system_with_expected_delivery_dates = gen.activity('Update inventory system with expected delivery dates')
+
+receive_stock = gen.activity('Receive stock')
+inspect_stock_for_quality = gen.activity('Inspect stock for quality')
+record_stock_in_system = gen.activity('Record stock in system')
+place_stock_on_shelves = gen.activity('Place stock on shelves')
+place_stock_in_storage = gen.activity('Place stock in storage')
+choice_place_stock = gen.xor(place_stock_on_shelves, place_stock_in_storage)
+
+update_inventory_levels = gen.activity('Update inventory levels')
+
+poset_receive_stock = gen.partial_order(dependencies=[(receive_stock, inspect_stock_for_quality), 
+                                                      (inspect_stock_for_quality, record_stock_in_system), 
+                                                      (record_stock_in_system, choice_place_stock), 
+                                                      (choice_place_stock, update_inventory_levels)])
+
+poset_order = gen.partial_order(dependencies=[(place_order_with_suppliers, update_inventory_system_with_expected_delivery_dates), 
+                                              (update_inventory_system_with_expected_delivery_dates, poset_receive_stock)])
+
+poset = gen.partial_order(dependencies=[(check_current_inventory_level, choice_alert), 
+                                        (choice_alert, poset_order)])
+
+final_model = poset

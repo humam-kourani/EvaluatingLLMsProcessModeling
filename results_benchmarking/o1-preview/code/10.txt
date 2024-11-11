@@ -1,0 +1,41 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+submit_request = gen.activity('Submit IT solution request')
+assess_compatibility = gen.activity('Assess compatibility')
+evaluate_cost_resources = gen.activity('Evaluate cost and resource needs')
+approval_decision = gen.activity('Approval decision')
+procure_tools = gen.activity('Procure necessary tools or licenses')
+install_solution = gen.activity('Install the solution')
+test_solution = gen.activity('Test solution')
+roll_out = gen.activity('Roll out solution to requesting department')
+provide_training = gen.activity('Provide training')
+provide_support = gen.activity('Provide support for troubleshooting')
+
+# Optional training
+provide_training_optional = gen.xor(provide_training, None)
+
+# Support loop (Provide support can be repeated multiple times)
+support_loop = gen.loop(do=provide_support, redo=None)
+
+# Proceed process after approval
+proceed_process = gen.partial_order(dependencies=[
+    (procure_tools, install_solution),
+    (install_solution, test_solution),
+    (test_solution, roll_out),
+    (roll_out, provide_training_optional),
+    (roll_out, support_loop)
+])
+
+# Choice to proceed or not after approval decision
+proceed_choice = gen.xor(proceed_process, None)
+
+# Final model combining all dependencies
+final_model = gen.partial_order(dependencies=[
+    (submit_request, assess_compatibility),
+    (submit_request, evaluate_cost_resources),
+    (assess_compatibility, approval_decision),
+    (evaluate_cost_resources, approval_decision),
+    (approval_decision, proceed_choice)
+])

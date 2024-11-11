@@ -1,0 +1,36 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+guest_calls = gen.activity('Guest calls room service')
+manager_takes_order = gen.activity('Manager takes down the order')
+manager_submits_order = gen.activity('Manager submits order ticket to kitchen')
+manager_gives_order_sommelier = gen.activity('Manager gives order to sommelier')
+kitchen_prepares_food = gen.activity('Kitchen prepares food')
+sommelier_prepares_drinks = gen.activity('Sommelier fetches wine and prepare alcoholic beverages')
+manager_assigns_order_waiter = gen.activity('Manager assigns order to waiter')
+waiter_prepares_nonalcoholic_drinks = gen.activity('Waiter prepares nonalcoholic drinks')
+waiter_readies_cart = gen.activity('Waiter readies cart')
+waiter_delivers_order = gen.activity('Waiter delivers order to guest\'s room')
+waiter_returns_station = gen.activity('Waiter returns to room-service station')
+waiter_debits_account = gen.activity('Waiter debits guest\'s account')
+waiter_waits_debiting = gen.activity('Waiter waits/delays debiting')
+
+# Define the partial order for concurrent activities
+concurrent_prep = gen.partial_order(
+    dependencies=[(kitchen_prepares_food,), (sommelier_prepares_drinks,), (waiter_prepares_nonalcoholic_drinks,), (waiter_readies_cart,)]
+)
+
+# Define the partial order for the entire process
+final_model = gen.partial_order(
+    dependencies=[
+        (guest_calls, manager_takes_order),
+        (manager_takes_order, manager_submits_order),
+        (manager_takes_order, manager_gives_order_sommelier),
+        (manager_takes_order, manager_assigns_order_waiter),
+        (manager_assigns_order_waiter, concurrent_prep),
+        (concurrent_prep, waiter_delivers_order),
+        (waiter_delivers_order, waiter_returns_station),
+        (waiter_returns_station, gen.xor(waiter_debits_account, waiter_waits_debiting))
+    ]
+)

@@ -1,0 +1,51 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+outline_objectives = gen.activity('Outline objectives')
+draft_plan = gen.activity('Draft plan')
+strategic_alignment = gen.activity('Conduct strategic alignment meeting')
+review_feasibility = gen.activity('Review budget feasibility')
+adjust_plan = gen.activity('Adjust Plan')
+document_approve = gen.activity('Documented and approve adjustment')
+provide_feedback = gen.activity('Provide feedback')
+approve_final_budget = gen.activity('Approve final budget')
+distribute_budget = gen.activity('Distribute budget')
+implement_plan = gen.activity('Implement plan')
+
+# Define the loop for adjustments and feedback
+review_loop = gen.loop(
+    do=None,
+    redo=gen.partial_order(
+        dependencies=[
+            (adjust_plan, document_approve),
+            (document_approve, provide_feedback),
+            (provide_feedback, review_feasibility.copy())  # Use a copy of review_feasibility
+        ]
+    )
+)
+
+# Define partial orders
+partial_order_1 = gen.partial_order(
+    dependencies=[
+        (outline_objectives, draft_plan),
+        (draft_plan, strategic_alignment),
+        (strategic_alignment, review_feasibility)
+    ]
+)
+
+partial_order_2 = gen.partial_order(
+    dependencies=[
+        (review_feasibility.copy(), review_loop),  # Use a copy of review_feasibility
+        (review_loop, approve_final_budget),
+        (approve_final_budget, distribute_budget),
+        (distribute_budget, implement_plan)
+    ]
+)
+
+# Combine partial orders
+final_model = gen.partial_order(
+    dependencies=[
+        (partial_order_1.copy(), partial_order_2.copy())
+    ]
+)

@@ -1,0 +1,31 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+receive_customer_inquiry = gen.activity('Receive customer inquiry')
+collect_customer_information = gen.activity('Collect customer information')
+address_customer_concerns_or_questions = gen.activity('Address customer concerns or questions')
+guide_customer_in_selecting_product_service = gen.activity('Guide customer in selecting product/service')
+provide_quote = gen.activity('Provide quote')
+place_order = gen.activity('Place order')
+record_order_in_system = gen.activity('Record order in system')
+send_order_confirmation_to_customer = gen.activity('Send order confirmation to customer')
+
+# Define the main process path
+proceed_path = gen.partial_order(dependencies=[
+    (guide_customer_in_selecting_product_service, provide_quote),
+    (provide_quote, place_order),
+    (place_order, record_order_in_system),
+    (record_order_in_system, send_order_confirmation_to_customer)
+])
+
+# Define the optional continuation after addressing concerns
+skippable_proceed = gen.xor(proceed_path, None)
+
+# Combine all parts into the final model
+final_model = gen.partial_order(dependencies=[
+    (receive_customer_inquiry, collect_customer_information),
+    (collect_customer_information, address_customer_concerns_or_questions),
+    (address_customer_concerns_or_questions, skippable_proceed)
+])

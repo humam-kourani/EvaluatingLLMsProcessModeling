@@ -1,0 +1,38 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+customer_signup = gen.activity('Customer signs up')
+generate_account = gen.activity('Generate account')
+assign_access = gen.activity('Assign access')
+assign_access_copy = assign_access.copy()  # Create a copy of 'Assign access' for use in a subsequent partial order
+set_billing_triggers = gen.activity('Set automatic triggers for billing cycles')
+send_updates = gen.activity('Send regular updates')
+send_enhancements = gen.activity('Send product enhancements')
+send_notifications = gen.activity('Send renewal notifications')
+customer_cancellation = gen.activity('Customer submits cancellation request')
+process_cancellation = gen.activity('Deactivate subscription')
+apply_refund = gen.activity('apply refund')
+apply_charges = gen.activity('apply charges')
+settle_balance = gen.activity('Settle final account balance')
+
+# Define subprocesses
+account_setup = gen.partial_order(dependencies=[(customer_signup, generate_account), (generate_account, assign_access)])
+billing_and_updates = gen.partial_order(dependencies=[(assign_access_copy, set_billing_triggers), 
+                                                      (set_billing_triggers, send_updates), 
+                                                      (send_updates, send_enhancements), 
+                                                      (send_enhancements, send_notifications)])
+cancellation_process = gen.partial_order(dependencies=[(customer_cancellation, process_cancellation), 
+                                                       (process_cancellation, apply_refund), 
+                                                       (process_cancellation, apply_charges), 
+                                                       (apply_charges, settle_balance), 
+                                                       (apply_refund, settle_balance)])
+
+# Define model structure
+ongoing_operations = gen.loop(do=billing_and_updates, redo=None)
+optional_cancellation = gen.xor(cancellation_process, None)
+
+# Combine subprocesses into final model
+final_model = gen.partial_order(dependencies=[(account_setup, ongoing_operations), 
+                                              (ongoing_operations, optional_cancellation)])

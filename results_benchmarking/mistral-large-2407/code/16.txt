@@ -1,0 +1,96 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+send_notification = gen.activity('Send notification')
+prepare_financial_statements = gen.activity('Prepare financial statements')
+gather_documents = gen.activity('Gather necessary documents')
+check_regulatory_updates = gen.activity('Check regulatory updates')
+submit_documents = gen.activity('Submit documents')
+review_submission = gen.activity('Review submission')
+request_clarifications = gen.activity('Request clarifications of discrepancies')
+receive_clarifications = gen.activity('Receive clarifications')
+evaluate_financial_risks = gen.activity('Evaluate financial risks')
+evaluate_operational_risks = gen.activity('Evaluate operational risks')
+evaluate_compliance_risks = gen.activity('Evaluate compliance risks')
+launch_detailed_investigation = gen.activity('Launch detailed investigation')
+conduct_data_analysis = gen.activity('Conduct data analysis')
+conduct_interviews = gen.activity('Conduct interviews')
+perform_site_visits = gen.activity('Perform site visits')
+compile_audit_report = gen.activity('Compile audit report')
+review_report_by_audit_director = gen.activity('Review report by audit director')
+send_report_for_revision = gen.activity('Send report for revision')
+update_and_resubmit_report = gen.activity('Update and resubmit report')
+approve_report = gen.activity('Approve report')
+distribute_final_report = gen.activity('Distribute final report')
+archive_report = gen.activity('Archive report')
+close_audit_process = gen.activity('Close audit process')
+
+# Define partial order for concurrent activities
+prepare_and_gather_poset = gen.partial_order(
+    dependencies=[(send_notification.copy(), prepare_financial_statements.copy()),
+                  (send_notification.copy(), gather_documents.copy()),
+                  (send_notification.copy(), check_regulatory_updates.copy())])
+
+submit_documents_poset = gen.partial_order(
+    dependencies=[(prepare_financial_statements.copy(), submit_documents.copy()),
+                  (gather_documents.copy(), submit_documents.copy())])
+
+review_submission_poset = gen.partial_order(
+    dependencies=[(submit_documents.copy(), review_submission.copy())])
+
+request_clarifications_poset = gen.partial_order(
+    dependencies=[(review_submission.copy(), request_clarifications.copy())])
+
+receive_clarifications_poset = gen.partial_order(
+    dependencies=[(request_clarifications.copy(), receive_clarifications.copy())])
+
+complete_risk_assessment_poset = gen.partial_order(
+    dependencies=[(evaluate_financial_risks.copy(),),
+                  (evaluate_operational_risks.copy(),),
+                  (evaluate_compliance_risks.copy(),)])
+
+launch_investigation_poset = gen.partial_order(
+    dependencies=[(complete_risk_assessment_poset.copy(), launch_detailed_investigation.copy())])
+
+detailed_investigation_poset = gen.partial_order(
+    dependencies=[(launch_detailed_investigation.copy(), conduct_data_analysis.copy()),
+                  (launch_detailed_investigation.copy(), conduct_interviews.copy()),
+                  (launch_detailed_investigation.copy(), perform_site_visits.copy())])
+
+compile_report_poset = gen.partial_order(
+    dependencies=[(detailed_investigation_poset.copy(), compile_audit_report.copy())])
+
+review_report_poset = gen.partial_order(
+    dependencies=[(compile_audit_report.copy(), review_report_by_audit_director.copy())])
+
+send_report_for_revision_poset = gen.partial_order(
+    dependencies=[(review_report_by_audit_director.copy(), send_report_for_revision.copy())])
+
+update_and_resubmit_report_poset = gen.partial_order(
+    dependencies=[(send_report_for_revision.copy(), update_and_resubmit_report.copy())])
+
+approve_report_poset = gen.partial_order(
+    dependencies=[(review_report_by_audit_director.copy(), approve_report.copy())])
+
+distribute_and_archive_poset = gen.partial_order(
+    dependencies=[(approve_report.copy(), distribute_final_report.copy()),
+                  (distribute_final_report.copy(), archive_report.copy()),
+                  (archive_report.copy(), close_audit_process.copy())])
+
+# Combine all partial orders
+final_model = gen.partial_order(
+    dependencies=[(prepare_and_gather_poset, submit_documents_poset.copy()),
+                  (submit_documents_poset.copy(), review_submission_poset.copy()),
+                  (review_submission_poset.copy(), request_clarifications_poset.copy()),
+                  (request_clarifications_poset.copy(), receive_clarifications_poset.copy()),
+                  (receive_clarifications_poset.copy(), complete_risk_assessment_poset.copy()),
+                  (complete_risk_assessment_poset.copy(), launch_investigation_poset.copy()),
+                  (launch_investigation_poset.copy(), detailed_investigation_poset.copy()),
+                  (detailed_investigation_poset.copy(), compile_report_poset.copy()),
+                  (compile_report_poset.copy(), review_report_poset.copy()),
+                  (review_report_poset.copy(), send_report_for_revision_poset.copy()),
+                  (send_report_for_revision_poset.copy(), update_and_resubmit_report_poset.copy()),
+                  (update_and_resubmit_report_poset.copy(), review_report_poset.copy()),
+                  (review_report_poset.copy(), approve_report_poset.copy()),
+                  (approve_report_poset.copy(), distribute_and_archive_poset.copy())])

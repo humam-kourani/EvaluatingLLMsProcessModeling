@@ -1,0 +1,74 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+record_order_details = gen.activity('Record order details')
+process_payment = gen.activity('Process payment')
+notify_failed_payment = gen.activity('Notify about failed payment')
+check_stock_availability = gen.activity('Check stock availability')
+initiate_back_order = gen.activity('Initiate back-order')
+inform_customer_about_delay = gen.activity('Inform customer about delay')
+receive_back_order = gen.activity('Receive back-order')
+pick_items_from_warehouse = gen.activity('Pick items from warehouse')
+perform_quality_control_checks = gen.activity('Perform quality control checks')
+package_items = gen.activity('Package items')
+gift_wrap_items = gen.activity('Gift wrap items')
+prepare_shipping_documents_and_labels = gen.activity('Prepare shipping documents and labels')
+prepare_documentation_for_international_orders = gen.activity('Prepare documentation for international orders')
+dispatch_order_original = gen.activity('Dispatch order')
+send_shipping_confirmation_to_customer = gen.activity('Send shipping confirmation to customer')
+update_inventory_levels = gen.activity('Update inventory levels')
+send_follow_up_email = gen.activity('Send follow-up email')
+confirm_delivery = gen.activity('Confirm delivery')
+customer_reports_issue = gen.activity('Customer reports issue')
+send_return_shipping_label = gen.activity('Send return shipping label')
+receive_returned_items = gen.activity('Receive returned items')
+inspect_returned_items = gen.activity('Inspect returned items')
+process_refund = gen.activity('Process refund')
+process_replacement = gen.activity('Process replacement')
+
+# Payment Processing
+payment_failure = gen.xor(notify_failed_payment, None)
+payment_success = gen.xor(payment_failure, None)
+payment_processing = gen.partial_order(dependencies=[(process_payment, payment_success)])
+
+# Back-order Process
+back_order_process = gen.partial_order(
+    dependencies=[(initiate_back_order, inform_customer_about_delay),
+                  (inform_customer_about_delay, receive_back_order)])
+
+# Warehouse and Shipping Process
+warehouse_process = gen.partial_order(
+    dependencies=[(pick_items_from_warehouse, perform_quality_control_checks),
+                  (perform_quality_control_checks, package_items),
+                  (package_items, gift_wrap_items)])
+
+shipping_process = gen.partial_order(
+    dependencies=[(prepare_shipping_documents_and_labels, prepare_documentation_for_international_orders)])
+
+# Combine Warehouse and Shipping for dependencies on Dispatch
+dispatch_order_for_warehouse_shipping = dispatch_order_original.copy()  # Create a copy for unique usage
+warehouse_shipping_combined = gen.partial_order(
+    dependencies=[(warehouse_process, dispatch_order_for_warehouse_shipping),
+                  (shipping_process, dispatch_order_for_warehouse_shipping)])
+
+# Main Order Fulfillment and Returns Process (Merged)
+dispatch_order_for_order_fulfillment = dispatch_order_original.copy()  # Create another copy for unique usage
+final_model = gen.partial_order(
+    dependencies=[(record_order_details, payment_processing),
+                  (payment_processing, check_stock_availability),
+                  (check_stock_availability, back_order_process),
+                  (back_order_process, warehouse_shipping_combined),
+                  (check_stock_availability, warehouse_shipping_combined),
+                  (warehouse_shipping_combined, dispatch_order_for_order_fulfillment),
+                  (dispatch_order_for_order_fulfillment, send_shipping_confirmation_to_customer),
+                  (send_shipping_confirmation_to_customer, update_inventory_levels),
+                  (update_inventory_levels, send_follow_up_email),
+                  (send_follow_up_email, confirm_delivery),
+                  (confirm_delivery, customer_reports_issue),
+                  (customer_reports_issue, send_return_shipping_label),
+                  (send_return_shipping_label, receive_returned_items),
+                  (receive_returned_items, inspect_returned_items),
+                  (inspect_returned_items, process_refund),
+                  (inspect_returned_items, process_replacement)])

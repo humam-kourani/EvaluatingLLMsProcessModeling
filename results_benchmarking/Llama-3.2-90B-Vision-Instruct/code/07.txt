@@ -1,0 +1,63 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Customer searches for a ticket
+search_ticket = gen.activity('Customer searches for ticket')
+
+# Select route
+select_route = gen.activity('Select route')
+
+# Select date and time
+select_date_time = gen.activity('Select date and time')
+
+# Provide personal information
+provide_personal_info = gen.activity('Provide personal information')
+
+# Provide payment details
+provide_payment_details = gen.activity('Provide payment details')
+
+# Generate ticket
+generate_ticket = gen.activity('Generate ticket')
+
+# Send ticket via email or SMS
+send_ticket_email = gen.activity('Send ticket via email')
+send_ticket_sms = gen.activity('Send ticket via SMS')
+send_ticket_choice = gen.xor(send_ticket_email, send_ticket_sms)
+
+# Update seat inventory
+update_seat_inventory = gen.activity('Update seat inventory')
+
+# Send reminder and instructions
+send_reminder_1 = gen.activity('Send reminder')
+send_reminder_2 = send_reminder_1.copy()
+send_instructions_1 = gen.activity('Send instructions')
+send_instructions_2 = send_instructions_1.copy()
+
+# Customer completes journey
+complete_journey_1 = gen.activity('Customer completes journey')
+complete_journey_2 = complete_journey_1.copy()
+
+# Post-travel feedback or services
+post_travel_feedback_1 = gen.activity('Post-travel feedback or services')
+post_travel_feedback_2 = post_travel_feedback_1.copy()
+
+# Partial order to model pre-travel activities
+pre_travel_poset = gen.partial_order(
+    dependencies=[(search_ticket, select_route), 
+                  (select_route, select_date_time), 
+                  (select_date_time, provide_personal_info), 
+                  (provide_personal_info, provide_payment_details), 
+                  (provide_payment_details, generate_ticket), 
+                  (generate_ticket, send_ticket_choice), 
+                  (send_ticket_choice, update_seat_inventory), 
+                  (update_seat_inventory, send_reminder_1), 
+                  (update_seat_inventory, send_instructions_1)])
+
+# Final model
+final_model = gen.partial_order(
+    dependencies=[(pre_travel_poset, send_reminder_2), 
+                  (pre_travel_poset, send_instructions_2), 
+                  (send_reminder_2, complete_journey_2), 
+                  (send_instructions_2, complete_journey_2), 
+                  (complete_journey_2, post_travel_feedback_2)])

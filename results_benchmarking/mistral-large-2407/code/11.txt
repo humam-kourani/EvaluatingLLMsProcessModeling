@@ -1,0 +1,48 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+sign_up = gen.activity('Customer signs up')
+generate_account = gen.activity('Generate account')
+assign_access = gen.activity('Assign access')
+set_billing_triggers = gen.activity('Set automatic triggers for billing cycles')
+send_updates = gen.activity('Send regular updates')
+send_enhancements = gen.activity('Send product enhancements')
+send_notifications = gen.activity('Send renewal notifications')
+submit_cancellation = gen.activity('Customer submits cancellation request')
+process_cancellation = gen.activity('Deactivate subscription')
+apply_refund = gen.activity('apply refund')
+apply_charges = gen.activity('apply charges')
+settle_balance = gen.activity('Settle final account balance')
+
+# Define dependencies for the main subscription process
+subscription_dependencies = [
+    (sign_up, generate_account),
+    (generate_account, assign_access),
+    (assign_access, set_billing_triggers),
+    (set_billing_triggers, send_updates),
+    (set_billing_triggers, send_enhancements),
+    (set_billing_triggers, send_notifications)
+]
+
+# Define the main subscription process as a partial order
+subscription_process = gen.partial_order(dependencies=subscription_dependencies)
+
+# Define the cancellation process with unique copies for apply_refund and apply_charges
+apply_refund_copy = apply_refund.copy()
+apply_charges_copy = apply_charges.copy()
+refund_or_charge = gen.xor(apply_refund_copy, apply_charges_copy)
+
+# Define the cancellation process as a partial order
+cancellation_process = gen.partial_order(dependencies=[
+    (submit_cancellation, process_cancellation),
+    (process_cancellation, refund_or_charge),
+    (refund_or_charge, settle_balance)
+])
+
+# Combine the main subscription process and the cancellation process
+final_model = gen.partial_order(dependencies=[(subscription_process, cancellation_process)])
+
+# Make the entire process optional
+final_model = gen.xor(final_model, None)

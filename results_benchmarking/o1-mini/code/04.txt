@@ -1,0 +1,31 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities with specified labels
+define_campaign_objectives = gen.activity('Define campaign objectives')
+create_content = gen.activity('Create content')
+design_visuals = gen.activity('Design visuals')
+select_promotion_channels = gen.activity('Select promotion channels')
+launch_campaign = gen.activity('Launch campaign')
+track_performance_in_real_time = gen.activity('Track performance in real-time')
+collect_leads_in_CRM_system = gen.activity('Collect leads in CRM system')
+sales_teams_follows_up_on_leads = gen.activity('Sales teams follows up on leads')
+campaign_period_ends = gen.activity('Campaign period ends')
+analyze_performance_for_future_optimization = gen.activity('Analyze performance for future optimization')
+
+# Define dependencies to model the process flow
+final_model = gen.partial_order(
+    dependencies=[
+        (define_campaign_objectives, create_content),
+        (define_campaign_objectives, design_visuals),
+        (define_campaign_objectives, select_promotion_channels),
+        (create_content, launch_campaign),
+        (design_visuals, launch_campaign),
+        (select_promotion_channels, launch_campaign),
+        (launch_campaign, track_performance_in_real_time),
+        (track_performance_in_real_time, collect_leads_in_CRM_system),
+        (collect_leads_in_CRM_system, sales_teams_follows_up_on_leads),
+        (sales_teams_follows_up_on_leads, campaign_period_ends),
+        (campaign_period_ends, analyze_performance_for_future_optimization)
+    ]
+)

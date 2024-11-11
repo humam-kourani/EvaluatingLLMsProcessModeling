@@ -1,0 +1,32 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Activities
+submit_request = gen.activity('Submit IT solution request')
+assess_compatibility = gen.activity('Assess compatibility')
+evaluate_costs = gen.activity('Evaluate cost and resource needs')
+procure_tools = gen.activity('Procure necessary tools or licenses')
+install_solution = gen.activity('Install the solution')
+test_solution = gen.activity('Test solution')
+rollout_solution = gen.activity('Roll out solution to requesting department')
+provide_training = gen.activity('Provide training')
+provide_support = gen.activity('Provide support for troubleshooting')
+
+# Decision point after assessment
+approval_choice = gen.xor(procure_tools, None)
+
+# Sequential flow after approval
+poset = gen.partial_order(
+    dependencies=[(submit_request, assess_compatibility),
+                  (assess_compatibility, evaluate_costs),
+                  (evaluate_costs, approval_choice),
+                  (approval_choice, install_solution),
+                  (install_solution, test_solution)])
+
+# Create a copy of the rollout solution activity
+rollout_solution_copy = rollout_solution.copy()
+
+# Final model allowing training and support concurrently with the rollout
+final_model = gen.partial_order(
+    dependencies=[(poset,), (rollout_solution_copy, provide_training),
+                  (rollout_solution_copy, provide_support)])

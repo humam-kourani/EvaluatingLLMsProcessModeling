@@ -1,0 +1,48 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Activities
+identify_idea = gen.activity('Identify idea for new product or improvement')
+conduct_feasibility_studies = gen.activity('Conduct feasibility studies')
+draft_design_concepts = gen.activity('Draft design concepts')
+select_design = gen.activity('Select promising design')
+build_prototype = gen.activity('Build prototype')
+test_functionality = gen.activity('Test functionality')
+test_safety = gen.activity('Test safety')
+test_market_potential = gen.activity('Test market potential')
+collect_feedback = gen.activity('Collect feedback from testing phase')
+refine_prototype = gen.activity('Refine prototype')
+approve_prototype = gen.activity('Approve prototype for further development')
+discard_prototype = gen.activity('Discard prototype')
+
+# Testing phase activities
+test_functionality_module = gen.activity('Test functionality')
+test_safety_module = gen.activity('Test safety')
+test_market_potential_module = gen.activity('Test market potential')
+collect_feedback_module = gen.activity('Collect feedback from testing phase')
+refine_prototype_module = gen.activity('Refine prototype')  # New instance for the testing phase
+refine_prototype_loop = gen.activity('Refine prototype')  # New instance for the loop
+
+# Testing and refinement loop
+testing_phase = gen.partial_order(dependencies=[
+    (test_functionality_module, collect_feedback_module),
+    (test_safety_module, collect_feedback_module),
+    (test_market_potential_module, collect_feedback_module),
+    (collect_feedback_module, refine_prototype_module)
+])
+
+# Loop for refinement and retesting
+testing_and_refinement_loop = gen.loop(do=testing_phase, redo=refine_prototype_loop)
+
+# Final selection of approved or discarded prototype
+final_selection = gen.xor(approve_prototype, discard_prototype)
+
+# Combine all activities into the final process
+final_model = gen.partial_order(dependencies=[
+    (identify_idea, conduct_feasibility_studies),
+    (conduct_feasibility_studies, draft_design_concepts),
+    (draft_design_concepts, select_design),
+    (select_design, build_prototype),
+    (build_prototype, testing_and_refinement_loop),
+    (testing_and_refinement_loop, final_selection)
+])

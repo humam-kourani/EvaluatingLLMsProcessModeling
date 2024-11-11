@@ -1,0 +1,45 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+identify_idea = gen.activity('Identify idea for new product or improvement')
+conduct_research = gen.activity('Conduct initial research')
+conduct_feasibility = gen.activity('Conduct feasibility studies')
+draft_design = gen.activity('Draft design concepts')
+select_design = gen.activity('Select promising design')
+build_prototype = gen.activity('Build prototype')
+test_functionality = gen.activity('Test functionality')
+test_safety = gen.activity('Test safety')
+test_market = gen.activity('Test market potential')
+collect_feedback = gen.activity('Collect feedback from testing phase')
+refine_prototype = gen.activity('Refine prototype')
+approve_prototype = gen.activity('Approve prototype for further development')
+discard_prototype = gen.activity('Discard prototype')
+
+# Define the sequence of activities up to testing
+initial_sequence = gen.partial_order(dependencies=[
+    (conduct_research, conduct_feasibility),
+    (conduct_feasibility, draft_design),
+    (draft_design, select_design),
+    (select_design, build_prototype),
+    (build_prototype, test_functionality),
+    (test_functionality, test_safety),
+    (test_safety, test_market)
+])
+
+# Define the loop for refinement and testing
+refinement_sequence = gen.partial_order(dependencies=[
+    (test_market.copy(), collect_feedback),
+    (collect_feedback, refine_prototype)
+])
+
+refinement_loop = gen.loop(do=initial_sequence, redo=refinement_sequence)
+
+# Define the final decision (Approve or Discard)
+final_choice = gen.xor(approve_prototype, discard_prototype)
+
+# Combine everything into the final model
+final_model = gen.partial_order(dependencies=[
+    (identify_idea, refinement_loop.copy()),
+    (refinement_loop, final_choice)
+])

@@ -1,0 +1,40 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+file_complaint = gen.activity('File complaint')
+log_complaint = gen.activity('Log complaint')
+assign_complaint = gen.activity('Assign complaint to relevant department')
+review_complaint = gen.activity('Review complaint details')
+reject_notify = gen.activity('Reject and notify customer')
+approve_notify = gen.activity('Approve and notify customer')
+process_reimbursement = gen.activity('Process reimbursement')
+resolve_complaint_rejection = gen.activity('Resolve complaint')
+resolve_complaint_reimbursement = gen.activity('Resolve complaint')
+provide_feedback = gen.activity('Provide feedback')
+
+# Define the partial order for the reimbursement process
+reimbursement_process = gen.partial_order(dependencies=[(approve_notify, process_reimbursement), (process_reimbursement, resolve_complaint_reimbursement)])
+
+# Define the partial order for the rejection process
+rejection_process = gen.partial_order(dependencies=[(reject_notify, resolve_complaint_rejection)])
+
+# Combine the decision paths
+decision_process = gen.xor(rejection_process, reimbursement_process)
+
+# Create copies of the resolve_complaint activities for the final model
+resolve_complaint_rejection_copy = resolve_complaint_rejection.copy()
+resolve_complaint_reimbursement_copy = resolve_complaint_reimbursement.copy()
+
+# Define the overall partial order for the process
+final_model = gen.partial_order(dependencies=[
+    (file_complaint, log_complaint),
+    (log_complaint, assign_complaint),
+    (assign_complaint, review_complaint),
+    (review_complaint, decision_process),
+    (resolve_complaint_rejection_copy, provide_feedback),
+    (resolve_complaint_reimbursement_copy, provide_feedback)
+])
+
+# Final model
+final_model = final_model

@@ -1,0 +1,38 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Defining the activities
+identify_needs = gen.activity('Identify development needs or career aspirations')
+create_plan = gen.activity('Create personal development plan')
+create_plan_copy_for_skill_development = create_plan.copy()  # Ensuring unique instance for use in skill development
+work_skills = gen.activity('Work on skill enhancement')
+receive_feedback = gen.activity('Receive feedback and evaluation from supervisors')
+receive_feedback_copy_for_loop = receive_feedback.copy()  # Ensuring unique instance for use in the feedback loop
+consider_promotion = gen.activity('Consider employee for promotion or new role')
+conduct_review = gen.activity('Conducts formal performance review')
+approve_promotion = gen.activity('Approve promotion')
+approve_promotion_copy = approve_promotion.copy()  # Ensuring unique instance for use in the promotion process
+set_responsibilities = gen.activity('Set new responsibilities')
+adjust_compensation = gen.activity('Adjust compensation')
+transition_role = gen.activity('Transition into new role')
+
+# Defining the subprocesses using partial order for dependencies and concurrency
+plan_creation = gen.partial_order(dependencies=[(identify_needs, create_plan)])
+skill_development = gen.partial_order(dependencies=[(create_plan_copy_for_skill_development, work_skills), (work_skills, receive_feedback)])
+feedback_loop = gen.loop(do=receive_feedback_copy_for_loop, redo=None)  # Model continuous feedback as a loop with a unique instance
+
+# Formal review and promotion decision subprocess
+review_and_decision = gen.partial_order(dependencies=[(consider_promotion, conduct_review),
+                                                      (conduct_review, approve_promotion)])
+promotion_process = gen.partial_order(dependencies=[(approve_promotion_copy, set_responsibilities),
+                                                    (set_responsibilities, adjust_compensation),
+                                                    (adjust_compensation, transition_role)])
+
+# Combining all the processes
+final_process = gen.partial_order(dependencies=[(plan_creation, skill_development),
+                                                (skill_development, feedback_loop),
+                                                (feedback_loop, review_and_decision),
+                                                (review_and_decision, promotion_process)])
+
+final_model = final_process

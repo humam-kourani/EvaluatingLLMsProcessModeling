@@ -1,0 +1,194 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml>
+  <net id="imdf_net_1729597912.2810402" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <name>
+      <text>imdf_net_1729597912.2810402</text>
+    </name>
+    <page id="n0">
+      <place id="source">
+        <name>
+          <text>source</text>
+        </name>
+        <initialMarking>
+          <text>1</text>
+        </initialMarking>
+      </place>
+      <place id="p_7">
+        <name>
+          <text>p_7</text>
+        </name>
+      </place>
+      <place id="p_19">
+        <name>
+          <text>p_19</text>
+        </name>
+      </place>
+      <place id="p_23">
+        <name>
+          <text>p_23</text>
+        </name>
+      </place>
+      <place id="p_25">
+        <name>
+          <text>p_25</text>
+        </name>
+      </place>
+      <place id="p_13">
+        <name>
+          <text>p_13</text>
+        </name>
+      </place>
+      <place id="p_9">
+        <name>
+          <text>p_9</text>
+        </name>
+      </place>
+      <place id="sink">
+        <name>
+          <text>sink</text>
+        </name>
+      </place>
+      <place id="p_21">
+        <name>
+          <text>p_21</text>
+        </name>
+      </place>
+      <place id="p_27">
+        <name>
+          <text>p_27</text>
+        </name>
+      </place>
+      <place id="p_6">
+        <name>
+          <text>p_6</text>
+        </name>
+      </place>
+      <place id="p_8">
+        <name>
+          <text>p_8</text>
+        </name>
+      </place>
+      <place id="p_30">
+        <name>
+          <text>p_30</text>
+        </name>
+      </place>
+      <transition id="skip_10">
+        <name>
+          <text>skip_10</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="18c7dcdd-4995-4649-9de5-63d4fc9d7810"/>
+      </transition>
+      <transition id="70428603-28dd-4eeb-8e48-2c526c4eb4a2">
+        <name>
+          <text>Inspect stock for quality</text>
+        </name>
+      </transition>
+      <transition id="init_loop_7">
+        <name>
+          <text>init_loop_7</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="2701c4ff-e8ae-41de-ab58-9e864539e0ac"/>
+      </transition>
+      <transition id="eadcfc66-19e1-457d-b57f-dddfe8a7489d">
+        <name>
+          <text>Update inventory system with expected delivery dates</text>
+        </name>
+      </transition>
+      <transition id="tau_1">
+        <name>
+          <text>tau_1</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="46be5eac-6af9-4fff-9da4-16d4d5c17b34"/>
+      </transition>
+      <transition id="0604b7b2-fa1c-4e99-98b0-acce067f6328">
+        <name>
+          <text>Send an automated alert</text>
+        </name>
+      </transition>
+      <transition id="ed3e56c1-66db-4c68-bf28-d054ed7a5c81">
+        <name>
+          <text>Place order with suppliers</text>
+        </name>
+      </transition>
+      <transition id="47f213dc-39a6-4082-8137-0a33bbccf1c6">
+        <name>
+          <text>Update inventory system with expected delivery dates</text>
+        </name>
+      </transition>
+      <transition id="b834eabf-ca80-458c-bb7e-ac44a2b03992">
+        <name>
+          <text>Place stock on shelves</text>
+        </name>
+      </transition>
+      <transition id="skip_9">
+        <name>
+          <text>skip_9</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="73f5d326-4518-4e28-9c59-5beed4a43941"/>
+      </transition>
+      <transition id="89d1e617-49e6-4c8e-9529-0153d3333e5c">
+        <name>
+          <text>Check current inventory level</text>
+        </name>
+      </transition>
+      <transition id="70d0f889-1583-481c-805f-431e86f3f673">
+        <name>
+          <text>Record stock in system</text>
+        </name>
+      </transition>
+      <transition id="513d9e6d-3a8e-44db-8662-a589c9b43899">
+        <name>
+          <text>Update inventory levels</text>
+        </name>
+      </transition>
+      <transition id="fe123836-1e6a-47b1-83b4-0409c75fe853">
+        <name>
+          <text>Receive stock</text>
+        </name>
+      </transition>
+      <transition id="2bddaca2-aee9-46ee-b199-70a97195aa0b">
+        <name>
+          <text>Send a manual alert</text>
+        </name>
+      </transition>
+      <arc id="2634596837376" source="tau_1" target="p_6"/>
+      <arc id="2634597299200" source="p_21" target="fe123836-1e6a-47b1-83b4-0409c75fe853"/>
+      <arc id="2634598351872" source="fe123836-1e6a-47b1-83b4-0409c75fe853" target="p_23"/>
+      <arc id="2634597288976" source="2bddaca2-aee9-46ee-b199-70a97195aa0b" target="p_7"/>
+      <arc id="2634597295120" source="p_23" target="70428603-28dd-4eeb-8e48-2c526c4eb4a2"/>
+      <arc id="2634597293104" source="p_25" target="70d0f889-1583-481c-805f-431e86f3f673"/>
+      <arc id="2634597299296" source="p_6" target="2bddaca2-aee9-46ee-b199-70a97195aa0b"/>
+      <arc id="2634597289072" source="init_loop_7" target="p_8"/>
+      <arc id="2634598352016" source="70428603-28dd-4eeb-8e48-2c526c4eb4a2" target="p_25"/>
+      <arc id="2634597287584" source="p_6" target="0604b7b2-fa1c-4e99-98b0-acce067f6328"/>
+      <arc id="2634597292240" source="p_9" target="skip_10"/>
+      <arc id="2634597298384" source="p_19" target="47f213dc-39a6-4082-8137-0a33bbccf1c6"/>
+      <arc id="2634596835024" source="ed3e56c1-66db-4c68-bf28-d054ed7a5c81" target="p_13"/>
+      <arc id="2634597291232" source="p_13" target="eadcfc66-19e1-457d-b57f-dddfe8a7489d"/>
+      <arc id="2634596842224" source="513d9e6d-3a8e-44db-8662-a589c9b43899" target="sink"/>
+      <arc id="2634597298960" source="p_9" target="skip_9"/>
+      <arc id="2634596837664" source="b834eabf-ca80-458c-bb7e-ac44a2b03992" target="p_30"/>
+      <arc id="2634597295408" source="89d1e617-49e6-4c8e-9529-0153d3333e5c" target="p_9"/>
+      <arc id="2634596832048" source="p_7" target="ed3e56c1-66db-4c68-bf28-d054ed7a5c81"/>
+      <arc id="2634596835120" source="skip_9" target="p_8"/>
+      <arc id="2634597294400" source="p_8" target="89d1e617-49e6-4c8e-9529-0153d3333e5c"/>
+      <arc id="2634597301072" source="p_27" target="b834eabf-ca80-458c-bb7e-ac44a2b03992"/>
+      <arc id="2634597296512" source="0604b7b2-fa1c-4e99-98b0-acce067f6328" target="p_7"/>
+      <arc id="2634598352256" source="70d0f889-1583-481c-805f-431e86f3f673" target="p_27"/>
+      <arc id="2634596835744" source="p_30" target="513d9e6d-3a8e-44db-8662-a589c9b43899"/>
+      <arc id="2634596837280" source="47f213dc-39a6-4082-8137-0a33bbccf1c6" target="p_21"/>
+      <arc id="2634597290944" source="p_6" target="init_loop_7"/>
+      <arc id="2634597300160" source="skip_10" target="p_7"/>
+      <arc id="2634597292528" source="source" target="tau_1"/>
+      <arc id="2634596841456" source="eadcfc66-19e1-457d-b57f-dddfe8a7489d" target="p_19"/>
+    </page>
+    <finalmarkings>
+      <marking>
+        <place idref="sink">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
+  </net>
+</pnml>

@@ -1,0 +1,44 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+customer_places_order_online = gen.activity('Customer places order online')
+customer_places_order_over_phone = gen.activity('Customer places order over the phone')
+generate_and_send_order_confirmation = gen.activity('Generate and send order confirmation')
+pick_and_pack_items = gen.activity('Pick and pack items')
+generate_shipping_label = gen.activity('Generate shipping label')
+hand_over_order_to_logistics_provider = gen.activity('Hand over order to logistics provider')
+send_tracking_information_to_customer = gen.activity('Send tracking information to customer')
+monitor_shipment = gen.activity('Monitor shipment')
+successful_delivery = gen.activity('Successful delivery')
+process_customer_feedback_or_returns = gen.activity('Process customer feedback or returns')
+
+# Define partial orders
+order_placement = gen.partial_order(dependencies=[(customer_places_order_online,), (customer_places_order_over_phone,)])
+
+order_processing = gen.partial_order(
+    dependencies=[(generate_and_send_order_confirmation, pick_and_pack_items),
+                  (pick_and_pack_items, generate_shipping_label),
+                  (generate_shipping_label, hand_over_order_to_logistics_provider)])
+
+# Create a copy of hand_over_order_to_logistics_provider activity
+hand_over_order_to_logistics_provider_copy = hand_over_order_to_logistics_provider.copy()
+
+shipment_monitoring = gen.partial_order(
+    dependencies=[(hand_over_order_to_logistics_provider_copy, send_tracking_information_to_customer),
+                  (send_tracking_information_to_customer, monitor_shipment),
+                  (monitor_shipment, successful_delivery)])
+
+# Define xor for handling customer feedback or returns
+customer_feedback_or_returns = gen.xor(process_customer_feedback_or_returns, None)
+
+# Create a copy of successful_delivery activity
+successful_delivery_copy = successful_delivery.copy()
+
+# Define final partial order
+final_poset = gen.partial_order(dependencies=[(order_placement, order_processing),
+                                             (order_processing, shipment_monitoring),
+                                             (successful_delivery_copy, customer_feedback_or_returns)])
+
+final_model = final_poset

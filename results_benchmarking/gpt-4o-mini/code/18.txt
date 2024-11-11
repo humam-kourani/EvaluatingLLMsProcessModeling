@@ -1,0 +1,108 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+submit_application = gen.activity('Submit application online')
+review_application = gen.activity('Review application and documents')
+notify_missing_docs = gen.activity('Notify applicant of missing documents')
+provide_missing_docs = gen.activity('Provide missing documents')
+evaluate_application = gen.activity('Evaluate application by admissions committee')
+process_fees = gen.activity('Process fees or waivers')
+send_acceptance_letter = gen.activity('Send acceptance letter')
+send_rejection_letter = gen.activity('Send rejection letter')
+confirm_enrollment_1 = gen.activity('Confirm enrollment')  # First instance
+cancel_application = gen.activity('Cancel application')
+send_orientation_materials = gen.activity('Send orientation materials')
+set_up_IT_accounts = gen.activity('Set up IT accounts')
+assist_visa_processing = gen.activity('Assist with visa processing')
+obtain_student_ID_card = gen.activity('Obtain student ID card')
+begin_attending_classes_1 = gen.activity('Begin attending classes')  # First instance
+meet_with_academic_advisor = gen.activity('Meet with academic advisor')
+select_courses = gen.activity('Select courses')
+resolve_schedule_conflicts = gen.activity('Resolve schedule conflicts')
+add_drop_courses = gen.activity('Add/drop courses')
+post_grades = gen.activity('Post grades')
+review_grades_online = gen.activity('Review grades online')
+file_appeal = gen.activity('Submit appeal form')
+meet_with_appeals_committee = gen.activity('Meet with appeals committee')
+await_decision = gen.activity('Await decision')
+graduate = gen.activity('Graduate')
+withdraw = gen.activity('Withdraw')
+
+# Process Flow
+# Step 1: Application submission and review
+application_flow = gen.partial_order(dependencies=[
+    (submit_application, review_application),
+    (review_application, notify_missing_docs),
+    (notify_missing_docs, provide_missing_docs),
+    (provide_missing_docs, evaluate_application),
+])
+
+# Step 2: Finance department processes fees concurrently
+fee_processing = gen.loop(do=process_fees, redo=None)
+
+# Step 3: Decision on application
+acceptance_choice_1 = gen.xor(send_acceptance_letter, send_rejection_letter)  # First instance
+
+# Step 4: Confirm enrollment
+confirm_enrollment_2 = confirm_enrollment_1.copy()  # Create a copy for this step
+confirmation_flow = gen.partial_order(dependencies=[
+    (acceptance_choice_1, confirm_enrollment_1),
+    (confirm_enrollment_1, cancel_application),
+])
+
+# Step 5: IT accounts setup and orientation materials sent
+orientation_flow = gen.partial_order(dependencies=[
+    (confirm_enrollment_2, send_orientation_materials),
+    (send_orientation_materials, set_up_IT_accounts),
+    (set_up_IT_accounts, obtain_student_ID_card),
+    (obtain_student_ID_card, assist_visa_processing),
+])
+
+# Step 6: Start creating study plan
+begin_attending_classes_2 = begin_attending_classes_1.copy()  # Second instance for this step
+study_plan_flow = gen.partial_order(dependencies=[
+    (begin_attending_classes_2, meet_with_academic_advisor),
+    (meet_with_academic_advisor, select_courses),
+    (select_courses, resolve_schedule_conflicts),
+])
+
+# Step 7: Adding/dropping courses
+add_drop_flow = gen.loop(do=add_drop_courses, redo=None)  # New instance for adding/dropping courses
+
+# Step 8: End of semester grades
+grade_flow = gen.partial_order(dependencies=[
+    (add_drop_flow, post_grades),
+    (post_grades, review_grades_online),
+])
+
+# Step 9: Appeals process
+appeal_flow = gen.partial_order(dependencies=[
+    (file_appeal, meet_with_appeals_committee),
+    (meet_with_appeals_committee, await_decision),
+])
+
+# Step 10: Overall process loop
+final_application_flow = gen.loop(do=application_flow, redo=fee_processing)  # New instance of the overall loop
+
+# Combine all steps into the final model
+acceptance_choice_2 = acceptance_choice_1.copy()  # Create a second instance for overall process
+begin_attending_classes_3 = begin_attending_classes_1.copy()  # Create a third instance for overall process
+add_drop_flow_2 = add_drop_flow.copy()  # Create a copy for overall use
+
+final_model = gen.partial_order(dependencies=[
+    (final_application_flow, acceptance_choice_2),
+    (acceptance_choice_2, orientation_flow),
+    (orientation_flow, study_plan_flow),
+    (study_plan_flow, begin_attending_classes_3),  # Use third instance
+    (begin_attending_classes_3, add_drop_flow_2),  # Use copy of add_drop_flow
+    (add_drop_flow_2, grade_flow),
+    (grade_flow, appeal_flow),
+])
+
+# Final model structure
+final_model = gen.partial_order(dependencies=[
+    (final_model, graduate),
+    (final_model, withdraw),
+])

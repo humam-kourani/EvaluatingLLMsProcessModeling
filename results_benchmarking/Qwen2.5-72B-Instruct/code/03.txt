@@ -1,0 +1,48 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+check_inventory = gen.activity('Check current inventory level')
+send_automated_alert = gen.activity('Send an automated alert')
+send_manual_alert = gen.activity('Send a manual alert')
+place_order = gen.activity('Place order with suppliers')
+update_delivery_dates = gen.activity('Update inventory system with expected delivery dates')
+receive_stock = gen.activity('Receive stock')
+inspect_stock = gen.activity('Inspect stock for quality')
+record_stock = gen.activity('Record stock in system')
+place_stock_storage = gen.activity('Place stock in storage')
+place_stock_shelves = gen.activity('Place stock on shelves')
+update_inventory_levels = gen.activity('Update inventory levels')
+
+# Choice between automated or manual alert
+alert_choice = gen.xor(send_automated_alert, send_manual_alert)
+
+# Inspect and record stock, then place in storage or on shelves
+receive_stock_copy = receive_stock.copy()  # Create a copy of receive_stock
+inspector = gen.partial_order(dependencies=[
+    (receive_stock_copy, inspect_stock),
+    (inspect_stock, record_stock),
+    (record_stock, place_stock_storage.copy()),  # Create a copy here
+    (record_stock, place_stock_shelves.copy())  # Create a copy here
+])
+
+# Place stock in storage or on shelves (create copies of place_stock_storage and place_stock_shelves to avoid reusing the same activities)
+place_stock_storage_copy = place_stock_storage.copy()
+place_stock_shelves_copy = place_stock_shelves.copy()
+update_inventory_levels_copy = update_inventory_levels.copy()  # Create a copy here
+place_stock_choice = gen.partial_order(dependencies=[
+    (place_stock_storage_copy, update_inventory_levels_copy),
+    (place_stock_shelves_copy, update_inventory_levels_copy)
+])
+
+# Final process model
+final_model = gen.partial_order(dependencies=[
+    (check_inventory, alert_choice),
+    (alert_choice, place_order),
+    (place_order, update_delivery_dates),
+    (update_delivery_dates, receive_stock),
+    (receive_stock, inspector),
+    (inspector, place_stock_choice),
+    (place_stock_choice, update_inventory_levels)
+])

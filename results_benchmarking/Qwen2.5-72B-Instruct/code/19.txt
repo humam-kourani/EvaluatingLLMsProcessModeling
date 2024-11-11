@@ -1,0 +1,36 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Activities
+login = gen.activity('Login')
+select_items = gen.activity('Select items')
+set_payment_method = gen.activity('Set payment method')
+pay = gen.activity('Pay')
+complete_installment_agreement = gen.activity('Complete installment agreement')
+select_free_reward = gen.activity('Select free reward')
+deliver_items = gen.activity('Deliver items')
+return_items = gen.activity('Return items')
+
+# Concurrent activities for selecting items and setting payment method
+concurrent_select_set = gen.partial_order(dependencies=[(select_items,), (set_payment_method,)])
+
+# Choice between paying and completing installment agreement
+choice_payment = gen.xor(pay, complete_installment_agreement)
+
+# Concurrent activities for selecting items and setting payment method, followed by payment choice
+concurrent_select_set_payment = gen.partial_order(dependencies=[(concurrent_select_set, choice_payment)])
+
+# Selecting free reward, which is independent of payment activities
+select_free_reward_activity = select_free_reward
+
+# Combining all activities up to this point
+pre_delivery = gen.partial_order(dependencies=[(concurrent_select_set_payment, select_free_reward_activity)])
+
+# Delivering items
+pre_return = gen.partial_order(dependencies=[(pre_delivery, deliver_items)])
+
+# Handling returns and new deliveries
+return_loop = gen.loop(do=pre_return, redo=return_items)
+
+# Final model
+final_model = return_loop

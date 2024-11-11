@@ -1,0 +1,41 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Base activities
+place_order_phone = gen.activity('Customer places order over the phone')
+place_order_online = gen.activity('Customer places order online')
+generate_confirmation = gen.activity('Generate and send order confirmation')
+pick_pack_items = gen.activity('Pick and pack items')
+generate_shipping_label = gen.activity('Generate shipping label')
+hand_over_logistics = gen.activity('Hand over order to logistics provider')
+send_tracking_info = gen.activity('Send tracking information to customer')
+monitor_shipment = gen.activity('Monitor shipment')
+successful_delivery = gen.activity('Successful delivery')
+process_feedback_returns = gen.activity('Process customer feedback or returns')
+
+# Handling order placement options
+order_choice = gen.xor(place_order_phone, place_order_online)
+
+# Main process sequence
+poset_main_process = gen.partial_order(
+    dependencies=[
+        (order_choice, generate_confirmation),
+        (generate_confirmation, pick_pack_items),
+        (pick_pack_items, generate_shipping_label),
+        (generate_shipping_label, hand_over_logistics),
+        (hand_over_logistics, send_tracking_info),
+        (send_tracking_info, monitor_shipment),
+        (monitor_shipment, successful_delivery)
+    ]
+)
+
+# Create a copy of 'Successful delivery' for feedback/returns handling
+successful_delivery_copy = successful_delivery.copy()
+
+# Optional customer feedback or returns after delivery
+poset_with_feedback = gen.xor(successful_delivery_copy, process_feedback_returns)
+
+# Final model with main process and optional feedback/returns
+final_model = gen.partial_order(
+    dependencies=[(poset_main_process, poset_with_feedback)]
+)

@@ -1,0 +1,57 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+take_order = gen.activity('Manager takes down the order')
+submit_order_kitchen = gen.activity('Manager submits order ticket to kitchen')
+give_order_sommelier = gen.activity('Manager gives order to sommelier')
+assign_order_waiter = gen.activity('Manager assigns order to waiter')
+kitchen_food_prep = gen.activity('Kitchen prepares food')
+sommelier_prep = gen.activity('Sommelier fetches wine and prepare alcoholic beverages')
+waiter_readies_cart = gen.activity('Waiter readies cart')
+waiter_prep_nonalc_drinks = gen.activity('Waiter prepares nonalcoholic drinks')
+waiter_deliver = gen.activity('Waiter delivers order to guest\'s room')
+waiter_returns = gen.activity('Waiter returns to room-service station')
+waiter_debits_account = gen.activity('Waiter debits guest\'s account')
+waiter_waits = gen.activity('Waiter waits/delays debiting')
+guest_calls_service = gen.activity('Guest calls room service')
+
+# Exclusive choice for alcoholic drink preparation
+sommelier_optional = gen.xor(sommelier_prep, None)
+
+# Concurrency for kitchen and sommelier tasks
+kitchen_sommelier_concurrency = gen.partial_order(
+    dependencies=[(kitchen_food_prep,), (sommelier_optional,)]
+)
+
+# Waiter tasks concurrency
+waiter_tasks_concurrency = gen.partial_order(
+    dependencies=[(waiter_readies_cart,), (waiter_prep_nonalc_drinks,)]
+)
+
+# Sequential flow from taking the order to assigning tasks
+manager_flow = gen.partial_order(
+    dependencies=[(take_order, submit_order_kitchen),
+                  (submit_order_kitchen, give_order_sommelier),
+                  (give_order_sommelier, assign_order_waiter)]
+)
+
+# Use a copy of 'assign_order_waiter' for the waiter sequence to avoid reusing the same node
+assign_order_waiter_copy = assign_order_waiter.copy()
+
+# Sequence of events after waiter assigned the order
+waiter_sequence = gen.partial_order(
+    dependencies=[(assign_order_waiter_copy, kitchen_sommelier_concurrency),
+                  (kitchen_sommelier_concurrency, waiter_tasks_concurrency),
+                  (waiter_tasks_concurrency, waiter_deliver),
+                  (waiter_deliver, waiter_returns),
+                  (waiter_returns, waiter_debits_account),
+                  (waiter_debits_account, waiter_waits)]
+)
+
+# Overall model combining guest call with the rest of the service process
+final_model = gen.partial_order(
+    dependencies=[(guest_calls_service, manager_flow),
+                  (manager_flow, waiter_sequence)]
+)

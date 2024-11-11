@@ -1,0 +1,50 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Activities
+identify_need = gen.activity('Identify need for new hire')
+create_description = gen.activity('Create job description')
+post_description = gen.activity('Post job description')
+collect_resumes = gen.activity('Collect resumes')
+screen_resumes = gen.activity('Screen resumes')
+conduct_phone_interviews = gen.activity('Conduct initial phone interviews')
+invite_candidates = gen.activity('Invite candidates for interviews')
+conduct_in_person_interview = gen.activity('Conduct an in-person interview')
+conduct_virtual_interview = gen.activity('Conduct a virtual interview')
+choose_candidate = gen.activity('Choose candidate')
+extend_offer = gen.activity('Extend offer')
+negotiate_salary = gen.activity('Negotiate salary')
+begin_onboarding = gen.activity('Begin onboarding process')
+complete_paperwork = gen.activity('Complete paperwork')
+complete_orientation = gen.activity('Complete orientation')
+complete_training = gen.activity('Complete training')
+
+# Subprocess: Interviewing Candidates
+interview_choice = gen.xor(conduct_in_person_interview, conduct_virtual_interview)
+interview_sequence = gen.partial_order(dependencies=[(invite_candidates, interview_choice)])
+
+# Subprocess: After Choosing Candidate
+negotiate_optional = gen.xor(negotiate_salary, None)
+offer_sequence = gen.partial_order(dependencies=[(extend_offer, negotiate_optional)])
+
+# Subprocess: Onboarding Process
+onboarding_sequence = gen.partial_order(
+    dependencies=[(begin_onboarding, complete_paperwork), 
+                  (complete_paperwork, complete_orientation), 
+                  (complete_orientation, complete_training)])
+
+# Main Process
+main_process = gen.partial_order(
+    dependencies=[
+        (identify_need, create_description),
+        (create_description, post_description),
+        (post_description, collect_resumes),
+        (collect_resumes, screen_resumes),
+        (screen_resumes, conduct_phone_interviews),
+        (conduct_phone_interviews, interview_sequence),
+        (interview_sequence, choose_candidate),
+        (choose_candidate, offer_sequence),
+        (offer_sequence, onboarding_sequence)
+    ])
+
+final_model = main_process

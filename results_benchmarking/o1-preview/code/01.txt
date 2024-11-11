@@ -1,0 +1,37 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities with the specified labels
+receive_inquiry = gen.activity('Receive customer inquiry')
+collect_info = gen.activity('Collect customer information')
+address_concerns = gen.activity('Address customer concerns or questions')
+guide_selection = gen.activity('Guide customer in selecting product/service')
+provide_quote = gen.activity('Provide quote')
+place_order = gen.activity('Place order')
+record_order = gen.activity('Record order in system')
+send_confirmation = gen.activity('Send order confirmation to customer')
+
+# Define order placement sequence
+order_placement_sequence = gen.partial_order(
+    dependencies=[(place_order, record_order), (record_order, send_confirmation)]
+)
+
+# Define choice after 'Provide quote'
+choice_after_quote = gen.xor(order_placement_sequence, None)
+
+# Define the interested path after 'Address customer concerns or questions'
+interested_path = gen.partial_order(
+    dependencies=[(guide_selection, provide_quote), (provide_quote, choice_after_quote)]
+)
+
+# Define choice after 'Address customer concerns or questions'
+choice_after_address = gen.xor(interested_path, None)
+
+# Define initial sequence
+final_model = gen.partial_order(
+    dependencies=[
+        (receive_inquiry, collect_info),
+        (collect_info, address_concerns),
+        (address_concerns, choice_after_address)
+    ]
+)

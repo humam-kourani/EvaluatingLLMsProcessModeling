@@ -1,0 +1,51 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Activities
+customer_searches_ticket = gen.activity('Customer searches for ticket')
+select_route = gen.activity('Select route')
+select_date_and_time = gen.activity('Select date and time')
+provide_personal_information = gen.activity('Provide personal information')
+provide_payment_details_1 = gen.activity('Provide payment details')  # First instance of provide payment details
+provide_payment_details_2 = gen.activity('Provide payment details')  # Second instance of provide payment details
+generate_ticket_1 = gen.activity('Generate ticket')  # First instance of generate ticket
+generate_ticket_2 = gen.activity('Generate ticket')  # Second instance of generate ticket
+send_ticket_via_sms = gen.activity('Send ticket via SMS')
+send_ticket_via_email = gen.activity('Send ticket via email')
+update_seat_inventory_1 = gen.activity('Update seat inventory')  # First instance of update seat inventory
+update_seat_inventory_2 = gen.activity('Update seat inventory')  # Second instance of update seat inventory
+send_reminder = gen.activity('Send reminder')
+send_instructions = gen.activity('Send instructions')
+customer_completes_journey = gen.activity('Customer completes journey')
+post_travel_feedback_or_services = gen.activity('Post-travel feedback or services')
+
+# Sequential dependencies for initial steps
+initial_steps = gen.partial_order(dependencies=[
+    (customer_searches_ticket, select_route),
+    (select_route, select_date_and_time),
+    (select_date_and_time, provide_personal_information),
+    (provide_personal_information, provide_payment_details_1)
+])
+
+# Sequential dependencies for generating and sending the ticket
+generate_and_send_ticket = gen.partial_order(dependencies=[
+    (generate_ticket_1, send_ticket_via_sms),
+    (generate_ticket_1, send_ticket_via_email)
+])
+
+# Sequential dependencies for pre-travel steps
+pre_travel_steps = gen.partial_order(dependencies=[
+    (update_seat_inventory_1, send_reminder),
+    (update_seat_inventory_1, send_instructions)
+])
+
+# Combine all subprocesses
+final_model = gen.partial_order(dependencies=[
+    (initial_steps, provide_payment_details_2),
+    (provide_payment_details_2, generate_ticket_2),
+    (generate_ticket_2, generate_and_send_ticket),
+    (generate_and_send_ticket, update_seat_inventory_2),
+    (update_seat_inventory_2, pre_travel_steps),
+    (pre_travel_steps, customer_completes_journey),
+    (customer_completes_journey, post_travel_feedback_or_services)
+])

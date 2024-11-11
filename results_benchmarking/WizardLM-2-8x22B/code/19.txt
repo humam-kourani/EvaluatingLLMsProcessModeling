@@ -1,0 +1,31 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Define activities
+login = gen.activity('Login')
+select_items = gen.activity('Select items')
+set_payment_method = gen.activity('Set payment method')
+pay = gen.activity('Pay')
+complete_installment_agreement = gen.activity('Complete installment agreement')
+select_free_reward = gen.activity('Select free reward')
+deliver_items = gen.activity('Deliver items')
+return_items = gen.activity('Return items')
+
+# Define concurrent activities after login
+concurrent_select_set = gen.partial_order(dependencies=[(select_items,), (set_payment_method,)])
+
+# Define payment options as an exclusive choice
+payment_choice = gen.xor(pay, complete_installment_agreement)
+
+# Define the loop for item returns and redeliveries
+delivery_return_loop = gen.loop(do=deliver_items, redo=return_items)
+
+# Combine the entire process into a final model
+final_model = gen.partial_order(
+    dependencies=[
+        (login, concurrent_select_set),
+        (concurrent_select_set, select_free_reward),
+        (concurrent_select_set, payment_choice),
+        (payment_choice, delivery_return_loop)
+    ]
+)
