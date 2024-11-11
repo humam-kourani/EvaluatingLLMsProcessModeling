@@ -1,0 +1,40 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+identify_idea = gen.activity('Identify idea for new product or improvement')
+conduct_research = gen.activity('Conduct initial research')
+conduct_feasibility_studies = gen.activity('Conduct feasibility studies')
+draft_design_concepts = gen.activity('Draft design concepts')
+select_promising_design = gen.activity('Select promising design')
+build_prototype = gen.activity('Build prototype')
+test_functionality = gen.activity('Test functionality')
+test_safety = gen.activity('Test safety')
+test_market_potential = gen.activity('Test market potential')
+collect_feedback = gen.activity('Collect feedback from testing phase')
+refine_prototype = gen.activity('Refine prototype')
+approve_prototype = gen.activity('Approve prototype for further development')
+discard_prototype = gen.activity('Discard prototype')
+
+
+testing_activities = gen.partial_order(dependencies=[(test_functionality, ), (test_safety, ), (test_market_potential, )]) # Concurrent testing activities
+
+testing_process = gen.partial_order(dependencies=[(testing_activities, collect_feedback)])
+
+
+refine_test_loop = gen.loop(do=testing_process, redo=refine_prototype)
+
+post_testing_choice = gen.xor(approve_prototype, discard_prototype)
+
+prototype_testing = gen.partial_order(dependencies=[(build_prototype, refine_test_loop), (refine_test_loop, post_testing_choice)])
+
+design_selection = gen.partial_order(dependencies=[(draft_design_concepts, select_promising_design)])
+
+positive_feasibility_path = gen.partial_order(dependencies=[(design_selection, prototype_testing)])
+skip_development = gen.xor(None, positive_feasibility_path) # The prototype can be deemed unsuitable at any point
+
+
+final_model = gen.partial_order(dependencies=[
+    (identify_idea, conduct_research),
+    (conduct_research, conduct_feasibility_studies),
+    (conduct_feasibility_studies, skip_development)])

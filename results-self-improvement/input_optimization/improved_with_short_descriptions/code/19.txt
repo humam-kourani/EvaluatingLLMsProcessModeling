@@ -1,0 +1,43 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+login = gen.activity('Login')
+select_items = gen.activity('Select items')
+set_payment_method = gen.activity('Set payment method')
+select_reward = gen.activity('Select free reward')
+apply_reward = gen.activity('Apply reward')
+pay = gen.activity('Pay')
+complete_installment_agreement = gen.activity('Complete installment agreement')
+deliver_items = gen.activity('Deliver items')
+return_items = gen.activity('Return items')
+
+
+reward_path = gen.partial_order(dependencies=[(select_reward, apply_reward)])
+no_reward_path = None  # Explicitly modeling the absence of reward selection
+reward_choice = gen.xor(reward_path, no_reward_path)
+
+
+payment_path = gen.partial_order(dependencies=[(pay,)])
+installment_path = gen.partial_order(dependencies=[(complete_installment_agreement,)])
+
+payment_choice = gen.xor(payment_path, installment_path)
+
+# Create a copy of deliver_items for the return loop
+deliver_items_copy = deliver_items.copy()
+
+single_return = gen.partial_order(dependencies=[(return_items, deliver_items_copy)])
+return_loop = gen.loop(do=None, redo=single_return) # return is optional
+
+
+
+final_model = gen.partial_order(
+    dependencies=[
+        (login, select_items),
+        (select_items, set_payment_method),
+        (set_payment_method, reward_choice),
+        (reward_choice, payment_choice),
+        (payment_choice, deliver_items),
+        (deliver_items, return_loop)
+    ]
+)

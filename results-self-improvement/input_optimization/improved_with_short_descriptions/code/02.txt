@@ -1,0 +1,69 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+identify_need = gen.activity("Identify need for new hire")
+create_job_description = gen.activity("Create job description")
+post_job_description = gen.activity("Post job description")
+collect_resumes = gen.activity("Collect resumes")
+screen_resumes = gen.activity("Screen resumes")
+invite_candidates = gen.activity("Invite candidates for interviews")
+conduct_initial_phone_interviews = gen.activity(
+    "Conduct initial phone interviews"
+)
+conduct_virtual_interview = gen.activity("Conduct a virtual interview")
+conduct_in_person_interview = gen.activity("Conduct an in-person interview")
+choose_candidate = gen.activity("Choose candidate")
+extend_offer = gen.activity("Extend offer")
+begin_onboarding_process = gen.activity("Begin onboarding process")
+complete_paperwork = gen.activity("Complete paperwork")
+complete_orientation = gen.activity("Complete orientation")
+complete_training = gen.activity("Complete training")
+negotiate_salary = gen.activity("Negotiate salary")
+offer_declined = gen.activity("Offer Declined")
+
+# Interview process (can have multiple rounds)
+interview_process = gen.partial_order(
+    dependencies=[
+        (invite_candidates, conduct_initial_phone_interviews),
+        (conduct_initial_phone_interviews, conduct_virtual_interview),
+        (conduct_virtual_interview, conduct_in_person_interview),
+
+    ]
+)
+
+
+# Onboarding process
+onboarding_process = gen.partial_order(
+    dependencies=[
+        (begin_onboarding_process, complete_paperwork),
+        (complete_paperwork, complete_orientation),
+        (complete_orientation, complete_training),
+    ]
+)
+
+# Offer handling
+
+offer_handling = gen.xor(onboarding_process, offer_declined)
+
+
+# Main process flow
+main_process = gen.partial_order(
+    dependencies=[
+        (identify_need, create_job_description),
+        (create_job_description, post_job_description),
+        (post_job_description, collect_resumes),
+        (collect_resumes, screen_resumes),
+        (screen_resumes, interview_process),
+        (interview_process, choose_candidate),
+        (choose_candidate, extend_offer),
+        (extend_offer, negotiate_salary),
+        (negotiate_salary, offer_handling)
+    ]
+)
+
+collect_resumes_copy = collect_resumes.copy() # Create a copy to avoid reuse
+
+
+final_model = gen.loop(do=main_process, redo=collect_resumes_copy)

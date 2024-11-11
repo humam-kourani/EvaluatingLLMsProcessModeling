@@ -1,0 +1,93 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial activities
+place_order = gen.activity('Place order')
+record_order_details = gen.activity('Record order details')
+process_payment = gen.activity('Process payment')
+
+# Payment outcome choice
+notify_about_failed_payment = gen.activity('Notify about failed payment')
+
+# Inventory check and back-order process
+check_stock_availability = gen.activity('Check stock availability')
+initiate_back_order = gen.activity('Initiate back-order')
+inform_customer_about_delay = gen.activity('Inform customer about delay')
+receive_back_order = gen.activity('Receive back-order')
+
+back_order_process = gen.partial_order(dependencies=[
+    (initiate_back_order, inform_customer_about_delay),
+    (inform_customer_about_delay, receive_back_order)])
+in_stock = gen.xor(None, back_order_process)
+
+item_check_loop = gen.loop(do=check_stock_availability, redo=in_stock)
+
+
+# Fulfillment process
+pick_items_from_warehouse = gen.activity('Pick items from warehouse')
+perform_quality_control_checks = gen.activity('Perform quality control checks')
+gift_wrap_items = gen.activity('Gift wrap items')
+package_items = gen.activity('Package items')
+prepare_shipping_documents_and_labels = gen.activity('Prepare shipping documents and labels')
+prepare_documentation_for_international_orders = gen.activity('Prepare documentation for international orders')
+dispatch_order = gen.activity('Dispatch order')
+update_inventory_levels = gen.activity('Update inventory levels')
+send_shipping_confirmation_to_customer = gen.activity('Send shipping confirmation to customer')
+
+gift_wrapping = gen.xor(gift_wrap_items, None)
+
+international_docs = gen.xor(prepare_documentation_for_international_orders, None)
+
+fulfillment_process = gen.partial_order(dependencies=[
+    (pick_items_from_warehouse, perform_quality_control_checks),
+    (perform_quality_control_checks, gift_wrapping),
+    (gift_wrapping, package_items),
+    (package_items, prepare_shipping_documents_and_labels),
+    (prepare_shipping_documents_and_labels, international_docs),
+    (international_docs, dispatch_order)])
+
+# Post-delivery process
+confirm_delivery = gen.activity('Confirm delivery')
+send_follow_up_email = gen.activity('Send follow-up email')
+customer_reports_issue = gen.activity('Customer reports issue')
+
+# Returns process
+send_return_shipping_label = gen.activity('Send return shipping label')
+receive_returned_items = gen.activity('Receive returned items')
+inspect_returned_items = gen.activity('Inspect returned items')
+process_refund = gen.activity('Process refund')
+process_replacement = gen.activity('Process replacement')
+
+refund_or_replacement = gen.xor(process_refund, process_replacement)
+
+returns_process = gen.partial_order(dependencies=[
+    (send_return_shipping_label, receive_returned_items),
+    (receive_returned_items, inspect_returned_items),
+    (inspect_returned_items, refund_or_replacement)
+])
+handle_issues = gen.xor(returns_process, None)
+
+post_delivery_process = gen.partial_order(dependencies=[
+    (confirm_delivery, send_follow_up_email),
+    (send_follow_up_email, customer_reports_issue),
+    (customer_reports_issue, handle_issues)
+])
+
+
+successful_payment_branch = gen.partial_order([(item_check_loop, fulfillment_process.copy())]) # create a copy for the fulfillment process in this branch.
+
+payment_outcome = gen.xor(notify_about_failed_payment, successful_payment_branch)
+
+
+order_process = gen.partial_order(dependencies=[
+    (place_order, record_order_details),
+    (place_order, process_payment),
+    (process_payment, payment_outcome),
+    (payment_outcome, fulfillment_process),
+    (fulfillment_process, update_inventory_levels),
+    (fulfillment_process, send_shipping_confirmation_to_customer),
+    (send_shipping_confirmation_to_customer, post_delivery_process)
+])
+
+final_model = order_process

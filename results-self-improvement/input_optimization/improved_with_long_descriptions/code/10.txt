@@ -1,0 +1,48 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+submit_request = gen.activity('Submit IT solution request')
+assess_compatibility = gen.activity('Assess compatibility')
+evaluate_cost = gen.activity('Evaluate cost and resource needs')
+procure_tools = gen.activity('Procure necessary tools or licenses')
+install_solution = gen.activity('Install the solution')
+test_solution = gen.activity('Test solution')
+roll_out_solution = gen.activity('Roll out solution to requesting department')
+provide_training = gen.activity('Provide training')
+provide_support = gen.activity('Provide support for troubleshooting')
+
+assessment_phase = gen.partial_order(dependencies=[(assess_compatibility,), (evaluate_cost,)])
+
+request_approved = gen.partial_order(
+    dependencies=[
+        (procure_tools, install_solution),
+        (install_solution, test_solution),
+        (test_solution, roll_out_solution)
+    ]
+)
+
+optional_training = gen.xor(provide_training, None)
+
+# This is where the fix is.  Create a copy of roll_out_solution
+roll_out_solution_copy = roll_out_solution.copy()  
+
+post_rollout = gen.partial_order(dependencies=[(roll_out_solution_copy, optional_training)])
+
+
+request_rejected = gen.activity('Reject Request') # Implicitly mentioned.
+
+approval_decision = gen.xor(request_approved, request_rejected)
+
+
+
+main_process = gen.partial_order(
+    dependencies=[
+        (submit_request, assessment_phase),
+        (assessment_phase, approval_decision),
+        (approval_decision, post_rollout),
+        (post_rollout, provide_support)
+    ]
+)
+
+final_model = main_process

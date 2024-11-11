@@ -1,0 +1,62 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial steps
+customer_signs_up = gen.activity('Customer signs up')
+generate_account = gen.activity('Generate account')
+assign_access = gen.activity('Assign access')
+set_billing_triggers = gen.activity('Set automatic triggers for billing cycles')
+
+initial_steps = gen.partial_order(dependencies=[
+    (customer_signs_up, generate_account),
+    (generate_account, assign_access),
+    (generate_account, set_billing_triggers)
+])
+
+# Subscription activities
+send_updates = gen.activity('Send regular updates')
+send_enhancements = gen.activity('Send product enhancements')
+send_renewal_notifications = gen.activity('Send renewal notifications')
+
+subscription_activities = gen.partial_order(dependencies=[
+    (send_updates,),
+    (send_enhancements,),
+    (send_renewal_notifications,)
+])
+subscription_loop = gen.loop(do=subscription_activities, redo=None)
+
+
+# Cancellation process
+customer_cancels = gen.activity('Customer submits cancellation request')
+apply_refund = gen.activity('apply refund')
+apply_charges = gen.activity('apply charges')
+cancellation_choice = gen.xor(apply_refund, apply_charges)  # Either refund or charges
+handle_cancellation = gen.partial_order(dependencies=[
+    (customer_cancels, cancellation_choice)
+])
+
+# Final steps
+deactivate_subscription = gen.activity('Deactivate subscription')
+settle_balance = gen.activity('Settle final account balance')
+
+final_steps = gen.partial_order(dependencies=[
+    (deactivate_subscription, settle_balance)
+])
+
+# Main process flow WITH optional cancellation
+
+# Create a copy of the cancellation process to use in the xor
+handle_cancellation_copy = handle_cancellation.copy()
+cancellation_or_continue = gen.xor(handle_cancellation_copy, None)
+
+
+main_process_with_optional_cancellation = gen.partial_order(dependencies=[
+    (initial_steps, subscription_loop),
+    (subscription_loop, cancellation_or_continue),
+    (cancellation_or_continue, final_steps)
+])
+
+
+
+final_model = main_process_with_optional_cancellation

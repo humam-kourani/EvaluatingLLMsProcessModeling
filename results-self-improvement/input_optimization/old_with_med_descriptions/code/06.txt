@@ -1,0 +1,42 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+order_phone = gen.activity('Customer places order over the phone')
+order_online = gen.activity('Customer places order online')
+send_confirmation = gen.activity('Generate and send order confirmation')
+pick_pack = gen.activity('Pick and pack items')
+generate_label = gen.activity('Generate shipping label')
+hand_to_logistics = gen.activity('Hand over order to logistics provider')
+send_tracking = gen.activity('Send tracking information to customer')
+monitor_shipment = gen.activity('Monitor shipment')
+successful_delivery = gen.activity('Successful delivery')
+feedback_returns = gen.activity('Process customer feedback or returns')
+
+
+# Order Placement
+order_placement = gen.xor(order_phone, order_online)
+
+# Warehouse and Logistics
+warehouse_logistics = gen.partial_order(dependencies=[
+    (pick_pack, generate_label),
+    (generate_label, hand_to_logistics)
+])
+
+# Main Process Flow
+main_process = gen.partial_order(dependencies=[
+    (order_placement, send_confirmation),
+    (send_confirmation, warehouse_logistics),
+    (warehouse_logistics, send_tracking),
+    (send_tracking, monitor_shipment),
+    (monitor_shipment, successful_delivery)
+])
+
+# Optional Feedback/Returns
+optional_feedback = gen.xor(feedback_returns, None)
+
+# Final Model with optional feedback/returns handling
+final_model = gen.partial_order(dependencies=[
+    (main_process, optional_feedback)
+])

@@ -1,0 +1,151 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial steps
+place_order = gen.activity('Place order')
+record_order_details = gen.activity('Record order details')
+process_payment = gen.activity('Process payment')
+
+# Payment failure path
+notify_about_failed_payment = gen.activity('Notify about failed payment')
+process_payment_copy1 = process_payment.copy() # Create a copy for the failure path
+payment_failure = gen.partial_order(dependencies=[(process_payment_copy1, notify_about_failed_payment)])
+
+# Successful payment path
+check_stock_availability = gen.activity('Check stock availability')
+
+# Out of stock path
+initiate_back_order = gen.activity('Initiate back-order')
+inform_customer_about_delay = gen.activity('Inform customer about delay')
+receive_back_order = gen.activity('Receive back-order')  # Added to complete back-order process
+check_stock_availability_copy1 = check_stock_availability.copy()
+out_of_stock_path = gen.partial_order(dependencies=[(check_stock_availability_copy1, initiate_back_order),
+                                                    (initiate_back_order, inform_customer_about_delay),
+                                                    (initiate_back_order, receive_back_order)])
+
+
+
+
+# In stock path
+pick_items_from_warehouse = gen.activity('Pick items from warehouse')
+perform_quality_control_checks = gen.activity('Perform quality control checks')
+package_items = gen.activity('Package items')
+gift_wrap_items = gen.xor(gen.activity('Gift wrap items'), None)  # Optional gift wrapping
+prepare_shipping_documents_and_labels = gen.activity('Prepare shipping documents and labels')
+prepare_documentation_for_international_orders = gen.xor(
+    gen.activity('Prepare documentation for international orders'), None)  # Conditional international docs
+
+# Correctly create copies to avoid reuse
+check_stock_availability_copy2 = check_stock_availability.copy()
+package_items_copy = package_items.copy()
+
+
+
+in_stock_path_packaging = gen.partial_order(dependencies=[(check_stock_availability_copy2, pick_items_from_warehouse),
+                                                           (pick_items_from_warehouse, perform_quality_control_checks),
+                                                           (perform_quality_control_checks, package_items),
+                                                           (package_items, gift_wrap_items)])
+
+in_stock_path_docs = gen.partial_order(dependencies=[
+    (package_items_copy, prepare_shipping_documents_and_labels),
+    (prepare_shipping_documents_and_labels, prepare_documentation_for_international_orders)])
+
+in_stock_path_combined = gen.partial_order(dependencies=[(in_stock_path_packaging,), (in_stock_path_docs,)])
+
+
+
+
+
+# Stock check choice (in stock vs. out of stock)
+stock_check_choice = gen.xor(out_of_stock_path, in_stock_path_combined)
+
+
+
+
+dispatch_order = gen.activity('Dispatch order')
+update_inventory_levels = gen.activity('Update inventory levels')
+send_shipping_confirmation_to_customer = gen.activity('Send shipping confirmation to customer')
+confirm_delivery = gen.activity('Confirm delivery')
+send_follow_up_email = gen.activity('Send follow-up email')
+
+
+# Create a copy for dispatch_order
+dispatch_order_copy = dispatch_order.copy()
+
+successful_order_path_pre_dispatch = gen.partial_order(
+    dependencies=[(stock_check_choice, dispatch_order)])
+
+successful_order_path_post_dispatch = gen.partial_order(
+    dependencies=[(dispatch_order_copy, update_inventory_levels),
+                  (update_inventory_levels, send_shipping_confirmation_to_customer),
+                  (send_shipping_confirmation_to_customer, confirm_delivery),
+                  (confirm_delivery, send_follow_up_email)
+                  ])
+
+successful_order_path_combined = gen.partial_order(
+    dependencies=[(successful_order_path_pre_dispatch,), (successful_order_path_post_dispatch,)])
+
+
+
+
+
+
+# Returns process
+customer_reports_issue = gen.activity('Customer reports issue')
+send_return_shipping_label = gen.activity('Send return shipping label')
+receive_returned_items = gen.activity('Receive returned items')
+inspect_returned_items = gen.activity('Inspect returned items')
+process_refund = gen.activity('Process refund')
+process_replacement = gen.activity('Process replacement')
+
+
+# Create copies to avoid reuse in the returns process
+customer_reports_issue_copy1 = customer_reports_issue.copy()
+send_return_shipping_label_copy1 = send_return_shipping_label.copy()
+receive_returned_items_copy1 = receive_returned_items.copy()
+inspect_returned_items_copy1 = inspect_returned_items.copy()
+
+
+customer_reports_issue_copy2 = customer_reports_issue.copy()
+send_return_shipping_label_copy2 = send_return_shipping_label.copy()
+receive_returned_items_copy2 = receive_returned_items.copy()
+inspect_returned_items_copy2 = inspect_returned_items.copy()
+
+
+
+
+returns_process_refund = gen.partial_order(dependencies=[(customer_reports_issue_copy1, send_return_shipping_label_copy1),
+                                                           (send_return_shipping_label_copy1, receive_returned_items_copy1),
+                                                           (receive_returned_items_copy1, inspect_returned_items_copy1),
+                                                          (inspect_returned_items_copy1, process_refund)])
+returns_process_replace = gen.partial_order(dependencies=[(customer_reports_issue_copy2, send_return_shipping_label_copy2),
+                                                           (send_return_shipping_label_copy2, receive_returned_items_copy2),
+                                                           (receive_returned_items_copy2, inspect_returned_items_copy2),
+                                                          (inspect_returned_items_copy2, process_replacement)])
+
+returns_process = gen.xor(returns_process_refund, returns_process_replace)
+
+optional_returns = gen.xor(returns_process, None)
+
+
+
+
+
+# Main process flow
+process_payment_copy2 = process_payment.copy() # Create a copy for the main flow
+payment_choice = gen.xor(payment_failure, successful_order_path_combined)
+
+# Create a copy for send_follow_up_email to avoid reuse
+send_follow_up_email_copy = send_follow_up_email.copy()
+
+
+main_process = gen.partial_order(dependencies=[(place_order, record_order_details),
+                                              (record_order_details, process_payment),
+                                              (process_payment, payment_choice),
+                                              (send_follow_up_email_copy, optional_returns)])
+
+
+
+
+final_model = main_process

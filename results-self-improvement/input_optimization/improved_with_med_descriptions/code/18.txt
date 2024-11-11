@@ -1,0 +1,100 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial steps
+submit_application = gen.activity('Submit application online')
+review_application = gen.activity('Review application and documents')
+notify_missing_docs = gen.activity('Notify applicant of missing documents')
+provide_missing_docs = gen.activity('Provide missing documents')
+
+# Loop for handling missing documents
+missing_docs_loop = gen.loop(do=None, redo=provide_missing_docs)  # redo -> do missing document -> review
+
+initial_steps = gen.partial_order(dependencies=[(submit_application, review_application), (review_application, notify_missing_docs), (notify_missing_docs, missing_docs_loop)])
+
+
+# Parallel evaluation process
+evaluate_application = gen.activity('Evaluate application by admissions committee')
+process_fees = gen.activity('Process fees or waivers')
+parallel_evaluation = gen.partial_order(dependencies=[(evaluate_application,), (process_fees,)])
+
+post_review = gen.partial_order(dependencies=[(initial_steps, parallel_evaluation)])
+
+
+# Decision and acceptance/rejection
+send_acceptance = gen.activity('Send acceptance letter')
+send_rejection = gen.activity('Send rejection letter')
+decision_choice = gen.xor(send_acceptance, send_rejection)
+
+
+# Enrollment confirmation and cancellation
+
+accept_reject_process = gen.partial_order(dependencies=[(post_review, decision_choice)])
+
+# FIX: create a copy of confirm_enrollment
+confirm_enrollment = gen.activity('Confirm enrollment')
+confirm_enrollment_copy = confirm_enrollment.copy()
+
+post_accept_reject = gen.partial_order(dependencies=[(accept_reject_process, confirm_enrollment_copy)])
+
+cancel_application = gen.activity('Cancel application')
+
+check_confirm = gen.xor(confirm_enrollment, cancel_application)  # either confirm or cancel
+
+
+# Post-confirmation activities
+send_orientation = gen.activity('Send orientation materials')
+setup_it_accounts = gen.activity('Set up IT accounts')
+assist_visa = gen.activity('Assist with visa processing')  # Optional for international students
+optional_visa = gen.xor(assist_visa, None) # assuming only international students need visa
+
+
+
+post_enrollment_choice = gen.partial_order(dependencies=[(post_accept_reject, check_confirm)])
+
+post_confirmation_1 = gen.partial_order(dependencies=[(send_orientation,), (setup_it_accounts,)])
+
+post_confirmation_2 = gen.partial_order(dependencies=[(post_enrollment_choice, post_confirmation_1)])
+
+post_confirmation_full = gen.partial_order(dependencies=[(post_confirmation_2, optional_visa)])
+
+
+# Pre-semester activities
+obtain_id = gen.activity('Obtain student ID card')
+meet_advisor = gen.activity('Meet with academic advisor')
+select_courses = gen.activity('Select courses')
+resolve_conflicts = gen.activity('Resolve schedule conflicts')
+pre_semester_activities = gen.partial_order(dependencies=[(obtain_id, meet_advisor), (meet_advisor, select_courses),
+                                                         (select_courses, resolve_conflicts)])
+
+pre_classes = gen.partial_order(dependencies=[(post_confirmation_full, pre_semester_activities)])
+
+
+# Semester activities
+begin_classes = gen.activity('Begin attending classes')
+add_drop = gen.activity('Add/drop courses')
+review_grades = gen.activity('Review grades online')
+submit_appeal = gen.activity('Submit appeal form') # grievance form
+meet_appeals = gen.activity('Meet with appeals committee')
+optional_appeal = gen.xor(submit_appeal, None)
+post_grades = gen.activity("Post grades")
+
+
+
+
+appeal_process = gen.partial_order(dependencies=[(optional_appeal, meet_appeals)])
+
+semester_core = gen.partial_order(dependencies=[(begin_classes, add_drop), (add_drop, post_grades), (post_grades, review_grades), (review_grades, appeal_process)])
+
+# loop until graduation
+withdraw = gen.activity('Withdraw')
+graduate = gen.activity('Graduate')
+
+end_choice = gen.xor(graduate, withdraw)
+
+semester_full = gen.partial_order(dependencies=[(pre_classes, semester_core), (semester_core, end_choice)])
+
+semester_loop = gen.loop(do=semester_full, redo=None)
+
+final_model = semester_loop

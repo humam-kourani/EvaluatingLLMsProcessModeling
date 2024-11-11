@@ -1,0 +1,28 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+login = gen.activity('Login')
+select_items = gen.activity('Select items')
+set_payment_method = gen.activity('Set payment method')
+select_reward = gen.xor(gen.activity('Select free reward'), None)  # Optional reward
+
+pay = gen.activity('Pay')
+installment_agreement = gen.activity('Complete installment agreement')
+payment = gen.xor(pay, installment_agreement)
+
+deliver_items = gen.activity('Deliver items')
+
+return_items = gen.activity('Return items')
+# New delivery for each return implies a loop. The 'do' part is a new delivery.
+return_loop = gen.loop(do=deliver_items.copy(), redo=return_items) 
+return_process = gen.xor(return_loop, None) # Returning is optional
+
+final_model = gen.partial_order(dependencies=[
+    (login, select_items),
+    (select_items, set_payment_method),
+    (set_payment_method, select_reward),
+    (select_reward, payment),
+    (payment, deliver_items),
+    (deliver_items, return_process)
+])

@@ -1,0 +1,40 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+submit_request = gen.activity('Submit IT solution request')
+assess_compatibility = gen.activity('Assess compatibility')
+evaluate_cost = gen.activity('Evaluate cost and resource needs')
+
+procure_tools = gen.activity('Procure necessary tools or licenses')
+install_solution = gen.activity('Install the solution')
+test_solution = gen.activity('Test solution')
+
+roll_out_solution = gen.activity('Roll out solution to requesting department')
+provide_training = gen.activity('Provide training')
+provide_support = gen.activity('Provide support for troubleshooting')
+
+
+# Assessment phase
+assessment_poset = gen.partial_order(dependencies=[(assess_compatibility,), (evaluate_cost,)])
+
+# Implementation phase
+implementation_poset = gen.partial_order(
+    dependencies=[(procure_tools,), (install_solution,), (test_solution,)])
+
+# Deployment and support phase, training and support are optional and concurrent
+deployment_support_poset = gen.partial_order(
+    dependencies=[(roll_out_solution,), (gen.xor(provide_training, None),), (gen.xor(provide_support, None),)])
+
+
+
+# Main process flow
+approval_choice = gen.xor(implementation_poset, None) # approved or not
+main_process_flow = gen.partial_order(
+    dependencies=[
+        (submit_request, assessment_poset),
+        (assessment_poset, approval_choice),
+        (approval_choice, deployment_support_poset)])
+
+
+final_model = main_process_flow

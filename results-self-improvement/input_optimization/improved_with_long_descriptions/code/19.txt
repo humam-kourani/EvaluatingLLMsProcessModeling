@@ -1,0 +1,36 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+login = gen.activity('Login')
+select_items = gen.activity('Select items')
+set_payment_method = gen.activity('Set payment method')
+pay = gen.activity('Pay')
+complete_installment_agreement = gen.activity('Complete installment agreement')
+select_free_reward = gen.activity('Select free reward')
+deliver_items = gen.activity('Deliver items')
+return_items = gen.activity('Return items')
+
+# Concurrency between select items and set payment method
+items_payment_poset = gen.partial_order(dependencies=[(select_items,), (set_payment_method,)])
+
+# Exclusive choice between payment methods
+payment_choice = gen.xor(pay, complete_installment_agreement)
+
+# Concurrency between item/payment and reward selection
+reward_poset = gen.partial_order(dependencies=[(items_payment_poset,),(select_free_reward,)])
+
+
+# Combine payment choice and reward selection, ensuring they are independent of each other
+payment_reward_poset = gen.partial_order(dependencies=[(reward_poset,), (payment_choice,)])
+
+# Delivery after payment and reward
+delivery_poset = gen.partial_order(dependencies=[(payment_reward_poset, deliver_items)])
+
+# Loop for returns and new deliveries
+deliver_items_copy = deliver_items.copy() # Create a copy for the loop
+return_loop = gen.loop(do=return_items, redo=deliver_items_copy)
+optional_return = gen.xor(return_loop, None)
+
+
+final_model = gen.partial_order(dependencies=[(login, delivery_poset), (delivery_poset, optional_return)])

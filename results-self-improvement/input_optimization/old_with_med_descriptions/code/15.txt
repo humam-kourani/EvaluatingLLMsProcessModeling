@@ -1,0 +1,31 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+schedule_audit = gen.activity('Schedule compliance audit')
+gather_evidence = gen.activity('Gather evidence')
+prepare_documentation = gen.activity('Prepare documentation')
+conduct_self_assessment = gen.activity('Conduct self-assessment')
+
+preparation_activities = gen.partial_order(dependencies=[(gather_evidence,), (prepare_documentation,), (conduct_self_assessment,)])
+
+identify_gaps = gen.activity('Identify gaps or issues')
+conduct_external_audit = gen.activity('Conduct external audit')
+
+audit_phase = gen.partial_order(dependencies=[(identify_gaps, conduct_external_audit)])
+
+make_corrections = gen.activity('Make necessary corrections or improvements')
+
+conduct_final_audit = gen.activity('Conduct final audit')
+award_certification = gen.activity('Award certification')
+issue_documents = gen.activity('Issue official documents')
+
+
+final_model = gen.partial_order(
+    dependencies=[
+        (schedule_audit, preparation_activities),
+        (preparation_activities, audit_phase),
+        (audit_phase, make_corrections),
+        (make_corrections, conduct_final_audit),
+        (conduct_final_audit, award_certification),
+        (award_certification, issue_documents)])

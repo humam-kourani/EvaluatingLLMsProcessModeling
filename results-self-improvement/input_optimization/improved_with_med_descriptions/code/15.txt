@@ -1,0 +1,34 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+schedule_audit = gen.activity('Schedule compliance audit')
+gather_evidence = gen.activity('Gather evidence')
+prepare_documentation = gen.activity('Prepare documentation')
+conduct_self_assessment = gen.activity('Conduct self-assessment')
+conduct_external_audit = gen.activity('Conduct external audit')
+identify_gaps_or_issues = gen.activity('Identify gaps or issues')
+make_necessary_corrections = gen.activity('Make necessary corrections or improvements')
+conduct_final_audit = gen.activity('Conduct final audit')
+award_certification = gen.activity('Award certification')
+issue_official_documents = gen.activity('Issue official documents')
+
+
+prepare_phase = gen.partial_order(dependencies=[(gather_evidence,), (prepare_documentation,), (conduct_self_assessment,)])
+
+corrective_actions = gen.loop(do=make_necessary_corrections, redo=None)
+
+compliant_path = gen.partial_order(dependencies=[(award_certification, issue_official_documents)])
+
+non_compliant_path = None  # Explicitly modeling the absence of actions in this path
+
+compliance_decision = gen.xor(compliant_path, non_compliant_path)
+
+final_model = gen.partial_order(dependencies=[
+    (schedule_audit, prepare_phase),
+    (prepare_phase, conduct_external_audit),
+    (conduct_external_audit, identify_gaps_or_issues),
+    (identify_gaps_or_issues, corrective_actions),
+    (corrective_actions, conduct_final_audit),
+    (conduct_final_audit, compliance_decision)
+])

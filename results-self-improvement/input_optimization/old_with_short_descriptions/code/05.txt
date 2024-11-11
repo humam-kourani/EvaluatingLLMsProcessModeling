@@ -1,0 +1,52 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+select_supplier = gen.activity('Select supplier')
+identify_need = gen.activity('Identify need for new supplier or vendor')
+sign_contract = gen.activity('Sign contract')
+execute_contract = gen.activity('Execute contract')
+receive_proposals = gen.activity('Receive supplier proposals')
+issue_rfp = gen.activity('Issue request for proposals (RFP)')
+conduct_interview = gen.activity('Conduct interview')
+begin_negotiations = gen.activity('Begin contract negotiations')
+evaluate_proposal = gen.activity('Evaluate proposal')
+conduct_site_visit = gen.activity('Conduct site visit')
+onboard_supplier = gen.activity('Onboard supplier')
+
+
+# Subprocesses
+
+# The process starts by identifying the need for a new supplier
+# The company then issues an RFP and receives proposals.
+issue_and_receive = gen.partial_order(dependencies=[(issue_rfp, receive_proposals)])
+
+
+# Evaluation can involve several activities, potentially in parallel or with dependencies.
+# Based on the context, evaluating proposals likely precedes other actions 
+# such as interviews and site visits, as these inform the final selection.
+# Interviews and site visits can happen concurrently.
+
+# FIX: Create a copy of receive_proposals to avoid reusing the same submodel.
+receive_proposals_copy = receive_proposals.copy()
+evaluation_process = gen.partial_order(dependencies=[(receive_proposals_copy, evaluate_proposal),
+                                                    (evaluate_proposal, conduct_interview),
+                                                    (evaluate_proposal, conduct_site_visit)])
+
+# Selection, Negotiation, and Contract
+# After evaluation, the company selects a supplier.
+# Then, contract negotiation begins, leading to signing and finally execution.
+contract_process = gen.partial_order(dependencies=[(evaluation_process, select_supplier),
+                                                   (select_supplier, begin_negotiations),
+                                                   (begin_negotiations, sign_contract),
+                                                   (sign_contract, execute_contract)])
+
+# Onboarding happens after the contract is executed.
+final_process = gen.partial_order(dependencies=[(contract_process, onboard_supplier)])
+
+
+# Combining everything: Identifying the need should be the first step.
+# The rest follows by the contract process.
+
+final_model = gen.partial_order(dependencies=[(identify_need, issue_and_receive), (issue_and_receive, final_process)])

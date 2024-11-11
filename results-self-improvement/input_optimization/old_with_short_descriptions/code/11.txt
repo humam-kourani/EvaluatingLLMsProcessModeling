@@ -1,0 +1,42 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial signup process
+signup = gen.activity('Customer signs up')
+generate_account = gen.activity('Generate account')
+assign_access = gen.activity('Assign access')
+
+# Regular service usage
+send_updates = gen.activity('Send regular updates')
+send_enhancements = gen.activity('Send product enhancements')
+trigger_billing = gen.activity('Set automatic triggers for billing cycles')
+apply_charges = gen.activity('apply charges')
+
+
+regular_usage_dependencies = [(trigger_billing, apply_charges)]
+regular_usage = gen.partial_order(dependencies=regular_usage_dependencies)
+
+renewal_notification = gen.activity('Send renewal notifications')
+
+regular_service = gen.partial_order(dependencies=[(send_updates,), (send_enhancements,), (regular_usage,), (renewal_notification,)])
+
+service_loop = gen.loop(do=regular_service, redo=None)
+
+
+# Cancellation process
+cancellation_request = gen.activity('Customer submits cancellation request')
+deactivate_subscription = gen.activity('Deactivate subscription')
+settle_final_account = gen.activity('Settle final account balance')
+apply_refund = gen.activity('apply refund')
+
+
+cancellation_process = gen.partial_order(dependencies=[(cancellation_request, deactivate_subscription), (deactivate_subscription, settle_final_account), (settle_final_account, apply_refund)])
+
+# Main process flow
+choice_cancellation = gen.xor(service_loop, cancellation_process)
+
+
+initial_signup = gen.partial_order(dependencies=[(signup, generate_account), (generate_account, assign_access)])
+
+final_model = gen.partial_order(dependencies=[(initial_signup, choice_cancellation)])

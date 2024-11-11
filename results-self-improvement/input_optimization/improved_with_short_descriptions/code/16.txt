@@ -1,0 +1,74 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Document preparation and Risk Assessment (concurrent)
+gather_documents = gen.activity('Gather necessary documents')
+prepare_financial_statements = gen.activity('Prepare financial statements')
+evaluate_financial_risks = gen.activity('Evaluate financial risks')
+evaluate_operational_risks = gen.activity('Evaluate operational risks')
+evaluate_compliance_risks = gen.activity('Evaluate compliance risks')
+complete_risk_assessment = gen.activity('Complete risk assessment/mitigation')
+
+
+document_prep = gen.partial_order(dependencies=[(gather_documents, prepare_financial_statements)])
+
+risk_assessment = gen.partial_order(dependencies=[
+    (evaluate_financial_risks,),
+    (evaluate_operational_risks,),
+    (evaluate_compliance_risks,),
+    (evaluate_financial_risks, complete_risk_assessment),
+    (evaluate_operational_risks, complete_risk_assessment),
+    (evaluate_compliance_risks, complete_risk_assessment)
+])
+
+
+
+
+initial_phase = gen.partial_order(dependencies=[(document_prep,), (risk_assessment,)])
+
+
+
+
+# Compliance Checks and Subsequent Actions
+compliance_checks = gen.activity('Check regulatory updates')
+
+# Two paths after compliance checks (exclusive choice)
+detailed_investigation = gen.activity('Launch detailed investigation')
+document_corrective_action = gen.activity('Request clarifications of discrepancies')
+receive_clarifications = gen.activity('Receive clarifications')
+update_resubmit = gen.activity('Update and resubmit report')
+
+
+
+corrective_action_path = gen.partial_order(dependencies=[(document_corrective_action, receive_clarifications), (receive_clarifications, update_resubmit)])
+
+post_compliance_choice = gen.xor(detailed_investigation, corrective_action_path)
+
+
+
+# Compile Report, Review, and Distribution
+compile_report = gen.activity('Compile audit report')
+review_report = gen.activity('Review report by audit director')
+approve_report = gen.activity('Approve report')
+distribute_report = gen.activity('Distribute final report')
+close_audit = gen.activity('Close audit process')
+archive_report = gen.activity('Archive report')
+
+final_steps = gen.partial_order(dependencies=[
+    (review_report, approve_report),
+    (approve_report, distribute_report),
+    (distribute_report, close_audit),
+    (close_audit, archive_report)
+])
+
+# Complete Process Model
+
+pre_compile_report = gen.partial_order(dependencies=[
+    (initial_phase, compliance_checks),
+    (compliance_checks, post_compliance_choice),
+    (post_compliance_choice, compile_report)
+])
+
+
+final_model = gen.partial_order(dependencies=[(pre_compile_report, final_steps)])

@@ -1,0 +1,109 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml>
+  <net id="imdf_net_1730826212.2169156" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <name>
+      <text>imdf_net_1730826212.2169156</text>
+    </name>
+    <page id="n0">
+      <place id="p_8">
+        <name>
+          <text>p_8</text>
+        </name>
+      </place>
+      <place id="p_16">
+        <name>
+          <text>p_16</text>
+        </name>
+      </place>
+      <place id="sink">
+        <name>
+          <text>sink</text>
+        </name>
+      </place>
+      <place id="p_10">
+        <name>
+          <text>p_10</text>
+        </name>
+      </place>
+      <place id="p_12">
+        <name>
+          <text>p_12</text>
+        </name>
+      </place>
+      <place id="p_19">
+        <name>
+          <text>p_19</text>
+        </name>
+      </place>
+      <place id="source">
+        <name>
+          <text>source</text>
+        </name>
+        <initialMarking>
+          <text>1</text>
+        </initialMarking>
+      </place>
+      <place id="p_14">
+        <name>
+          <text>p_14</text>
+        </name>
+      </place>
+      <transition id="7a5b2f7e-a919-41b1-b88e-a4e64603f7f3">
+        <name>
+          <text>Define campaign objectives</text>
+        </name>
+      </transition>
+      <transition id="26e80540-c721-4881-9d9a-d6d79807962f">
+        <name>
+          <text>Launch campaign</text>
+        </name>
+      </transition>
+      <transition id="6089c79d-37c4-4e34-b796-588c77a4df43">
+        <name>
+          <text>Create content</text>
+        </name>
+      </transition>
+      <transition id="09ccc3a4-c43d-4f00-9f1d-3aa6b970e994">
+        <name>
+          <text>Select promotion channels</text>
+        </name>
+      </transition>
+      <transition id="747758c4-6bf0-49a3-a0cd-f4d422815ccf">
+        <name>
+          <text>Campaign period ends</text>
+        </name>
+      </transition>
+      <transition id="2195e8be-3853-4e19-aab8-a2ee7f71c4d6">
+        <name>
+          <text>Analyze performance for future optimization</text>
+        </name>
+      </transition>
+      <transition id="db9e71f9-6d64-4a40-9faa-9d07f4b4db36">
+        <name>
+          <text>Track performance in real-time</text>
+        </name>
+      </transition>
+      <arc id="2334312508544" source="p_14" target="db9e71f9-6d64-4a40-9faa-9d07f4b4db36"/>
+      <arc id="2334313350528" source="26e80540-c721-4881-9d9a-d6d79807962f" target="p_14"/>
+      <arc id="2334313350144" source="6089c79d-37c4-4e34-b796-588c77a4df43" target="p_12"/>
+      <arc id="2334312509984" source="p_16" target="747758c4-6bf0-49a3-a0cd-f4d422815ccf"/>
+      <arc id="2334313350432" source="09ccc3a4-c43d-4f00-9f1d-3aa6b970e994" target="p_10"/>
+      <arc id="2334313350048" source="7a5b2f7e-a919-41b1-b88e-a4e64603f7f3" target="p_8"/>
+      <arc id="2334313349280" source="db9e71f9-6d64-4a40-9faa-9d07f4b4db36" target="p_16"/>
+      <arc id="2332184431296" source="p_10" target="6089c79d-37c4-4e34-b796-588c77a4df43"/>
+      <arc id="2334312504512" source="p_19" target="2195e8be-3853-4e19-aab8-a2ee7f71c4d6"/>
+      <arc id="2334313350336" source="2195e8be-3853-4e19-aab8-a2ee7f71c4d6" target="sink"/>
+      <arc id="2332184432736" source="p_8" target="09ccc3a4-c43d-4f00-9f1d-3aa6b970e994"/>
+      <arc id="2334313350624" source="source" target="7a5b2f7e-a919-41b1-b88e-a4e64603f7f3"/>
+      <arc id="2334313350240" source="747758c4-6bf0-49a3-a0cd-f4d422815ccf" target="p_19"/>
+      <arc id="2332184330096" source="p_12" target="26e80540-c721-4881-9d9a-d6d79807962f"/>
+    </page>
+    <finalmarkings>
+      <marking>
+        <place idref="sink">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
+  </net>
+</pnml>

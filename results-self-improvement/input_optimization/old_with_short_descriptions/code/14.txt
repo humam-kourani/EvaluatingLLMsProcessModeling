@@ -1,0 +1,38 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial drafting and alignment
+outline_objectives = gen.activity('Outline objectives')
+draft_plan = gen.activity('Draft plan')
+conduct_meeting = gen.activity('Conduct strategic alignment meeting')
+review_feasibility = gen.activity('Review budget feasibility')
+
+initial_phase = gen.partial_order(dependencies=[(outline_objectives, draft_plan),
+                                               (draft_plan, conduct_meeting),
+                                               (conduct_meeting, review_feasibility)])
+
+# Review and adjustment loop
+provide_feedback = gen.activity('Provide feedback')
+adjust_plan = gen.activity('Adjust Plan')
+document_adjustment = gen.activity('Documented and approve adjustment')
+
+review_adjust_loop = gen.loop(do=provide_feedback, redo=adjust_plan)
+
+
+review_phase = gen.partial_order(dependencies=[(initial_phase, review_adjust_loop), (review_adjust_loop, document_adjustment)])
+
+
+
+# Approval and implementation
+approve_budget = gen.activity('Approve final budget')
+distribute_budget = gen.activity('Distribute budget')
+implement_plan = gen.activity('Implement plan')
+
+# Connect directly to review_phase to avoid reusing document_adjustment
+final_phase = gen.partial_order(dependencies=[(review_phase, approve_budget),
+                                             (approve_budget, distribute_budget),
+                                             (distribute_budget, implement_plan)])
+
+# The final model now combines initial_phase with the correctly connected final_phase
+final_model = final_phase

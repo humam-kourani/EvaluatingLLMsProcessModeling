@@ -1,0 +1,70 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Monitoring and Alerting
+monitor_inventory = gen.activity('Check current inventory level')  # Continuously performed
+automated_alert = gen.activity('Send an automated alert')
+manual_check = gen.activity('Check current inventory level')  # Periodically performed
+manual_alert = gen.activity('Send a manual alert')
+
+
+# Crucial Fix: Create copies for manual_check and manual_alert
+manual_check_copy = manual_check.copy()
+manual_alert_copy = manual_alert.copy()
+
+
+# Reorder Trigger (use the copy of manual_alert)
+reorder_trigger = gen.xor(automated_alert, manual_alert_copy)
+
+
+# Supplier Selection and Ordering
+select_supplier = gen.activity('Place order with suppliers')
+update_expected_delivery = gen.activity('Update inventory system with expected delivery dates')
+
+
+# Receiving and Inspection
+receive_stock = gen.activity('Receive stock')
+inspect_stock = gen.activity('Inspect stock for quality')
+
+# Create a copy for inspect_stock
+inspect_stock_copy = inspect_stock.copy()
+
+
+# Restocking
+record_stock = gen.activity('Record stock in system')
+place_on_shelves = gen.activity('Place stock on shelves')
+place_in_storage = gen.activity('Place stock in storage')
+shelves_or_storage = gen.xor(place_on_shelves, place_in_storage)  # Either or
+update_inventory = gen.activity('Update inventory levels')
+
+# Combine submodels (using the copies)
+
+monitoring_and_alerting = gen.partial_order(dependencies=[(monitor_inventory,), (manual_check_copy, manual_alert)])
+
+
+
+
+receiving_and_inspection = gen.partial_order(dependencies=[(receive_stock, inspect_stock)])
+
+
+
+
+
+
+restocking_sub_process = gen.partial_order(dependencies=[(inspect_stock_copy, record_stock), (record_stock, shelves_or_storage), (shelves_or_storage, update_inventory)])
+
+
+
+
+
+
+supplier_selection_and_ordering = gen.partial_order(dependencies=[(reorder_trigger, select_supplier), (select_supplier, update_expected_delivery)])
+
+
+
+
+
+
+
+final_model = gen.partial_order(dependencies=[(monitoring_and_alerting,), (supplier_selection_and_ordering, receiving_and_inspection), (receiving_and_inspection, restocking_sub_process) ])

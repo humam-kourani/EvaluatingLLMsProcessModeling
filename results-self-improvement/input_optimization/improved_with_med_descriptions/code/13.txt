@@ -1,0 +1,40 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+file_complaint = gen.activity('File complaint')
+log_complaint = gen.activity('Log complaint')
+review_complaint_details = gen.activity('Review complaint details')
+assign_complaint_to_relevant_department = gen.activity(
+    'Assign complaint to relevant department')
+approve_and_notify_customer = gen.activity('Approve and notify customer')
+process_reimbursement = gen.activity('Process reimbursement')
+resolve_complaint_approved = gen.activity('Resolve complaint')
+reject_and_notify_customer = gen.activity('Reject and notify customer')
+resolve_complaint_rejected = gen.activity('Resolve complaint')
+provide_feedback = gen.activity('Provide feedback')
+
+
+# Refund approval path
+refund_approved_path = gen.partial_order(dependencies=[
+    (approve_and_notify_customer, process_reimbursement),
+    (process_reimbursement, resolve_complaint_approved)
+])
+
+# Refund rejection path
+refund_rejected_path = gen.partial_order(dependencies=[
+    (reject_and_notify_customer, resolve_complaint_rejected)
+])
+
+# Exclusive choice based on refund decision
+refund_decision = gen.xor(refund_approved_path, refund_rejected_path)
+
+# Main process flow
+final_model = gen.partial_order(dependencies=[
+    (file_complaint, log_complaint),
+    (log_complaint, review_complaint_details),
+    (review_complaint_details, assign_complaint_to_relevant_department),
+    (assign_complaint_to_relevant_department, refund_decision),
+    (refund_decision, provide_feedback)
+])

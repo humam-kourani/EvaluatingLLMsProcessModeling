@@ -1,0 +1,38 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+receive_inquiry = gen.activity('Receive customer inquiry')
+collect_info = gen.activity('Collect customer information')
+address_concerns = gen.activity('Address customer concerns or questions')
+info_gathering = gen.partial_order(dependencies=[(collect_info, address_concerns)])
+
+decline = gen.activity('Customer declines')
+guide_customer = gen.activity('Guide customer in selecting product/service')
+provide_quote = gen.activity('Provide quote')
+reject_quote = gen.activity('Customer rejects quote')
+place_order = gen.activity('Place order')
+record_order = gen.activity('Record order in system')
+send_confirmation = gen.activity('Send order confirmation to customer')
+
+order_process = gen.partial_order(dependencies=[(place_order, record_order), (record_order, send_confirmation)])
+
+
+quote_rejected = gen.activity('Customer rejects quote')
+
+provide_quote_copy = provide_quote.copy()
+
+sales_process_cont = gen.partial_order(dependencies=[(provide_quote_copy, order_process)])
+
+quote_choice = gen.xor(quote_rejected, sales_process_cont)
+
+
+sales_process = gen.partial_order(dependencies=[(guide_customer, provide_quote), (provide_quote, quote_choice)])
+
+
+
+
+initial_choice = gen.xor(decline, sales_process)
+
+
+final_model = gen.partial_order(dependencies=[(receive_inquiry, info_gathering), (info_gathering, initial_choice)])

@@ -1,0 +1,60 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+outline_objectives = gen.activity('Outline objectives')
+
+conduct_strategic_alignment_meeting = gen.activity('Conduct strategic alignment meeting')
+review_budget_feasibility = gen.activity('Review budget feasibility')
+
+# Feedback activities leading to adjustments
+provide_feedback_strategic_adj = gen.activity('Provide feedback')
+provide_feedback_financial_adj = gen.activity('Provide feedback')
+
+
+adjust_plan = gen.activity('Adjust Plan')
+documented_and_approve_adjustment = gen.activity('Documented and approve adjustment')
+approve_final_budget = gen.activity('Approve final budget')
+distribute_budget = gen.activity('Distribute budget')
+implement_plan = gen.activity('Implement plan')
+
+
+
+
+adjustments_loop = gen.loop(do=adjust_plan, redo=documented_and_approve_adjustment)
+optional_adjustments = gen.xor(adjustments_loop, None)
+
+
+# Copies for combined and individual adjustments
+optional_adjustments_strategic_combined = optional_adjustments.copy()
+optional_adjustments_financial_combined = optional_adjustments.copy()
+optional_adjustments_strategic = optional_adjustments.copy()
+optional_adjustments_financial = optional_adjustments.copy()
+
+draft_plan = gen.activity('Draft plan') # Declaration moved here
+
+
+# Reviews, feedback, and adjustments, all combined
+drafting_reviews_adjustments_approval = gen.partial_order(
+    dependencies=[
+        (outline_objectives, draft_plan), # draft_plan integrated here
+        (draft_plan, conduct_strategic_alignment_meeting),
+        (conduct_strategic_alignment_meeting, provide_feedback_strategic_adj),
+        (provide_feedback_strategic_adj, optional_adjustments_strategic),
+        (draft_plan, review_budget_feasibility),
+        (review_budget_feasibility, provide_feedback_financial_adj),
+        (provide_feedback_financial_adj, optional_adjustments_financial),
+        (optional_adjustments_strategic, optional_adjustments_strategic_combined),
+        (optional_adjustments_financial, optional_adjustments_financial_combined),
+        (optional_adjustments_strategic_combined, approve_final_budget),
+        (optional_adjustments_financial_combined, approve_final_budget)
+
+
+    ]
+)
+
+
+
+
+
+final_model = gen.partial_order(dependencies=[(drafting_reviews_adjustments_approval, distribute_budget), (distribute_budget, implement_plan)])

@@ -1,0 +1,47 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial order placement options
+customer_places_order_online = gen.activity('Customer places order online')
+customer_places_order_over_the_phone = gen.activity('Customer places order over the phone')
+order_placement = gen.xor(customer_places_order_online, customer_places_order_over_the_phone)
+
+# Order confirmation
+generate_and_send_order_confirmation = gen.activity('Generate and send order confirmation')
+
+# Warehouse fulfillment activities
+pick_and_pack_items = gen.activity('Pick and pack items')
+generate_shipping_label = gen.activity('Generate shipping label')
+
+# Hand over to logistics
+hand_over_order_to_logistics_provider = gen.activity('Hand over order to logistics provider')
+
+# Tracking and delivery
+send_tracking_information_to_customer = gen.activity('Send tracking information to customer')
+monitor_shipment = gen.activity('Monitor shipment')
+successful_delivery = gen.activity('Successful delivery')
+
+# Post-delivery (separate process)
+process_customer_feedback_or_returns = gen.activity('Process customer feedback or returns')
+optional_post_delivery = gen.xor(process_customer_feedback_or_returns, None)
+
+
+# Combine warehouse activities
+warehouse_activities = gen.partial_order(dependencies=[(pick_and_pack_items, generate_shipping_label)])
+
+# Combine core order fulfillment process
+core_order_fulfillment = gen.partial_order(
+    dependencies=[
+        (order_placement, generate_and_send_order_confirmation),
+        (generate_and_send_order_confirmation, warehouse_activities),
+        (warehouse_activities, hand_over_order_to_logistics_provider),
+        (hand_over_order_to_logistics_provider, send_tracking_information_to_customer),
+        (send_tracking_information_to_customer, monitor_shipment),
+        (monitor_shipment, successful_delivery)
+    ]
+)
+
+
+# Include the optional post-delivery process (as a separate, potentially triggered process)
+final_model = gen.partial_order(dependencies=[(core_order_fulfillment, optional_post_delivery)])

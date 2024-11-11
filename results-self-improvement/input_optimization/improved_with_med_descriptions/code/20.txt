@@ -1,0 +1,66 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+guest_calls = gen.activity('Guest calls room service')
+manager_takes_order = gen.activity('Manager takes down the order')
+manager_submits_ticket = gen.activity('Manager submits order ticket to kitchen')
+kitchen_prepares_food = gen.activity('Kitchen prepares food')
+manager_checks_alcohol = gen.activity('Manager checks for alcoholic beverages')
+manager_gives_order_sommelier = gen.activity('Manager gives order to sommelier')
+sommelier_prepares_drinks = gen.activity('Sommelier fetches wine and prepare alcoholic beverages')
+manager_assigns_waiter = gen.activity('Manager assigns order to waiter')
+waiter_readies_cart = gen.activity('Waiter readies cart')
+waiter_prepares_nonalcoholic_drinks = gen.activity('Waiter prepares nonalcoholic drinks')
+waiter_collects_items = gen.activity('Waiter collects prepared items and beverages')
+waiter_delivers_order = gen.activity('Waiter delivers order to guest\'s room')
+waiter_debits_account = gen.activity('Waiter debits guest\'s account')
+waiter_waits_delaying = gen.activity('Waiter waits/delays debiting')
+
+
+# Alcohol check choice
+alcohol_path = gen.partial_order(dependencies=[(manager_gives_order_sommelier, sommelier_prepares_drinks)])
+no_alcohol_path = None
+alcohol_choice = gen.xor(alcohol_path, no_alcohol_path)
+
+
+# Waiter cart preparation with non-alcoholic drinks
+waiter_cart_prep = gen.partial_order(dependencies=[(waiter_readies_cart, waiter_prepares_nonalcoholic_drinks)])
+
+# Concurrent kitchen, sommelier (if applicable), and waiter cart prep
+kitchen_sommelier_waiter_prep = gen.partial_order(
+    dependencies=[
+        (kitchen_prepares_food,),
+        (alcohol_choice.copy(),), # Create a copy here to fix the error
+        (waiter_cart_prep.copy(),)  # Copy to avoid reuse
+    ]
+)
+
+
+# Waiter actions after assignment
+waiter_actions = gen.partial_order(dependencies=[
+    (waiter_cart_prep, waiter_collects_items),
+    (kitchen_sommelier_waiter_prep, waiter_collects_items),
+    (waiter_collects_items, waiter_delivers_order)
+])
+
+# Debiting delay choice - Corrected: Copies of waiter_delivers_order AND waiter_debits_account
+debit_immediately = gen.partial_order(dependencies=[(waiter_delivers_order.copy(), waiter_debits_account.copy())]) # Copy waiter_debits_account
+debit_delayed = gen.partial_order(dependencies=[(waiter_delivers_order.copy(), waiter_waits_delaying), (waiter_waits_delaying, waiter_debits_account.copy())]) # Copy waiter_debits_account
+debiting_choice = gen.xor(debit_immediately, debit_delayed)
+
+
+
+# Main process flow
+final_model = gen.partial_order(
+    dependencies=[
+        (guest_calls, manager_takes_order),
+        (manager_takes_order, manager_submits_ticket),
+        (manager_takes_order, manager_checks_alcohol),
+        (manager_checks_alcohol, alcohol_choice.copy()), # Using a copy of alcohol_choice here
+        (manager_takes_order, manager_assigns_waiter),
+        (manager_assigns_waiter, waiter_actions),
+        (waiter_actions, debiting_choice)
+    ]
+)

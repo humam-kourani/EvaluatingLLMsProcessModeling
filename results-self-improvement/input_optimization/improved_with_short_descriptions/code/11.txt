@@ -1,0 +1,65 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial Subscription Process
+customer_signs_up = gen.activity('Customer signs up')
+validate_request = gen.activity('Validate request')  # Implicitly mentioned, added for clarity
+activate_subscription = gen.activity('Activate subscription')
+generate_account = gen.activity('Generate account') # Implicitly mentioned, added for clarity.
+assign_access = gen.activity('Assign access') # Implicitly mentioned, added for clarity
+notify_successful_subscription = gen.activity('Notify successful subscription')
+set_automatic_triggers_for_billing_cycles = gen.activity('Set automatic triggers for billing cycles')
+
+initial_subscription_process = gen.partial_order(dependencies=[
+    (customer_signs_up, validate_request),
+    (validate_request, activate_subscription),
+    (activate_subscription, generate_account),
+    (generate_account, assign_access),
+    (assign_access, notify_successful_subscription),
+    (activate_subscription, set_automatic_triggers_for_billing_cycles) # Triggering billing should start after activation.
+])
+
+
+# Regular Service and Billing
+send_regular_updates = gen.activity('Send regular updates')
+send_renewal_notifications = gen.activity('Send renewal notifications') # Bill assumes renewal notifications are sent.
+apply_charges = gen.activity('apply charges')
+send_product_enhancements = gen.activity('Send product enhancements')
+
+regular_service_and_billing = gen.partial_order(dependencies=[
+    (send_regular_updates,),
+    (send_renewal_notifications, apply_charges), # Bill assumes charges are applied after renewal notification
+    (send_product_enhancements,) # Enhancement could happen any time.
+])
+
+
+# Cancellation Process
+customer_submits_cancellation_request = gen.activity('Customer submits cancellation request')
+deactivate_subscription = gen.activity('Deactivate subscription')
+generate_final_bill = gen.activity('Generate final bill')  # Bill assumes a final bill is generated
+settle_final_account_balance = gen.activity('Settle final account balance')
+apply_refund = gen.activity('apply refund') # Bill assumes refund might be applicable during cancellation
+notify_cancellation_completion = gen.activity('Notify cancellation completion')
+
+
+
+cancellation_process = gen.partial_order(dependencies=[
+    (customer_submits_cancellation_request, deactivate_subscription),
+    (deactivate_subscription, generate_final_bill),
+    (generate_final_bill, settle_final_account_balance), # Bill assumes balance is settled after final bill generation.
+    (settle_final_account_balance, apply_refund), # Bill assumes refund is processed after final bill is settled.
+    (apply_refund, notify_cancellation_completion) # Bill assumes notification happens after everything.
+])
+
+
+# Combining Regular Service and Cancellation as alternatives within the recurring cycle
+subscription_cycle = gen.xor(regular_service_and_billing, cancellation_process)
+
+# Main Process Flow
+subscription_loop = gen.loop(do=subscription_cycle, redo=None) # Recurring billing implies a loop.
+
+
+final_model = gen.partial_order(dependencies=[
+    (initial_subscription_process, subscription_loop)
+])

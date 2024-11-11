@@ -1,0 +1,65 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial steps
+record_order = gen.activity("Record order details")
+process_payment = gen.activity("Process payment")
+check_stock = gen.activity("Check stock availability")
+
+# Handling sufficient inventory
+pick_items = gen.activity("Pick items from warehouse")
+quality_control = gen.activity("Perform quality control checks")
+pack_available_items = gen.activity("Package items")
+prepare_shipping_docs_available = gen.activity("Prepare shipping documents and labels")
+
+
+# Handling insufficient inventory
+initiate_back_order = gen.activity("Initiate back-order")
+inform_customer = gen.activity("Inform customer about delay")
+receive_back_order = gen.activity("Receive back-order")
+pack_backordered_items = gen.activity("Package items")
+prepare_shipping_docs_backordered = gen.activity("Prepare shipping documents and labels")
+
+
+
+# Parallel paths for in-stock and back-ordered items. Quality control is ALWAYS executed
+sufficient_inventory_path = gen.partial_order(dependencies=[(pick_items, quality_control), (quality_control, pack_available_items), (pack_available_items, prepare_shipping_docs_available)])
+
+# Back order can be performed concurrently
+insufficient_inventory_path = gen.partial_order(dependencies=[(initiate_back_order, inform_customer), (inform_customer, receive_back_order), (receive_back_order, pack_backordered_items), (pack_backordered_items, prepare_shipping_docs_backordered)])
+
+handle_available_items = gen.xor(sufficient_inventory_path, None) # Make in_stock handling optional
+
+
+
+
+# Post-packaging steps
+dispatch_order = gen.activity("Dispatch order")
+update_inventory = gen.activity("Update inventory levels")
+
+# Handling returns
+customer_reports_issue = gen.activity("Customer reports issue")
+receive_returned_items = gen.activity("Receive returned items")
+inspect_returned_items = gen.activity("Inspect returned items")
+process_refund = gen.activity("Process refund")
+process_replacement = gen.activity("Process replacement")
+refund_exchange = gen.xor(process_refund, process_replacement)
+
+handle_returns = gen.partial_order(dependencies=[(customer_reports_issue, receive_returned_items),
+                                                (receive_returned_items, inspect_returned_items),
+                                                (inspect_returned_items, refund_exchange)])
+
+optional_handle_returns = gen.xor(handle_returns, None)
+
+# Constructing the main process flow. Merged quality control into available items path
+final_model = gen.partial_order(dependencies=[\
+    (record_order, process_payment),\
+    (process_payment, check_stock),\
+    (check_stock, handle_available_items),  # connect check stock to the optional handling
+    (check_stock, insufficient_inventory_path), # Always check for backorders, perform in parallel if any
+    (handle_available_items, dispatch_order),
+    (insufficient_inventory_path, dispatch_order), # Make sure to consider backorders for packaging as well
+    (dispatch_order, update_inventory),\
+    (update_inventory, optional_handle_returns)\
+])

@@ -1,0 +1,33 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial drafting and alignment
+outline_objectives = gen.activity('Outline objectives')
+draft_plan = gen.activity('Draft plan')
+conduct_meeting = gen.activity('Conduct strategic alignment meeting')
+initial_steps = gen.partial_order(dependencies=[(outline_objectives, draft_plan), (draft_plan, conduct_meeting)])
+
+# Review and Adjustment Loop
+review_feasibility = gen.activity('Review budget feasibility')
+provide_feedback = gen.activity('Provide feedback')
+adjust_plan = gen.activity('Adjust Plan')
+document_approval = gen.activity('Documented and approve adjustment')
+
+review_adjust_sequence = gen.partial_order(dependencies=[(review_feasibility, provide_feedback), (provide_feedback, adjust_plan), (adjust_plan, document_approval)])
+
+# Create a copy of review_feasibility for the redo part of the loop
+review_feasibility_copy = review_feasibility.copy()
+review_adjust_loop = gen.loop(do=review_adjust_sequence, redo=review_feasibility_copy)
+
+
+# Approval and Distribution
+approve_final_budget = gen.activity('Approve final budget')
+distribute_budget = gen.activity('Distribute budget')
+implement_plan = gen.activity('Implement plan')
+
+final_steps = gen.partial_order(dependencies=[(approve_final_budget, distribute_budget), (distribute_budget, implement_plan)])
+
+# Combine all parts, using the copy of approve_final_budget consistently
+approve_final_budget_copy = approve_final_budget.copy()
+final_model = gen.partial_order(dependencies=[(initial_steps, review_adjust_loop), (review_adjust_loop, approve_final_budget_copy), (approve_final_budget_copy, final_steps)])

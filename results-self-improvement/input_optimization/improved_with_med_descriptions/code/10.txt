@@ -1,0 +1,45 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial activities
+submit_request = gen.activity('Submit IT solution request')
+assess_compatibility = gen.activity('Assess compatibility')
+evaluate_cost_resource = gen.activity('Evaluate cost and resource needs')
+
+# Assessment process (partial order for concurrent activities)
+assessment_process = gen.partial_order(dependencies=[(assess_compatibility,), (evaluate_cost_resource,)])
+
+# Decision gateway (approval or rejection)
+approve_request = gen.activity('Approve request')
+reject_request = gen.activity('Reject request')
+notify_rejection = gen.activity('Notify user of rejection')
+rejection_path = gen.partial_order(dependencies=[(reject_request, notify_rejection)])
+
+# Procurement and installation
+procure_solution = gen.activity('Procure necessary tools or licenses')
+install_solution = gen.activity('Install the solution')
+
+# Testing and deployment
+test_solution = gen.activity('Test solution')
+rollout_solution = gen.activity('Roll out solution to requesting department')
+provide_training = gen.activity('Provide training')
+provide_support = gen.activity('Provide support for troubleshooting')
+
+# Concurrency between rollout, training, and support
+deployment_process = gen.partial_order(dependencies=[(rollout_solution,), (provide_training,), (provide_support,)])
+
+
+# Unsuccessful testing loop (propose alternative solutions implies going back)
+propose_alternative = gen.activity("Propose alternative solutions")
+testing_loop = gen.loop(do=test_solution, redo=propose_alternative)
+
+
+# Main process flow after approval
+approved_path = gen.partial_order(dependencies=[(procure_solution, install_solution), (install_solution, testing_loop), (testing_loop, deployment_process)])
+
+# Decision after assessment
+decision_gateway = gen.xor(approved_path, rejection_path)
+
+# Complete process
+final_model = gen.partial_order(dependencies=[(submit_request, assessment_process), (assessment_process, decision_gateway)])

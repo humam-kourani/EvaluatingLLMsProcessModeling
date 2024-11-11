@@ -1,0 +1,40 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+check_inventory = gen.activity('Check current inventory level')
+send_automated_alert = gen.activity('Send an automated alert')
+select_supplier = gen.activity('Select supplier')  # Made this distinct
+create_purchase_order = gen.activity('Place order with suppliers')  
+log_expected_delivery = gen.activity('Update inventory system with expected delivery dates')
+receive_shipment = gen.activity('Receive stock')
+quality_check = gen.activity('Inspect stock for quality')
+record_stock = gen.activity('Record stock in system')
+store_stock = gen.activity('Place stock in storage')
+update_inventory = gen.activity('Update inventory levels')
+return_shipment = gen.activity('Return shipment to supplier') 
+
+
+# Model the concurrent execution of creating a purchase order and logging expected delivery
+concurrent_order_log = gen.partial_order(dependencies=[(create_purchase_order,), (log_expected_delivery,)])
+
+# Model the choice between successful and failed quality check
+quality_check_choice = gen.xor(
+    gen.partial_order(dependencies=[(record_stock,), (store_stock.copy(),)]),  # copy store_stock HERE
+    return_shipment
+)
+
+# Model the main sequence of the process
+main_process = gen.partial_order(dependencies=[
+    (check_inventory, send_automated_alert),
+    (send_automated_alert, select_supplier),
+    (select_supplier, concurrent_order_log),
+    (concurrent_order_log, receive_shipment),
+    (receive_shipment, quality_check),
+    (quality_check, quality_check_choice),
+    (quality_check_choice, update_inventory), # update_inventory AFTER the quality check choice
+])
+
+
+# The entire replenishment process is implicitly a loop
+final_model = gen.loop(do=None, redo=main_process)

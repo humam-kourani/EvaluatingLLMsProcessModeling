@@ -1,0 +1,67 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+schedule_audit = gen.activity('Schedule compliance audit')
+prepare_documentation = gen.activity('Prepare documentation')
+gather_evidence = gen.activity('Gather evidence')
+conduct_self_assessment = gen.activity('Conduct self-assessment')
+conduct_external_audit = gen.activity('Conduct external audit')
+identify_gaps_or_issues = gen.activity('Identify gaps or issues')
+make_corrections_or_improvements = gen.activity('Make necessary corrections or improvements')
+conduct_final_audit = gen.activity('Conduct final audit')
+award_certification = gen.activity('Award certification')
+issue_official_documents = gen.activity('Issue official documents')
+
+# Preparatory activities are concurrent.
+preparatory_activities = gen.partial_order(dependencies=[(prepare_documentation,), (gather_evidence,), (conduct_self_assessment,)])
+
+# Preparatory activities precede the external audit.
+pre_external_audit = gen.partial_order(dependencies=[(schedule_audit, preparatory_activities), (preparatory_activities, conduct_external_audit)])
+
+
+
+conduct_external_audit_copy = conduct_external_audit.copy()
+
+# Actions after the external audit.
+post_external_audit = gen.partial_order(dependencies=[(conduct_external_audit_copy, identify_gaps_or_issues), (identify_gaps_or_issues, make_corrections_or_improvements)])
+
+
+
+
+
+
+# The block that needs to be looped back to starts here.
+
+make_corrections_or_improvements_copy = make_corrections_or_improvements.copy()
+
+combined_post_external = gen.partial_order(dependencies=[(post_external_audit, conduct_final_audit)])
+
+
+
+# NOW, make the copy of the ENTIRE BLOCK to allow looping back
+combined_post_external_copy = combined_post_external.copy()
+
+
+
+# Loop for corrective actions/improvements. The redo part is the whole block.
+
+loop_corrective_actions = gen.loop(do=combined_post_external, redo=make_corrections_or_improvements_copy)
+
+
+
+
+# Make a copy of conduct_final_audit since it's used in the loop.
+conduct_final_audit_copy = conduct_final_audit.copy()
+
+
+
+
+# The certification process follows the final audit from the loop_corrective_actions construct.
+certification_process = gen.partial_order(dependencies=[(conduct_final_audit_copy, award_certification), (award_certification, issue_official_documents)])
+
+# Certification can be skipped (if criteria not met).
+skippable_certification = gen.xor(certification_process, None)
+
+
+final_model = gen.partial_order(dependencies=[(pre_external_audit, loop_corrective_actions), (loop_corrective_actions, skippable_certification)])

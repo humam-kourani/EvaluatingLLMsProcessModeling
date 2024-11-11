@@ -1,0 +1,49 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial activities
+identify_idea = gen.activity('Identify idea for new product or improvement')
+conduct_research = gen.activity('Conduct initial research')
+conduct_feasibility = gen.activity('Conduct feasibility studies')
+draft_designs = gen.activity('Draft design concepts')
+select_design = gen.activity('Select promising design')
+
+# Prototype and testing phase
+build_prototype = gen.activity('Build prototype')
+test_functionality = gen.activity('Test functionality')
+test_safety = gen.activity('Test safety')
+test_market = gen.activity('Test market potential')
+collect_feedback = gen.activity('Collect feedback from testing phase')
+
+# Refinement loop
+refine_prototype = gen.activity('Refine prototype')
+testing_loop = gen.loop(do=None, redo=refine_prototype)  # Redo loop for refinements
+
+
+# Combine testing activities. Create copies to avoid reuse.
+test_functionality_copy = test_functionality.copy()
+test_safety_copy = test_safety.copy()
+test_market_copy = test_market.copy()
+
+test_activities_with_feedback = gen.partial_order(dependencies=[(test_functionality_copy, collect_feedback), (test_safety_copy, collect_feedback), (test_market_copy, collect_feedback), (collect_feedback, testing_loop)])
+
+# Final decision
+approve_prototype = gen.activity('Approve prototype for further development')
+discard_prototype = gen.activity('Discard prototype')
+final_decision = gen.xor(approve_prototype, discard_prototype)
+
+# Constructing the entire process model, using copies to prevent reuse errors
+
+initial_phase = gen.partial_order(dependencies=[(identify_idea, conduct_research), (conduct_research, conduct_feasibility), (conduct_feasibility, draft_designs), (draft_designs, select_design)])
+
+select_design_copy = select_design.copy()  # Create a copy for use in the prototype_phase
+build_prototype_copy = build_prototype.copy()
+testing_loop_copy = testing_loop.copy()
+
+prototype_phase = gen.partial_order(dependencies=[(select_design_copy, build_prototype_copy), (build_prototype_copy, test_activities_with_feedback), (testing_loop_copy, final_decision)])
+
+initial_phase_copy = initial_phase.copy()
+prototype_phase_copy = prototype_phase.copy()
+
+final_model = gen.partial_order(dependencies=[(initial_phase_copy, prototype_phase_copy)])

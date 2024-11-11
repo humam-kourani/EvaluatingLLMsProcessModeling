@@ -1,0 +1,29 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+define_objectives = gen.activity('Define campaign objectives')
+target_audience = gen.activity('Target audience')  # Implicit activity based on context
+define_goals = gen.activity('Define goals')  # Implicit activity based on context
+create_content = gen.activity('Create content')
+design_visuals = gen.activity('Design visuals')
+select_channels = gen.activity('Select promotion channels')
+launch_campaign = gen.activity('Launch campaign')
+track_performance = gen.activity('Track performance in real-time')
+collect_leads = gen.activity('Collect leads in CRM system')
+sales_followup = gen.activity('Sales teams follows up on leads')
+analyze_performance = gen.activity('Analyze performance for future optimization')
+campaign_end = gen.activity("Campaign period ends") # Implicit based on "ends with a performance analysis"
+
+
+initial_phase = gen.partial_order(dependencies=[(define_objectives,), (target_audience,), (define_goals,)]) # Concurrent initial tasks
+content_phase = gen.partial_order(dependencies=[(create_content,), (design_visuals,), (select_channels,)])
+
+launch_phase = gen.partial_order(dependencies=[(initial_phase,content_phase), (content_phase, launch_campaign)])
+
+# Create a copy of launch_campaign to avoid reusing it
+launch_campaign_copy = launch_campaign.copy()
+
+monitoring_phase = gen.partial_order(dependencies=[(launch_campaign_copy, track_performance), (track_performance, collect_leads), (collect_leads, sales_followup)])
+
+final_model = gen.partial_order(dependencies=[(launch_phase, monitoring_phase), (monitoring_phase, campaign_end), (campaign_end, analyze_performance)])

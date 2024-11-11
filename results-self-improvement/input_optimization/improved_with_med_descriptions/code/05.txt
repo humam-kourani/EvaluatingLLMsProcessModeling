@@ -1,0 +1,53 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+identify_need = gen.activity('Identify need for new supplier or vendor')
+issue_rfp = gen.activity('Issue request for proposals (RFP)')
+receive_proposals = gen.activity('Receive supplier proposals')
+evaluate_proposal = gen.activity('Evaluate proposal')
+conduct_interview = gen.activity('Conduct interview')
+conduct_site_visit = gen.activity('Conduct site visit')
+select_supplier = gen.activity('Select supplier')
+begin_negotiations = gen.activity('Begin contract negotiations')
+sign_contract = gen.activity('Sign contract')
+onboard_supplier = gen.activity('Onboard supplier')
+execute_contract = gen.activity('Execute contract')
+
+# Site visit and/or Interview
+site_visit_optional = gen.xor(conduct_site_visit, None)
+interview_optional = gen.xor(conduct_interview, None)
+site_visit_or_interview = gen.partial_order(dependencies=[(site_visit_optional,), (interview_optional,)])
+
+# Evaluation and Site Visit/Interview
+evaluation_and_site_visit_or_interview = gen.partial_order(dependencies=[(evaluate_proposal, site_visit_or_interview)])
+
+
+# Contract Negotiation and Signing
+no_agreement = gen.activity('No agreement') # Introduce explicit activity for clarity.
+select_supplier_copy = select_supplier.copy() # Create a copy for the loop
+agreement_reached = gen.xor(sign_contract, no_agreement) # Explicitly model the choice.
+
+negotiation_and_signing = gen.partial_order(dependencies=[(begin_negotiations, agreement_reached)])
+
+# Loop back if no agreement
+negotiation_loop = gen.loop(do=negotiation_and_signing, redo=select_supplier_copy) # Loop back to the copy
+
+
+# Supplier Selection to Onboarding
+supplier_selection_to_onboarding = gen.partial_order(dependencies=[
+    (receive_proposals, evaluation_and_site_visit_or_interview),
+    (evaluation_and_site_visit_or_interview, select_supplier),
+    (select_supplier, negotiation_loop),
+    (negotiation_loop, onboard_supplier)
+])
+
+
+
+# Full Process
+final_model = gen.partial_order(dependencies=[
+    (identify_need, issue_rfp),
+    (issue_rfp, supplier_selection_to_onboarding),
+    (supplier_selection_to_onboarding, execute_contract)
+])

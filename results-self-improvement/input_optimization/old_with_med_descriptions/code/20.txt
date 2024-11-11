@@ -1,0 +1,87 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+guest_calls = gen.activity('Guest calls room service')
+manager_takes_order = gen.activity('Manager takes down the order')
+manager_sends_ticket = gen.activity('Manager submits order ticket to kitchen')
+manager_gives_sommelier = gen.activity('Manager gives order to sommelier')
+manager_assigns_waiter = gen.activity('Manager assigns order to waiter')
+kitchen_prepares_food = gen.activity('Kitchen prepares food')
+sommelier_prepares_drinks = gen.activity('Sommelier fetches wine and prepare alcoholic beverages')
+waiter_readies_cart = gen.activity('Waiter readies cart')
+waiter_prepares_drinks = gen.activity('Waiter prepares nonalcoholic drinks')
+waiter_delivers_order = gen.activity('Waiter delivers order to guest\'s room')
+waiter_debits_account = gen.activity('Waiter debits guest\'s account')
+waiter_waits_debiting = gen.activity('Waiter waits/delays debiting')
+waiter_returns = gen.activity("Waiter returns to room-service station")
+
+
+# Sommelier activities (optional, 80% probability)
+optional_sommelier = gen.xor(sommelier_prepares_drinks, None)
+
+# Waiter delay debiting (optional)
+optional_waiter_delay = gen.xor(waiter_waits_debiting, None)
+
+
+
+
+# --- Corrected section ---
+
+# Copies for concurrent_tasks
+kitchen_prepares_food_c = kitchen_prepares_food.copy()
+optional_sommelier_c = optional_sommelier.copy()
+waiter_readies_cart_c = waiter_readies_cart.copy()
+waiter_prepares_drinks_c = waiter_prepares_drinks.copy()
+
+concurrent_tasks = gen.partial_order(dependencies=[
+    (kitchen_prepares_food_c,),
+    (optional_sommelier_c,),
+    (waiter_readies_cart_c,),
+    (waiter_prepares_drinks_c,)
+])
+
+
+
+# Copies for waiter_after_delivery
+waiter_delivers_order_c = waiter_delivers_order.copy()
+optional_waiter_delay_c = optional_waiter_delay.copy()
+waiter_debits_account_c = waiter_debits_account.copy()
+
+waiter_after_delivery = gen.partial_order(dependencies=[
+    (waiter_delivers_order_c,),
+    (optional_waiter_delay_c,),
+    (waiter_debits_account_c,)
+])
+
+# Copies for after_order_taken (including copies of already copied elements)
+manager_sends_ticket_c = manager_sends_ticket.copy()
+manager_gives_sommelier_c = manager_gives_sommelier.copy()
+manager_assigns_waiter_c = manager_assigns_waiter.copy()
+concurrent_tasks_c2 = concurrent_tasks.copy() # New copy!
+waiter_after_delivery_c2 = waiter_after_delivery.copy() # New copy!
+
+
+
+after_order_taken = gen.partial_order(dependencies=[
+    (manager_sends_ticket_c,),
+    (manager_gives_sommelier_c,),
+    (manager_assigns_waiter_c,),
+    (concurrent_tasks_c2, waiter_after_delivery_c2)
+])
+
+# Copies for final_model
+manager_takes_order_c = manager_takes_order.copy()
+waiter_returns_c = waiter_returns.copy()
+after_order_taken_c = after_order_taken.copy()
+waiter_after_delivery_c3 = waiter_after_delivery.copy()  # Crucial copy!
+
+
+
+# Main process flow
+final_model = gen.partial_order(dependencies=[
+    (guest_calls, manager_takes_order_c),
+    (manager_takes_order_c, after_order_taken_c),
+    (waiter_after_delivery_c3, waiter_returns_c)  # Using the new copy
+])

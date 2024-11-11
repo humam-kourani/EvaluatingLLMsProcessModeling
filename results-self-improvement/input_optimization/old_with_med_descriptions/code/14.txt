@@ -1,0 +1,35 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+outline_objectives = gen.activity('Outline objectives')
+draft_plan = gen.activity('Draft plan')
+conduct_strategic_alignment_meeting = gen.activity('Conduct strategic alignment meeting')
+review_budget_feasibility = gen.activity('Review budget feasibility')
+adjust_plan = gen.activity('Adjust Plan')
+documented_and_approve_adjustment = gen.activity('Documented and approve adjustment')
+approve_final_budget = gen.activity('Approve final budget')
+distribute_budget = gen.activity('Distribute budget')
+implement_plan = gen.activity('Implement plan')
+
+
+# Sub-processes
+
+# Adjustment loop: Adjust plan, document & approve, then potentially redo
+adjust_loop = gen.loop(do=adjust_plan, redo=documented_and_approve_adjustment)
+# Make the adjustment loop optional (budget may be feasible immediately)
+optional_adjustments = gen.xor(adjust_loop, None)
+
+# Main process flow
+main_process = gen.partial_order(dependencies=[
+    (outline_objectives, draft_plan),
+    (draft_plan, conduct_strategic_alignment_meeting),
+    (conduct_strategic_alignment_meeting, review_budget_feasibility),
+    (review_budget_feasibility, optional_adjustments),
+    (optional_adjustments, approve_final_budget),
+    (approve_final_budget, distribute_budget),
+    (distribute_budget, implement_plan)
+])
+
+final_model = main_process

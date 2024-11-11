@@ -1,0 +1,50 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial steps
+customer_searches_for_ticket = gen.activity('Customer searches for ticket')
+select_route = gen.activity('Select route')
+select_date_and_time = gen.activity('Select date and time')
+initial_steps = gen.partial_order(dependencies=[(customer_searches_for_ticket,), (select_route,), (select_date_and_time,)])
+
+
+# Ticket selection and payment
+select_ticket = gen.activity('Select ticket')
+provide_personal_info = gen.activity('Provide personal information')
+provide_payment = gen.activity('Provide payment details')
+payment_and_info = gen.partial_order(dependencies=[(provide_personal_info,), (provide_payment,)])
+
+# Ticket generation and transmission
+generate_ticket = gen.activity('Generate ticket')
+send_ticket_sms = gen.activity('Send ticket via SMS')
+send_ticket_email = gen.activity('Send ticket via email')
+send_ticket = gen.partial_order(dependencies=[(send_ticket_sms,), (send_ticket_email,)]) # Concurrent sending
+
+# Inventory update
+update_inventory = gen.activity('Update seat inventory')
+
+# Pre-travel communications
+send_reminder = gen.activity('Send reminder')
+send_instructions = gen.activity('Send instructions')
+pre_travel_comms = gen.partial_order(dependencies=[(send_reminder, ), (send_instructions,)])
+optional_pre_travel_comms = gen.xor(pre_travel_comms, None)  # Communications are conditional
+
+# Post-travel activities
+customer_completes_journey = gen.activity('Customer completes journey')
+post_travel_services = gen.activity('Post-travel feedback or services')
+
+
+# Combine all sub-processes
+final_model = gen.partial_order(
+    dependencies=[
+        (initial_steps, select_ticket),
+        (select_ticket, payment_and_info),
+        (payment_and_info, generate_ticket),
+        (generate_ticket, send_ticket),
+        (generate_ticket, update_inventory),  # Concurrent ticket sending and inventory update
+        (send_ticket, optional_pre_travel_comms),
+        (optional_pre_travel_comms, customer_completes_journey),
+        (customer_completes_journey, post_travel_services)
+    ]
+)

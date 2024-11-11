@@ -1,0 +1,46 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+log_complaint = gen.activity('Log complaint')
+assign_complaint = gen.activity('Assign complaint to relevant department')
+review_complaint_details = gen.activity('Review complaint details')
+approve_and_notify_customer = gen.activity('Approve and notify customer')
+reject_and_notify_customer = gen.activity('Reject and notify customer')
+process_reimbursement = gen.activity('Process reimbursement')
+resolve_complaint = gen.activity('Resolve complaint')
+provide_feedback = gen.activity('Provide feedback')
+
+
+# Choice between approving and rejecting the refund
+choice_approve_reject = gen.xor(approve_and_notify_customer, reject_and_notify_customer)
+
+# Subprocess for handling approved refunds
+# Create a copy of the activity to avoid reusing the same submodel
+approve_and_notify_customer_copy = approve_and_notify_customer.copy()
+approved_refund_process = gen.partial_order(dependencies=[
+    (approve_and_notify_customer_copy, process_reimbursement),
+    (process_reimbursement, resolve_complaint)
+])
+
+# Subprocess for handling rejected refunds
+# Create copies of the activities to avoid reusing the same submodels
+reject_and_notify_customer_copy = reject_and_notify_customer.copy()
+resolve_complaint_copy = resolve_complaint.copy()  # Create a copy for the rejected path
+rejected_refund_process = gen.partial_order(dependencies=[
+    (reject_and_notify_customer_copy, resolve_complaint_copy) 
+])
+
+# Combine approved and rejected refund handling
+refund_handling = gen.xor(approved_refund_process, rejected_refund_process)
+
+
+
+# Main process flow
+final_model = gen.partial_order(dependencies=[
+    (log_complaint, assign_complaint),
+    (assign_complaint, review_complaint_details),
+    (review_complaint_details, choice_approve_reject),
+    (choice_approve_reject, refund_handling),
+    (refund_handling, provide_feedback)
+])

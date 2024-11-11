@@ -1,0 +1,68 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial steps
+identify_need = gen.activity('Identify need for new hire')
+create_job_description = gen.activity('Create job description')
+post_job_description = gen.activity('Post job description')
+
+# Resume and initial interview phase
+collect_resumes = gen.activity('Collect resumes')
+screen_resumes = gen.activity('Screen resumes')
+conduct_initial_phone_interviews = gen.activity('Conduct initial phone interviews')
+
+# Interview phase
+invite_candidates = gen.activity('Invite candidates for interviews')
+in_person_interview = gen.activity('Conduct an in-person interview')
+virtual_interview = gen.activity('Conduct a virtual interview')
+interview_choice = gen.xor(in_person_interview, virtual_interview)
+
+# Candidate selection and offer
+choose_candidate = gen.activity('Choose candidate')
+extend_offer = gen.activity('Extend offer')
+negotiate_salary = gen.xor(gen.activity('Negotiate salary'), None)  # Negotiation is optional
+
+# Onboarding
+begin_onboarding = gen.activity('Begin onboarding process')
+complete_paperwork = gen.activity('Complete paperwork')
+complete_orientation = gen.activity('Complete orientation')
+complete_training = gen.activity('Complete training')
+
+
+
+# Sequential dependencies within phases
+initial_steps = gen.partial_order(dependencies=[(identify_need, create_job_description),
+                                            (create_job_description, post_job_description)])
+
+# Correcting the reuse of "post_job_description" by creating a copy
+post_job_description_copy = post_job_description.copy()
+
+resume_interview_phase = gen.partial_order(dependencies=[(post_job_description_copy, collect_resumes),
+                                                        (collect_resumes, screen_resumes),
+                                                        (screen_resumes, conduct_initial_phone_interviews)])
+
+# Correcting the reuse of "conduct_initial_phone_interviews" by creating a copy
+conduct_initial_phone_interviews_copy = conduct_initial_phone_interviews.copy()
+
+
+candidate_offer_phase = gen.partial_order(dependencies=[(conduct_initial_phone_interviews_copy, invite_candidates),
+                                                         (invite_candidates, interview_choice),
+                                                         (interview_choice, choose_candidate),
+                                                         (choose_candidate, extend_offer),
+                                                         (extend_offer, negotiate_salary)])
+
+# Correcting the reuse of "negotiate_salary" by creating a copy
+negotiate_salary_copy = negotiate_salary.copy()
+
+onboarding_phase = gen.partial_order(dependencies=[(negotiate_salary_copy, begin_onboarding),
+                                                   (begin_onboarding, complete_paperwork),
+                                                   (begin_onboarding, complete_orientation),
+                                                   (begin_onboarding, complete_training)])
+
+
+
+# Combine all phases
+final_model = gen.partial_order(dependencies=[(initial_steps, resume_interview_phase),
+                                             (resume_interview_phase, candidate_offer_phase),
+                                             (candidate_offer_phase, onboarding_phase)])

@@ -1,0 +1,35 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+file_complaint = gen.activity('File complaint')
+log_complaint = gen.activity('Log complaint')
+assign_complaint = gen.activity('Assign complaint to relevant department')
+review_complaint = gen.activity('Review complaint details')
+process_reimbursement = gen.activity('Process reimbursement')
+resolve_complaint = gen.activity('Resolve complaint')
+approve_notify = gen.activity('Approve and notify customer')
+reject_notify = gen.activity('Reject and notify customer')
+provide_feedback = gen.activity('Provide feedback')
+optional_feedback = gen.xor(provide_feedback, None)
+
+
+decision_notify = gen.xor(approve_notify, reject_notify)
+
+resolve_complaint_copy = resolve_complaint.copy() # Create a copy to avoid reuse error
+
+poset_resolution = gen.partial_order(dependencies=[(resolve_complaint_copy, optional_feedback)])
+
+poset_reimbursement_resolution = gen.partial_order(dependencies=[(process_reimbursement, poset_resolution)])
+
+optional_reimbursement = gen.xor(poset_reimbursement_resolution, resolve_complaint) # reimbursement is optional, it can be skipped
+
+
+
+
+poset_main = gen.partial_order(dependencies=[(file_complaint, log_complaint), (log_complaint, assign_complaint), (assign_complaint, review_complaint), (review_complaint, decision_notify), (decision_notify, optional_reimbursement)])
+
+
+
+
+final_model = poset_main

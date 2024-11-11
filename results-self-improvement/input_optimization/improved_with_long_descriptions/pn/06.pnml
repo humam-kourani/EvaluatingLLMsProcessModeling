@@ -1,0 +1,174 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml>
+  <net id="imdf_net_1730830589.4328527" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <name>
+      <text>imdf_net_1730830589.4328527</text>
+    </name>
+    <page id="n0">
+      <place id="p_20">
+        <name>
+          <text>p_20</text>
+        </name>
+      </place>
+      <place id="sink">
+        <name>
+          <text>sink</text>
+        </name>
+      </place>
+      <place id="p_7">
+        <name>
+          <text>p_7</text>
+        </name>
+      </place>
+      <place id="p_18">
+        <name>
+          <text>p_18</text>
+        </name>
+      </place>
+      <place id="p_23">
+        <name>
+          <text>p_23</text>
+        </name>
+      </place>
+      <place id="source">
+        <name>
+          <text>source</text>
+        </name>
+        <initialMarking>
+          <text>1</text>
+        </initialMarking>
+      </place>
+      <place id="p_6">
+        <name>
+          <text>p_6</text>
+        </name>
+      </place>
+      <place id="p_10">
+        <name>
+          <text>p_10</text>
+        </name>
+      </place>
+      <place id="p_12">
+        <name>
+          <text>p_12</text>
+        </name>
+      </place>
+      <place id="p_24">
+        <name>
+          <text>p_24</text>
+        </name>
+      </place>
+      <place id="p_16">
+        <name>
+          <text>p_16</text>
+        </name>
+      </place>
+      <place id="p_14">
+        <name>
+          <text>p_14</text>
+        </name>
+      </place>
+      <transition id="a821ac03-9b8a-4612-8ebe-6400b61dc151">
+        <name>
+          <text>Customer places order online</text>
+        </name>
+      </transition>
+      <transition id="c1e5926b-2615-4ba3-ac3e-6385f78b7975">
+        <name>
+          <text>Customer places order over the phone</text>
+        </name>
+      </transition>
+      <transition id="80aa7040-4639-40d1-be2d-dc7bef2a2d04">
+        <name>
+          <text>Successful delivery</text>
+        </name>
+      </transition>
+      <transition id="skip_23">
+        <name>
+          <text>skip_23</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="02df4e50-a2ce-4e4a-9b16-3b48ba49bcd2"/>
+      </transition>
+      <transition id="tau_1">
+        <name>
+          <text>tau_1</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="6c5ae685-b9ed-4526-b0d2-ee21a5e8971c"/>
+      </transition>
+      <transition id="57981a15-ae91-4c65-9d62-c90022014a38">
+        <name>
+          <text>Process customer feedback or returns</text>
+        </name>
+      </transition>
+      <transition id="5fc86ab3-e7a7-404a-8883-b5957fbb6828">
+        <name>
+          <text>Pick and pack items</text>
+        </name>
+      </transition>
+      <transition id="5f1c3de6-9097-4dc3-a45a-67594d4b35a6">
+        <name>
+          <text>Send tracking information to customer</text>
+        </name>
+      </transition>
+      <transition id="44677d9a-1f26-4e3e-be83-196011318efa">
+        <name>
+          <text>Monitor shipment</text>
+        </name>
+      </transition>
+      <transition id="final_par_22">
+        <name>
+          <text>final_par_22</text>
+        </name>
+        <toolspecific tool="ProM" version="6.4" activity="$invisible$" localNodeID="2687f1ca-1ca9-4274-ab35-4af78f973cac"/>
+      </transition>
+      <transition id="e5726438-65f6-4f6c-96fb-9d60eff37fd2">
+        <name>
+          <text>Generate and send order confirmation</text>
+        </name>
+      </transition>
+      <transition id="365eba2e-73d5-4e88-bfb5-8b0b55f6f9ca">
+        <name>
+          <text>Generate shipping label</text>
+        </name>
+      </transition>
+      <transition id="63ab215f-43fc-4378-877a-4408921174c5">
+        <name>
+          <text>Hand over order to logistics provider</text>
+        </name>
+      </transition>
+      <arc id="2960324337792" source="p_14" target="63ab215f-43fc-4378-877a-4408921174c5"/>
+      <arc id="2960324254720" source="57981a15-ae91-4c65-9d62-c90022014a38" target="p_24"/>
+      <arc id="2960324258560" source="5f1c3de6-9097-4dc3-a45a-67594d4b35a6" target="p_18"/>
+      <arc id="2960322799760" source="p_18" target="44677d9a-1f26-4e3e-be83-196011318efa"/>
+      <arc id="2960324339232" source="source" target="tau_1"/>
+      <arc id="2960324258080" source="63ab215f-43fc-4378-877a-4408921174c5" target="p_16"/>
+      <arc id="2960324261152" source="p_24" target="final_par_22"/>
+      <arc id="2960324255008" source="p_23" target="skip_23"/>
+      <arc id="2960324257696" source="5fc86ab3-e7a7-404a-8883-b5957fbb6828" target="p_12"/>
+      <arc id="2960324335920" source="p_10" target="5fc86ab3-e7a7-404a-8883-b5957fbb6828"/>
+      <arc id="2960324259760" source="e5726438-65f6-4f6c-96fb-9d60eff37fd2" target="p_10"/>
+      <arc id="2960324336832" source="p_6" target="c1e5926b-2615-4ba3-ac3e-6385f78b7975"/>
+      <arc id="2960324258752" source="44677d9a-1f26-4e3e-be83-196011318efa" target="p_20"/>
+      <arc id="2960324262208" source="p_7" target="e5726438-65f6-4f6c-96fb-9d60eff37fd2"/>
+      <arc id="2960324261056" source="p_23" target="57981a15-ae91-4c65-9d62-c90022014a38"/>
+      <arc id="2960324262016" source="tau_1" target="p_6"/>
+      <arc id="2960324330064" source="p_6" target="a821ac03-9b8a-4612-8ebe-6400b61dc151"/>
+      <arc id="2960324337360" source="p_12" target="365eba2e-73d5-4e88-bfb5-8b0b55f6f9ca"/>
+      <arc id="2960322799184" source="p_20" target="80aa7040-4639-40d1-be2d-dc7bef2a2d04"/>
+      <arc id="2960324336736" source="c1e5926b-2615-4ba3-ac3e-6385f78b7975" target="p_7"/>
+      <arc id="2960324259808" source="final_par_22" target="sink"/>
+      <arc id="2960324255200" source="skip_23" target="p_24"/>
+      <arc id="2960324257504" source="365eba2e-73d5-4e88-bfb5-8b0b55f6f9ca" target="p_14"/>
+      <arc id="2960324331888" source="a821ac03-9b8a-4612-8ebe-6400b61dc151" target="p_7"/>
+      <arc id="2960321382768" source="p_16" target="5f1c3de6-9097-4dc3-a45a-67594d4b35a6"/>
+      <arc id="2960324259568" source="80aa7040-4639-40d1-be2d-dc7bef2a2d04" target="p_23"/>
+    </page>
+    <finalmarkings>
+      <marking>
+        <place idref="sink">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
+  </net>
+</pnml>

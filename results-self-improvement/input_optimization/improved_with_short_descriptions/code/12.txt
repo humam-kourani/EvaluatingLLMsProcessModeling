@@ -1,0 +1,33 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+create_pdp = gen.activity('Create personal development plan')
+enhance_skill = gen.activity('Work on skill enhancement')
+review_promotion = gen.activity('Consider employee for promotion or new role')
+approve_promotion = gen.activity('Approve promotion')
+adjust_compensation = gen.activity('Adjust compensation')
+receive_feedback = gen.activity('Receive feedback and evaluation from supervisors')
+transition_new_role = gen.activity('Transition into new role')
+set_responsibilities = gen.activity('Set new responsibilities')
+conduct_review = gen.activity('Conducts formal performance review')
+
+
+# Partial order for promotion process
+approve_comp_adjust = gen.partial_order(dependencies=[(approve_promotion, adjust_compensation)])
+promotion_process = gen.partial_order(dependencies=[(review_promotion, approve_comp_adjust)])
+
+# Partial order for after promotion steps
+post_promotion = gen.partial_order(dependencies=[(transition_new_role, set_responsibilities)])
+
+# Optional post-promotion activities
+optional_post_promotion = gen.xor(post_promotion, None)
+
+# Combine all submodels
+final_model = gen.partial_order(dependencies=[
+    (create_pdp, enhance_skill),
+    (enhance_skill, receive_feedback),
+    (receive_feedback, conduct_review),
+    (conduct_review, promotion_process),
+    (promotion_process, optional_post_promotion)
+])

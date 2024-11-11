@@ -1,0 +1,43 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+identify_needs = gen.activity('Identify development needs or career aspirations')
+create_plan = gen.activity('Create personal development plan')
+work_on_skills = gen.activity('Work on skill enhancement')
+receive_feedback = gen.activity('Receive feedback and evaluation from supervisors')
+consider_promotion = gen.activity('Consider employee for promotion or new role')
+conduct_review = gen.activity('Conducts formal performance review')
+approve_promotion = gen.activity('Approve promotion')
+adjust_compensation = gen.activity('Adjust compensation')
+set_responsibilities = gen.activity('Set new responsibilities')
+transition_role = gen.activity('Transition into new role')
+
+# Sub-processes
+
+# Development and feedback loop
+development_feedback_loop = gen.loop(do=work_on_skills, redo=receive_feedback)
+
+
+# Promotion finalization 
+promotion_finalization = gen.partial_order(dependencies=[(approve_promotion, adjust_compensation),
+                                                         (adjust_compensation, set_responsibilities),
+                                                         (set_responsibilities, transition_role)])
+
+
+# Main process flow
+
+# Correcting the error: create a copy of conduct_review
+conduct_review_copy = conduct_review.copy()
+
+negative_review_outcome = gen.partial_order(dependencies=[(conduct_review_copy, development_feedback_loop.copy())])
+review_decision = gen.xor(promotion_finalization, negative_review_outcome)
+
+
+
+final_model = gen.partial_order(dependencies=[(identify_needs, create_plan),
+                                            (create_plan, development_feedback_loop),
+                                            (development_feedback_loop, consider_promotion),
+                                            (consider_promotion, conduct_review),
+                                            (conduct_review, review_decision)])

@@ -1,0 +1,133 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml>
+  <net id="imdf_net_1730829276.5126166" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <name>
+      <text>imdf_net_1730829276.5126166</text>
+    </name>
+    <page id="n0">
+      <place id="p_20">
+        <name>
+          <text>p_20</text>
+        </name>
+      </place>
+      <place id="p_23">
+        <name>
+          <text>p_23</text>
+        </name>
+      </place>
+      <place id="p_10">
+        <name>
+          <text>p_10</text>
+        </name>
+      </place>
+      <place id="p_14">
+        <name>
+          <text>p_14</text>
+        </name>
+      </place>
+      <place id="p_12">
+        <name>
+          <text>p_12</text>
+        </name>
+      </place>
+      <place id="source">
+        <name>
+          <text>source</text>
+        </name>
+        <initialMarking>
+          <text>1</text>
+        </initialMarking>
+      </place>
+      <place id="sink">
+        <name>
+          <text>sink</text>
+        </name>
+      </place>
+      <place id="p_16">
+        <name>
+          <text>p_16</text>
+        </name>
+      </place>
+      <place id="p_18">
+        <name>
+          <text>p_18</text>
+        </name>
+      </place>
+      <place id="p_8">
+        <name>
+          <text>p_8</text>
+        </name>
+      </place>
+      <transition id="60c381af-91fc-4bc1-af18-ea0e4795d1eb">
+        <name>
+          <text>Set new responsibilities</text>
+        </name>
+      </transition>
+      <transition id="61001c69-f5fb-473f-8844-9861d9514631">
+        <name>
+          <text>Work on skill enhancement</text>
+        </name>
+      </transition>
+      <transition id="69c69152-c58f-46a9-96d9-b84436b669f7">
+        <name>
+          <text>Consider employee for promotion or new role</text>
+        </name>
+      </transition>
+      <transition id="ea377551-36ab-4698-9163-ab8d044aa844">
+        <name>
+          <text>Transition into new role</text>
+        </name>
+      </transition>
+      <transition id="739847c2-d104-4d99-815a-6ba1a051c46b">
+        <name>
+          <text>Receive feedback and evaluation from supervisors</text>
+        </name>
+      </transition>
+      <transition id="f6683bdb-929f-407d-bb64-e99608ffcfb0">
+        <name>
+          <text>Conducts formal performance review</text>
+        </name>
+      </transition>
+      <transition id="42cc7691-01a1-4726-ade6-64fbb78030dc">
+        <name>
+          <text>Approve promotion</text>
+        </name>
+      </transition>
+      <transition id="fddaa044-a4d6-4716-a048-27812c16ad6e">
+        <name>
+          <text>Adjust compensation</text>
+        </name>
+      </transition>
+      <transition id="860560a3-e6c2-4f64-acb7-e65a1ec3a48e">
+        <name>
+          <text>Create personal development plan</text>
+        </name>
+      </transition>
+      <arc id="2211847677328" source="p_16" target="fddaa044-a4d6-4716-a048-27812c16ad6e"/>
+      <arc id="2211847850640" source="61001c69-f5fb-473f-8844-9861d9514631" target="p_10"/>
+      <arc id="2211847849872" source="fddaa044-a4d6-4716-a048-27812c16ad6e" target="p_18"/>
+      <arc id="2211847850928" source="ea377551-36ab-4698-9163-ab8d044aa844" target="p_23"/>
+      <arc id="2211847676464" source="p_18" target="60c381af-91fc-4bc1-af18-ea0e4795d1eb"/>
+      <arc id="2211847849392" source="42cc7691-01a1-4726-ade6-64fbb78030dc" target="p_16"/>
+      <arc id="2211847850160" source="860560a3-e6c2-4f64-acb7-e65a1ec3a48e" target="p_8"/>
+      <arc id="2211847681600" source="p_8" target="61001c69-f5fb-473f-8844-9861d9514631"/>
+      <arc id="2211847679056" source="p_12" target="69c69152-c58f-46a9-96d9-b84436b669f7"/>
+      <arc id="2211847675216" source="p_20" target="ea377551-36ab-4698-9163-ab8d044aa844"/>
+      <arc id="2211847673680" source="p_23" target="f6683bdb-929f-407d-bb64-e99608ffcfb0"/>
+      <arc id="2211847851216" source="source" target="860560a3-e6c2-4f64-acb7-e65a1ec3a48e"/>
+      <arc id="2211847680736" source="p_10" target="739847c2-d104-4d99-815a-6ba1a051c46b"/>
+      <arc id="2211847678192" source="p_14" target="42cc7691-01a1-4726-ade6-64fbb78030dc"/>
+      <arc id="2211847850352" source="60c381af-91fc-4bc1-af18-ea0e4795d1eb" target="p_20"/>
+      <arc id="2211847849584" source="f6683bdb-929f-407d-bb64-e99608ffcfb0" target="sink"/>
+      <arc id="2211847851120" source="739847c2-d104-4d99-815a-6ba1a051c46b" target="p_12"/>
+      <arc id="2211847850736" source="69c69152-c58f-46a9-96d9-b84436b669f7" target="p_14"/>
+    </page>
+    <finalmarkings>
+      <marking>
+        <place idref="sink">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
+  </net>
+</pnml>

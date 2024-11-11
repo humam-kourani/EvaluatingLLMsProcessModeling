@@ -1,0 +1,38 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+search_ticket = gen.activity('Customer searches for ticket')
+select_route = gen.activity('Select route')
+select_date_time = gen.activity('Select date and time')
+provide_personal_info = gen.activity('Provide personal information')
+provide_payment = gen.activity('Provide payment details')
+generate_ticket = gen.activity('Generate ticket')
+update_seat_inventory = gen.activity('Update seat inventory')
+send_ticket_email = gen.activity('Send ticket via email')
+send_ticket_sms = gen.activity('Send ticket via SMS')
+send_instructions = gen.activity('Send instructions')  # Assumed to be after ticket purchase
+send_reminder = gen.activity('Send reminder')  # Assumed to be before travel
+
+customer_completes_journey = gen.activity('Customer completes journey')
+post_travel_feedback = gen.activity('Post-travel feedback or services')  # Optional
+optional_post_travel = gen.xor(post_travel_feedback, None)
+
+
+booking_process = gen.partial_order(dependencies=[
+    (search_ticket, select_route),
+    (select_route, select_date_time),
+    (select_date_time, provide_personal_info),
+    (provide_personal_info, provide_payment),
+    (provide_payment, generate_ticket),
+    (generate_ticket, update_seat_inventory),
+    (update_seat_inventory, send_ticket_email),
+    (update_seat_inventory, send_ticket_sms), # Concurrency between email and SMS
+    (send_ticket_email, send_instructions),
+    (send_ticket_sms, send_instructions), # Sending instructions can happen after either email or sms is sent
+    (send_instructions, send_reminder),
+    (send_reminder, customer_completes_journey),
+    (customer_completes_journey, optional_post_travel)
+])
+
+final_model = booking_process

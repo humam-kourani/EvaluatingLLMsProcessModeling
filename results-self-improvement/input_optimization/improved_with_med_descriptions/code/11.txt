@@ -1,0 +1,51 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial signup and setup
+customer_signs_up = gen.activity('Customer signs up')
+generate_account = gen.activity('Generate account')
+assign_access = gen.activity('Assign access')
+set_automatic_triggers_for_billing_cycles = gen.activity('Set automatic triggers for billing cycles')
+
+initial_setup = gen.partial_order(dependencies=[
+    (customer_signs_up, generate_account),
+    (generate_account, assign_access),
+    (generate_account, set_automatic_triggers_for_billing_cycles)
+])
+
+# Regular updates during active subscription
+send_regular_updates = gen.activity('Send regular updates')
+send_product_enhancements = gen.activity('Send product enhancements')
+send_renewal_notifications = gen.activity('Send renewal notifications')
+
+regular_updates = gen.partial_order(dependencies=[
+    (send_regular_updates,),
+    (send_product_enhancements,),
+    (send_renewal_notifications,)
+])
+
+updates_loop = gen.loop(do=regular_updates, redo=None)
+
+# Cancellation process
+customer_submits_cancellation_request = gen.activity('Customer submits cancellation request')
+apply_refund = gen.activity('apply refund')
+apply_charges = gen.activity('apply charges')
+deactivate_subscription = gen.activity('Deactivate subscription')
+settle_final_account_balance = gen.activity('Settle final account balance')
+
+
+cancellation_process = gen.partial_order(dependencies=[
+    (customer_submits_cancellation_request, apply_refund),
+    (customer_submits_cancellation_request, apply_charges),
+    (apply_charges, deactivate_subscription),
+    (apply_refund, deactivate_subscription),
+    (deactivate_subscription, settle_final_account_balance)
+
+])
+
+# Main process flow
+final_model = gen.partial_order(dependencies=[
+    (initial_setup, updates_loop),
+    (updates_loop, cancellation_process)
+])

@@ -1,0 +1,86 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator(True, True)
+
+# Initial steps
+submit_application = gen.activity('Submit application online')
+review_application = gen.activity('Review application and documents')
+evaluate_application = gen.activity('Evaluate application by admissions committee')
+notify_missing_docs = gen.activity('Notify applicant of missing documents')
+provide_missing_docs = gen.activity('Provide missing documents')
+await_decision = gen.activity('Await decision')
+cancel_application = gen.activity('Cancel application')
+
+# Handle missing documents (loop)
+missing_docs_loop = gen.loop(do=None, redo=provide_missing_docs)  # Can provide multiple times or skip
+
+# Admission decision
+send_acceptance = gen.activity('Send acceptance letter')
+send_rejection = gen.activity('Send rejection letter')
+admission_decision = gen.xor(send_acceptance, send_rejection)
+
+# Post-admission steps
+process_fees = gen.activity('Process fees or waivers')
+confirm_enrollment = gen.activity('Confirm enrollment')
+send_orientation_materials = gen.activity('Send orientation materials')
+obtain_student_id = gen.activity('Obtain student ID card')  # Added based on context
+set_up_it_accounts = gen.activity('Set up IT accounts')
+select_courses = gen.activity('Select courses')
+resolve_conflicts = gen.activity('Resolve schedule conflicts')  # Added based on context. Assumed to be after course selection, may not be strictly necessary
+register_courses = gen.activity('Add/drop courses')
+begin_attending_classes = gen.activity("Begin attending classes")
+post_grades = gen.activity('Post grades')
+review_grades = gen.activity('Review grades online')
+
+
+# Grade appeal process
+submit_appeal = gen.activity('Submit appeal form')
+meet_appeals_committee = gen.activity('Meet with appeals committee')
+appeal_process = gen.partial_order(dependencies=[(submit_appeal, meet_appeals_committee)])
+optional_appeal = gen.xor(appeal_process, None)
+
+
+
+
+# Semester loop (select courses, register, grades, optional appeal)
+semester_activities = gen.partial_order(dependencies=[(select_courses, resolve_conflicts), (resolve_conflicts, register_courses), (register_courses, begin_attending_classes),(begin_attending_classes,post_grades), (post_grades, review_grades), (review_grades, optional_appeal)])
+
+semester_loop = gen.loop(do=semester_activities, redo=None)
+
+# Withdrawal/Graduation
+withdraw = gen.activity('Withdraw')
+graduate = gen.activity('Graduate')
+meet_advisor = gen.activity('Meet with academic advisor')  # added based on context: happens before graduation or withdrawal
+end_status = gen.xor(withdraw, graduate)
+
+# Assemble the main process flow
+pre_admission = gen.partial_order(dependencies=[(submit_application, review_application), (review_application, evaluate_application), (evaluate_application, notify_missing_docs), (notify_missing_docs, missing_docs_loop), (missing_docs_loop, await_decision), (await_decision, cancel_application), (await_decision, admission_decision)])
+
+# Create a copy of admission_decision since it's used in the xor construct above
+admission_decision_copy = admission_decision.copy()
+
+post_admission_setup = gen.partial_order(dependencies=[(admission_decision_copy, process_fees), (process_fees, confirm_enrollment), (confirm_enrollment, send_orientation_materials), (send_orientation_materials, obtain_student_id)])  # Added steps, now using a copy of admission_decision
+
+# Create COPIES for EVERYTHING used in the final partial_order construct because they are also children of other models. Also create copies for everything used in pre_semester. Create copies for all elements in the final model
+obtain_student_id_copy = obtain_student_id.copy()
+
+semester_loop_copy2 = semester_loop.copy()  # Create another copy for the loop-back dependency
+semester_loop_copy3 = semester_loop.copy() # Another copy for the final model
+meet_advisor_copy = meet_advisor.copy()
+meet_advisor_copy2 = meet_advisor.copy() # Create a copy of meet_advisor for the final dependency of the final model
+
+pre_admission_copy = pre_admission.copy()
+post_admission_setup_copy = post_admission_setup.copy()
+
+account_and_orientation = gen.partial_order(dependencies=[(obtain_student_id_copy, set_up_it_accounts)])
+account_and_orientation_copy = account_and_orientation.copy()  # Create a copy
+
+end_status_copy = end_status.copy() # Create a copy for end_status
+
+pre_semester = gen.partial_order(dependencies=[(account_and_orientation_copy, meet_advisor_copy),(meet_advisor_copy, end_status_copy), (meet_advisor_copy, semester_loop_copy2)])
+pre_semester_copy = pre_semester.copy()
+
+
+
+
+final_model = gen.partial_order(dependencies=[(pre_admission_copy, post_admission_setup_copy), (post_admission_setup_copy, pre_semester_copy), (semester_loop_copy3, meet_advisor_copy2)])

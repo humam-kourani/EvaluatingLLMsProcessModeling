@@ -1,0 +1,29 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+define_objectives = gen.activity('Define campaign objectives')
+design_visuals = gen.activity('Design visuals')
+create_content = gen.activity('Create content')
+select_channels = gen.activity('Select promotion channels')
+launch_campaign = gen.activity('Launch campaign')
+track_performance = gen.activity('Track performance in real-time')
+collect_leads = gen.activity('Collect leads in CRM system')
+sales_follow_up = gen.activity('Sales teams follows up on leads')  # Added based on context
+campaign_end = gen.activity('Campaign period ends')  # Added based on context
+analyze_performance = gen.activity('Analyze performance for future optimization')
+
+
+final_model = gen.partial_order(dependencies=[
+    (define_objectives, design_visuals),
+    (design_visuals, create_content),
+    (create_content, select_channels),
+    (select_channels, launch_campaign),
+    (launch_campaign, track_performance),
+    (launch_campaign, collect_leads),  # Concurrent with tracking
+    (launch_campaign, sales_follow_up),  # Concurrent with tracking and lead collection
+    (track_performance, campaign_end),  # Tracking ends with the campaign
+    (collect_leads, campaign_end),  # Lead collection ends with the campaign
+    (sales_follow_up, campaign_end),  # Sales follow-up ends with the campaign
+    (campaign_end, analyze_performance)
+])

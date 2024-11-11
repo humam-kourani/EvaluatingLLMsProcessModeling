@@ -1,0 +1,37 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+customer_searches_for_ticket = gen.activity('Customer searches for ticket')
+select_route = gen.activity('Select route')
+select_date_and_time = gen.activity('Select date and time')
+provide_personal_information = gen.activity('Provide personal information')
+provide_payment_details = gen.activity('Provide payment details')
+generate_ticket = gen.activity('Generate ticket')
+update_seat_inventory = gen.activity('Update seat inventory')
+send_ticket_via_email = gen.activity('Send ticket via email')
+send_ticket_via_SMS = gen.activity('Send ticket via SMS')
+send_reminder = gen.activity("Send reminder")
+customer_completes_journey = gen.activity('Customer completes journey')
+post_travel_feedback_or_services = gen.activity('Post-travel feedback or services')
+send_instructions = gen.activity("Send instructions")
+
+
+send_ticket = gen.xor(send_ticket_via_email, send_ticket_via_SMS)
+
+booking_process = gen.partial_order(dependencies=[
+    (customer_searches_for_ticket, select_route),
+    (select_route, select_date_and_time),
+    (select_date_and_time, provide_personal_information),
+    (provide_personal_information, provide_payment_details),
+    (provide_payment_details, generate_ticket),
+    (generate_ticket, update_seat_inventory),
+    (update_seat_inventory, send_ticket),
+    (send_ticket, send_reminder),
+    (send_reminder, send_instructions),
+    (send_instructions, customer_completes_journey)
+])
+
+optional_post_travel = gen.xor(post_travel_feedback_or_services, None)
+
+final_model = gen.partial_order(dependencies=[(booking_process, optional_post_travel)])

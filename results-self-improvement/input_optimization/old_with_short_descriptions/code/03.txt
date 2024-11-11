@@ -1,0 +1,52 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define all activities
+check_inventory = gen.activity('Check current inventory level')
+send_automated_alert = gen.activity('Send an automated alert')
+send_manual_alert = gen.activity('Send a manual alert')  # Optional alert
+place_order = gen.activity('Place order with suppliers')
+update_expected_dates = gen.activity('Update inventory system with expected delivery dates')
+receive_stock = gen.activity('Receive stock')
+inspect_stock = gen.activity('Inspect stock for quality')
+store_stock = gen.activity('Place stock in storage')
+record_stock = gen.activity('Record stock in system')
+update_levels = gen.activity('Update inventory levels')
+place_on_shelves = gen.activity('Place stock on shelves')
+
+# Model the optional manual alert
+optional_manual_alert = gen.xor(send_manual_alert, None)
+
+# Model the reordering process
+reorder_process = gen.partial_order(dependencies=[
+    (check_inventory, send_automated_alert),
+    (send_automated_alert, optional_manual_alert),
+    (optional_manual_alert, place_order),
+    (place_order, update_expected_dates)
+])
+
+# Model the receiving and processing of stock
+receive_and_process = gen.partial_order(dependencies=[
+    (receive_stock, inspect_stock),
+    (inspect_stock, store_stock),
+    (store_stock, record_stock)
+])
+
+# Combine the reordering and receiving processes
+combined_process = gen.partial_order(dependencies=[
+    (reorder_process, receive_and_process)
+])
+
+
+
+# Model the final steps, creating a copy of record_stock
+record_stock_copy = record_stock.copy() # Create a copy to avoid reusing the same submodel.
+final_steps = gen.partial_order(dependencies=[
+    (record_stock_copy, update_levels), # Use the copy here.
+    (update_levels, place_on_shelves)
+])
+
+
+
+final_model = gen.partial_order(dependencies=[(combined_process, final_steps)])

@@ -1,0 +1,46 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial phase
+initial_research = gen.activity('Conduct initial research')
+identify_idea = gen.activity('Identify idea for new product or improvement')
+feasibility_studies = gen.activity('Conduct feasibility studies')
+market_potential = gen.activity('Test market potential')
+
+initial_phase_poset = gen.partial_order(dependencies=[(initial_research,), (identify_idea,), (feasibility_studies,), (market_potential,)])
+
+
+
+# Design phase
+design_concepts = gen.activity('Draft design concepts')
+select_promising_design = gen.activity('Select promising design')
+
+design_phase_poset = gen.partial_order(dependencies=[(design_concepts, select_promising_design)])
+
+# Prototype development and testing cycle
+build_prototype = gen.activity('Build prototype')
+test_functionality = gen.activity('Test functionality')
+collect_feedback = gen.activity('Collect feedback from testing phase')
+test_safety = gen.activity('Test safety')
+refine_prototype = gen.activity('Refine prototype')
+
+
+prototype_testing_dependencies = [(build_prototype, test_functionality), (test_functionality, collect_feedback),
+                                 (collect_feedback, test_safety), (test_safety, refine_prototype)]
+
+prototype_testing_loop = gen.loop(do=gen.partial_order(dependencies=prototype_testing_dependencies), redo=None)
+
+
+
+# Decision and finalization
+approve_prototype = gen.activity('Approve prototype for further development')
+discard_prototype = gen.activity('Discard prototype')
+
+decision = gen.xor(approve_prototype, discard_prototype)
+
+
+# Combine all phases
+final_model = gen.partial_order(
+    dependencies=[(initial_phase_poset, design_phase_poset), (design_phase_poset, prototype_testing_loop), (prototype_testing_loop, decision)]
+)

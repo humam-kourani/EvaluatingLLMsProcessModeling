@@ -1,0 +1,40 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities 
+define_objectives = gen.activity('Define campaign objectives')
+identify_audience = gen.activity('Identify target audience')
+develop_content = gen.activity('Create content')
+select_channels = gen.activity('Select promotion channels')
+launch_campaign = gen.activity('Launch campaign')
+track_performance = gen.activity('Track performance in real-time')
+collect_leads = gen.activity('Collect leads in CRM system')
+sales_follow_up = gen.activity('Sales teams follows up on leads')
+campaign_ends = gen.activity('Campaign period ends') # Moved definition here
+analyze_performance = gen.activity('Analyze performance for future optimization')
+document_findings = gen.activity('Document findings and recommendations')
+
+# Create a copy of campaign_ends NOW, after definition
+campaign_ends_copy = campaign_ends.copy()
+
+
+# Model concurrent objective setting and audience identification
+objectives_and_audience = gen.partial_order(dependencies=[(define_objectives,), (identify_audience,)])
+
+# Model concurrent content development and channel selection
+content_and_channels = gen.partial_order(dependencies=[(develop_content,), (select_channels,)])
+
+
+final_model = gen.partial_order(
+    dependencies=[
+        (objectives_and_audience, content_and_channels),
+        (content_and_channels, launch_campaign),
+        (launch_campaign, track_performance),
+        (launch_campaign, collect_leads),
+        (collect_leads, sales_follow_up), 
+        (launch_campaign, campaign_ends_copy),
+        (campaign_ends_copy, analyze_performance),
+        (analyze_performance, document_findings)
+    ]
+)

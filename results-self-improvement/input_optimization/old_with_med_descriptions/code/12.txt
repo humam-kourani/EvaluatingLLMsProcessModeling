@@ -1,0 +1,39 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial activities
+identify_needs = gen.activity('Identify development needs or career aspirations')
+create_plan = gen.activity('Create personal development plan')
+
+# Skill development and feedback loop
+work_on_skills = gen.activity('Work on skill enhancement')
+receive_feedback = gen.activity('Receive feedback and evaluation from supervisors')
+skill_development_loop = gen.loop(do=work_on_skills, redo=receive_feedback)
+
+
+# Consideration for promotion
+consider_promotion = gen.activity('Consider employee for promotion or new role')
+
+# Formal review and approval
+conduct_review = gen.activity('Conducts formal performance review')
+approve_promotion = gen.activity('Approve promotion')
+review_approval = gen.partial_order(dependencies=[(conduct_review, approve_promotion)])
+
+# Promotion finalization
+set_responsibilities = gen.activity('Set new responsibilities')
+adjust_compensation = gen.activity('Adjust compensation')
+finalize_promotion = gen.partial_order(dependencies=[(set_responsibilities,), (adjust_compensation,)])  # Concurrent
+
+# Transition to new role
+transition_role = gen.activity('Transition into new role')
+
+# Combine all parts
+final_model = gen.partial_order(dependencies=[
+    (identify_needs, create_plan),
+    (create_plan, skill_development_loop),
+    (skill_development_loop, consider_promotion),
+    (consider_promotion, review_approval),
+    (review_approval, finalize_promotion),  # Assuming approval leads to finalization
+    (finalize_promotion, transition_role)
+])

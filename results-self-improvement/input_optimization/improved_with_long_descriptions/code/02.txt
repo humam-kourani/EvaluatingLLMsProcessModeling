@@ -1,0 +1,52 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial steps
+identify_need = gen.activity('Identify need for new hire')
+create_job_description = gen.activity('Create job description')
+post_job_description = gen.activity('Post job description')
+collect_resumes = gen.activity('Collect resumes')
+screen_resumes = gen.activity('Screen resumes')
+conduct_initial_phone_interviews = gen.activity('Conduct initial phone interviews')
+invite_candidates_for_interviews = gen.activity('Invite candidates for interviews')
+
+# Secondary interview options
+conduct_virtual_interview = gen.activity('Conduct a virtual interview')
+conduct_in_person_interview = gen.activity('Conduct an in-person interview')
+secondary_interview_choice = gen.xor(conduct_virtual_interview, conduct_in_person_interview)
+
+# Selection and offer
+choose_candidate = gen.activity('Choose candidate')
+extend_offer = gen.activity('Extend offer')
+
+# Negotiation or acceptance
+negotiate_salary = gen.activity('Negotiate salary')
+accept_offer = gen.activity('Accept initial offer') 
+offer_choice = gen.xor(negotiate_salary, accept_offer)
+
+# Onboarding
+begin_onboarding_process = gen.activity('Begin onboarding process')
+complete_paperwork = gen.activity('Complete paperwork')
+complete_orientation = gen.activity('Complete orientation')
+complete_training = gen.activity('Complete training')
+
+
+
+# Combine all steps, including onboarding WITHIN the main partial order
+final_model = gen.partial_order(dependencies=[
+    (identify_need, create_job_description),
+    (create_job_description, post_job_description),
+    (post_job_description, collect_resumes),
+    (collect_resumes, screen_resumes),
+    (screen_resumes, conduct_initial_phone_interviews),
+    (conduct_initial_phone_interviews, invite_candidates_for_interviews),
+    (invite_candidates_for_interviews, secondary_interview_choice),
+    (secondary_interview_choice, choose_candidate),
+    (choose_candidate, extend_offer),
+    (extend_offer, offer_choice),
+    (offer_choice, begin_onboarding_process),  # onboarding starts after offer acceptance or negotiation
+    (begin_onboarding_process, complete_paperwork),  # sequence in onboarding
+    (complete_paperwork, complete_orientation),
+    (complete_orientation, complete_training),
+])

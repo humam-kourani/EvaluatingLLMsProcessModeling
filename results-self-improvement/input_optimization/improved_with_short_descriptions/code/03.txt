@@ -1,0 +1,58 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+check_inventory = gen.activity('Check current inventory level')
+send_automated_alert = gen.activity('Send an automated alert')
+send_manual_alert = gen.activity('Send a manual alert')  # Optional alert
+place_order = gen.activity('Place order with suppliers')
+update_expected_delivery = gen.activity('Update inventory system with expected delivery dates')
+receive_stock = gen.activity('Receive stock')
+inspect_stock = gen.activity('Inspect stock for quality')
+place_in_storage = gen.activity('Place stock in storage')
+place_on_shelves = gen.activity('Place stock on shelves')
+update_inventory = gen.activity('Update inventory levels')
+
+
+# Subprocesses
+
+# Alerting: Either automated or manual alert can be sent (or none).
+optional_alerts = gen.xor(send_automated_alert, send_manual_alert, None)
+
+# Procurement process: Triggered by low inventory.
+procurement = gen.partial_order(dependencies=[
+    (place_order, update_expected_delivery)
+])
+
+# Receiving and inspection: Sequential steps after stock arrival.
+receiving_inspection = gen.partial_order(dependencies=[
+    (receive_stock, inspect_stock)
+])
+
+# Storage and update: After successful inspection.
+storage_update = gen.partial_order(dependencies=[
+    (place_in_storage, place_on_shelves), (place_on_shelves, update_inventory)
+])
+
+
+# Main process model
+
+# Monitoring and reordering: Check inventory continuously. If low, trigger procurement.
+reorder_process = gen.partial_order(dependencies=[
+    (check_inventory, optional_alerts), (optional_alerts, procurement)
+])
+
+# Put the reorder process inside a loop as the inventory levels are continuously monitored.
+monitoring_loop = gen.loop(do=None, redo=reorder_process)
+
+
+# Combine all subprocesses.  The inventory is checked continuously, so the main loop
+# starts the process. After receiving, inventory goes through inspection and then storage.
+
+final_model = gen.partial_order(dependencies=[
+    (monitoring_loop, receiving_inspection),
+    (receiving_inspection, storage_update),
+
+
+])

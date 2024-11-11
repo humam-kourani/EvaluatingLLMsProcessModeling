@@ -1,0 +1,49 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+define_objectives = gen.activity('Define campaign objectives')
+create_content = gen.activity('Create content')
+design_visuals = gen.activity('Design visuals')
+select_channels = gen.activity('Select promotion channels')
+launch_campaign = gen.activity('Launch campaign')
+track_performance = gen.activity('Track performance in real-time')
+collect_leads = gen.activity('Collect leads in CRM system')
+sales_follow_up = gen.activity('Sales teams follows up on leads')
+campaign_period_ends = gen.activity('Campaign period ends')
+analyze_performance = gen.activity('Analyze performance for future optimization')
+
+
+# Concurrency between tracking, collecting leads, and sales follow-up during campaign execution.
+concurrent_execution = gen.partial_order(dependencies=[(track_performance,), (collect_leads,), (sales_follow_up,)])
+
+# Loop for campaign execution until the campaign period ends.
+campaign_execution_loop = gen.loop(do=concurrent_execution, redo=None)
+
+
+# Partial order to model the sequence of activities before the campaign launch.
+pre_launch_sequence = gen.partial_order(
+    dependencies=[
+        (define_objectives, create_content),
+        (define_objectives, design_visuals),
+        (define_objectives, select_channels),
+        (create_content, launch_campaign),
+        (design_visuals, launch_campaign),
+        (select_channels, launch_campaign),
+
+    ]
+)
+
+# Create a copy of launch_campaign to avoid reusing the same node.
+launch_campaign_copy = launch_campaign.copy()
+
+
+
+# The campaign_period_ends activity should also trigger the end of the loop, and it should also be copied.
+campaign_period_ends_copy = campaign_period_ends.copy()
+
+final_model = gen.partial_order(dependencies=[
+    (pre_launch_sequence, launch_campaign_copy),
+    (launch_campaign_copy, campaign_execution_loop),
+    (campaign_execution_loop, campaign_period_ends_copy),
+    (campaign_period_ends_copy, analyze_performance)])

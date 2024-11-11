@@ -1,0 +1,32 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial activities
+initial_research = gen.activity('Conduct initial research')
+
+# Prototype generation and testing cycle
+build_prototype = gen.activity('Build prototype')
+test_functionality = gen.activity('Test functionality')
+collect_feedback = gen.activity('Collect feedback from testing phase')
+refine_prototype = gen.activity('Refine prototype')
+
+prototype_testing_cycle = gen.partial_order(dependencies=[
+    (build_prototype, test_functionality),
+    (test_functionality, collect_feedback)
+])
+
+refine_retest_loop = gen.loop(do=prototype_testing_cycle, redo=refine_prototype)
+
+
+# Approval process
+approve_prototype = gen.activity('Approve prototype for further development')
+discard_prototype = gen.activity('Discard prototype')
+approval_choice = gen.xor(approve_prototype, discard_prototype)
+
+
+# Combine all parts of the process
+final_model = gen.partial_order(dependencies=[
+    (initial_research, refine_retest_loop),
+    (refine_retest_loop, approval_choice)
+])

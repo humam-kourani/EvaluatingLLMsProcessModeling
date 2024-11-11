@@ -1,0 +1,49 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+identify_need = gen.activity('Identify need for new supplier or vendor')
+issue_rfp = gen.activity('Issue request for proposals (RFP)')
+receive_proposals = gen.activity('Receive supplier proposals')
+evaluate_proposal = gen.activity('Evaluate proposal')
+conduct_site_visit = gen.activity('Conduct site visit')
+conduct_interview = gen.activity('Conduct interview')
+select_supplier = gen.activity('Select supplier')
+begin_contract_negotiations = gen.activity('Begin contract negotiations')
+sign_contract = gen.activity('Sign contract')
+onboard_supplier = gen.activity('Onboard supplier')
+execute_contract = gen.activity('Execute contract')
+
+
+# Optional site visit and interview
+optional_site_visit = gen.xor(conduct_site_visit, None)
+optional_interview = gen.xor(conduct_interview, None)
+
+# Parallel evaluation, site visit, and interview
+evaluation_and_visits = gen.partial_order(dependencies=[
+    (evaluate_proposal,),
+    (optional_site_visit,),
+    (optional_interview,)
+])
+
+
+# Negotiation loop -  Use a copy of select_supplier for the redo part
+select_supplier_copy = select_supplier.copy() # This is the crucial fix
+negotiation_loop = gen.loop(do=begin_contract_negotiations, redo=select_supplier_copy)
+
+# Post-negotiation sequence
+post_negotiation = gen.partial_order(dependencies=[
+    (sign_contract, onboard_supplier),
+    (onboard_supplier, execute_contract)
+])
+
+# Main process flow
+final_model = gen.partial_order(dependencies=[
+    (identify_need, issue_rfp),
+    (issue_rfp, receive_proposals),
+    (receive_proposals, evaluation_and_visits),
+    (evaluation_and_visits, select_supplier),
+    (select_supplier, negotiation_loop),
+    (negotiation_loop, post_negotiation)
+])

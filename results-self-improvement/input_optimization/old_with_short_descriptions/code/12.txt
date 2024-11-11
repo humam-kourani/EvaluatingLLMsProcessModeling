@@ -1,0 +1,25 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+create_plan = gen.activity('Create personal development plan')
+enhance_skills = gen.activity('Work on skill enhancement')
+meet_milestones = gen.activity('Receive feedback and evaluation from supervisors')  # Implicit milestone check based on feedback.
+consider_promotion = gen.activity('Consider employee for promotion or new role')
+approve_promotion = gen.activity('Approve promotion')
+adjust_compensation = gen.activity('Adjust compensation')
+set_responsibilities = gen.activity('Set new responsibilities')
+transition_role = gen.activity('Transition into new role')
+conduct_review = gen.activity('Conducts formal performance review')
+
+
+# Partial order to represent the main flow.
+final_model = gen.partial_order(dependencies=[
+    (create_plan, enhance_skills),
+    (enhance_skills, meet_milestones),
+    (meet_milestones, consider_promotion),
+    (consider_promotion, approve_promotion),
+    (approve_promotion, adjust_compensation),
+    (adjust_compensation, set_responsibilities),
+    (set_responsibilities, transition_role),
+    (transition_role, conduct_review)])

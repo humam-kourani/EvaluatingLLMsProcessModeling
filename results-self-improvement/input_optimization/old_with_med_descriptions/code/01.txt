@@ -1,0 +1,23 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+receive_inquiry = gen.activity('Receive customer inquiry')
+collect_information = gen.activity('Collect customer information')
+address_questions = gen.activity('Address customer concerns or questions')
+information_gathering = gen.partial_order(dependencies=[(collect_information, ), (address_questions, )]) # concurrent activities
+
+guide_customer = gen.activity('Guide customer in selecting product/service')
+provide_quote = gen.activity('Provide quote')
+place_order = gen.activity('Place order')
+record_order = gen.activity('Record order in system')
+send_confirmation = gen.activity('Send order confirmation to customer')
+
+interested_path = gen.partial_order(dependencies=[(guide_customer, provide_quote), (provide_quote, place_order), (place_order, record_order), (record_order, send_confirmation)])
+
+not_interested_path = None # If not interested, the process ends
+
+choice = gen.xor(interested_path, not_interested_path)
+
+
+final_model = gen.partial_order(dependencies=[(receive_inquiry, information_gathering), (information_gathering, choice)])

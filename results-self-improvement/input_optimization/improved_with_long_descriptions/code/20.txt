@@ -1,0 +1,70 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial activities
+guest_calls = gen.activity('Guest calls room service')
+manager_takes_order = gen.activity('Manager takes down the order')
+manager_submits_kitchen_order = gen.activity('Manager submits order ticket to kitchen')
+kitchen_prepares_food = gen.activity('Kitchen prepares food')
+manager_assigns_waiter = gen.activity('Manager assigns order to waiter')
+
+# Waiter activities
+waiter_readies_cart = gen.activity('Waiter readies cart')
+waiter_prepares_nonalcoholic_drinks = gen.activity('Waiter prepares nonalcoholic drinks')
+waiter_loads_and_delivers = gen.activity('Waiter delivers order to guest\'s room')
+waiter_returns = gen.activity('Waiter returns to room-service station')
+
+# Billing (with optional delay)
+
+waiter_debits_account = gen.activity('Waiter debits guest\'s account')
+waiter_waits = gen.activity("Waiter waits/delays debiting")
+
+waiter_debits_account_copy = waiter_debits_account.copy()
+
+delayed_debit = gen.partial_order(dependencies=[(waiter_waits, waiter_debits_account_copy)])
+
+billing_choice = gen.xor(waiter_debits_account, delayed_debit)
+
+
+# Sommelier order (optional) INSIDE the parallel process
+
+manager_gives_sommelier_order = gen.activity('Manager gives order to sommelier')
+sommelier_fetches_wine = gen.activity('Sommelier fetches wine and prepare alcoholic beverages')
+
+sommelier_optional = gen.xor(sommelier_fetches_wine, None)  # Explicitly model the optional sommelier part
+
+
+# Parallel processes (kitchen, sommelier, waiter prep)
+
+# Copies for activities inside the parallel process to prevent reuse
+waiter_readies_cart_copy = waiter_readies_cart.copy()
+waiter_prepares_nonalcoholic_drinks_copy = waiter_prepares_nonalcoholic_drinks.copy()
+manager_gives_sommelier_order_copy = manager_gives_sommelier_order.copy()
+
+parallel_kitchen_sommelier_waiter = gen.partial_order(
+    dependencies=[
+        (kitchen_prepares_food,),
+        (manager_gives_sommelier_order_copy, sommelier_optional),  # Sommelier process starts here, and is optional
+        (waiter_readies_cart_copy,),
+        (waiter_prepares_nonalcoholic_drinks_copy,),
+    ]
+)
+
+
+
+
+# Main process flow
+final_model = gen.partial_order(
+    dependencies=[
+        (guest_calls, manager_takes_order),
+        (manager_takes_order, manager_submits_kitchen_order),
+        (manager_takes_order, manager_assigns_waiter),
+        (manager_takes_order, manager_gives_sommelier_order),  # This now triggers the optional sommelier process correctly
+        (manager_assigns_waiter, waiter_readies_cart),
+        (manager_assigns_waiter, waiter_prepares_nonalcoholic_drinks),
+        (parallel_kitchen_sommelier_waiter, waiter_loads_and_delivers),
+        (waiter_loads_and_delivers, waiter_returns),
+        (waiter_returns, billing_choice)
+    ]
+)

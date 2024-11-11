@@ -1,0 +1,37 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+identify_need = gen.activity('Identify need for new supplier or vendor')
+define_requirements = gen.activity('Define specific requirements and criteria')
+draft_rfp = gen.activity('Draft RFP')
+issue_rfp = gen.activity('Issue request for proposals (RFP)')
+receive_proposals = gen.activity('Receive supplier proposals')
+evaluate_proposal = gen.activity('Evaluate proposal')
+select_supplier = gen.activity('Select supplier')
+begin_negotiations = gen.activity('Begin contract negotiations')
+sign_contract = gen.activity('Sign contract')
+failed_negotiations = gen.xor(
+    gen.activity('Re-engage with other suitable suppliers'),
+    gen.activity('Initiate a new RFP process')
+)
+onboard_supplier = gen.activity('Onboard supplier')
+integrate_supplier = gen.activity('Integrate new supplier into operations')
+
+
+negotiation_outcome = gen.xor(sign_contract, failed_negotiations)
+
+rfp_process = gen.partial_order(dependencies=[
+    (identify_need, define_requirements),
+    (define_requirements, draft_rfp),
+    (draft_rfp, issue_rfp),
+    (issue_rfp, receive_proposals),
+    (receive_proposals, evaluate_proposal),
+    (evaluate_proposal, select_supplier),
+    (select_supplier, begin_negotiations),
+    (begin_negotiations, negotiation_outcome),
+    (negotiation_outcome, onboard_supplier),  # Onboarding depends ONLY on the outcome of the negotiations.
+    (onboard_supplier, integrate_supplier)
+])
+
+final_model = rfp_process

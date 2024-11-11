@@ -1,0 +1,25 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+define_campaign_objectives = gen.activity('Define campaign objectives')
+select_promotion_channels = gen.activity('Select promotion channels')
+create_content = gen.activity('Create content')
+launch_campaign = gen.activity('Launch campaign')
+track_performance_in_real_time = gen.activity('Track performance in real-time')
+campaign_period_ends = gen.activity('Campaign period ends')
+analyze_performance_for_future_optimization = gen.activity(
+    'Analyze performance for future optimization')
+
+# Model the main sequential flow
+main_flow = gen.partial_order(dependencies=[
+    (define_campaign_objectives, select_promotion_channels),
+    (select_promotion_channels, create_content),
+    (create_content, launch_campaign),
+    (launch_campaign, track_performance_in_real_time),
+    (track_performance_in_real_time, campaign_period_ends),
+    (campaign_period_ends, analyze_performance_for_future_optimization)
+])
+
+
+final_model = main_flow

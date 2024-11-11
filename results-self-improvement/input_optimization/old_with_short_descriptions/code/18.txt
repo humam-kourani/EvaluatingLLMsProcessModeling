@@ -1,0 +1,101 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator(True, True)
+
+# Application Phase
+submit_application = gen.activity('Submit application online')
+review_app = gen.activity('Review application and documents')
+notify_missing = gen.activity('Notify applicant of missing documents')
+provide_missing = gen.activity('Provide missing documents')
+evaluate_app = gen.activity('Evaluate application by admissions committee')
+send_acceptance = gen.activity('Send acceptance letter')
+send_rejection = gen.activity('Send rejection letter')
+cancel_app = gen.activity('Cancel application')
+await_decision = gen.activity('Await decision')
+visa_processing = gen.xor(gen.activity('Assist with visa processing'), None)  # Optional
+
+# Handling document resubmission as a loop - CORRECTED
+review_app_copy = review_app.copy()  # Create a copy for the loop dependency
+notify_missing_copy = notify_missing.copy()  # Create a copy to use in the loop
+document_submission_loop = gen.loop(do=provide_missing, redo=notify_missing_copy)
+application_review = gen.partial_order(dependencies=[(review_app_copy, notify_missing), (notify_missing, document_submission_loop)])  # Use the copy here
+
+
+application_process = gen.partial_order(dependencies=[
+    (submit_application, review_app),  # Original review_app used here
+    (review_app, application_review),  # Leads into possible doc loop
+    (application_review, evaluate_app),
+    (evaluate_app, send_acceptance),
+    (evaluate_app, send_rejection),
+    (send_acceptance, await_decision),
+    (send_rejection, cancel_app),
+    (await_decision, visa_processing)
+])
+
+
+
+# Enrollment and Term Processing - CORRECTED
+
+confirm_enrollment = gen.activity('Confirm enrollment')
+process_fees = gen.activity('Process fees or waivers')
+send_orientation = gen.activity('Send orientation materials')
+obtain_id = gen.activity('Obtain student ID card')
+set_up_accounts = gen.activity('Set up IT accounts')
+meet_advisor = gen.activity('Meet with academic advisor')
+select_courses = gen.activity('Select courses')
+add_drop = gen.activity('Add/drop courses')
+begin_classes = gen.activity('Begin attending classes')
+post_grades = gen.activity('Post grades')
+review_grades = gen.activity('Review grades online')
+submit_appeal = gen.activity('Submit appeal form')
+meet_appeals = gen.activity('Meet with appeals committee')
+resolve_conflicts = gen.activity('Resolve schedule conflicts')
+
+graduate = gen.activity('Graduate')
+withdraw = gen.activity('Withdraw')
+
+
+term_process = gen.partial_order(dependencies=[
+    (confirm_enrollment, process_fees),
+    (process_fees, send_orientation),
+    (send_orientation, obtain_id),
+    (obtain_id, set_up_accounts),
+    (set_up_accounts, meet_advisor),
+    (meet_advisor, select_courses),
+    (select_courses, add_drop),
+    (add_drop, begin_classes),
+    (begin_classes, post_grades),
+    (post_grades, review_grades)
+])
+
+# Appeal Loop - CORRECTED
+review_grades_copy = review_grades.copy()  # Create a copy for appeal process
+appeal_process = gen.partial_order(dependencies=[
+    (review_grades_copy, submit_appeal),  # Use the copy here
+    (submit_appeal, meet_appeals),
+    (meet_appeals, resolve_conflicts)
+])
+
+appeal_loop = gen.loop(do=None, redo=appeal_process)  # Make appeals optional and repeatable
+
+
+
+# Complete Term Process (including optional appeals) - CORRECTED
+resolve_conflicts_copy = resolve_conflicts.copy()  # Copy for the end of the term process
+
+full_term_process = gen.partial_order(dependencies=[
+    (term_process, appeal_loop),  # Appeal loop is optional after review_grades
+    (appeal_loop, resolve_conflicts_copy),  # Appeals process ends at resolve conflicts
+])  # The loop itself ensures the connection back to the beginning of term_process
+
+
+
+term_loop = gen.loop(do=full_term_process, redo=None)
+
+end_choice = gen.xor(graduate, withdraw)
+
+# Overall Process
+final_model = gen.partial_order(dependencies=[
+    (application_process, term_loop),
+    (term_loop, end_choice)
+])

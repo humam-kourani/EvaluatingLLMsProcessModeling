@@ -1,0 +1,42 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+identify_needs = gen.activity('Identify development needs or career aspirations')
+create_plan = gen.activity('Create personal development plan')
+work_on_skills = gen.activity('Work on skill enhancement')
+receive_feedback = gen.activity('Receive feedback and evaluation from supervisors')
+consider_promotion = gen.activity('Consider employee for promotion or new role')
+conduct_review = gen.activity('Conducts formal performance review')
+approve_promotion = gen.activity('Approve promotion')
+deny_promotion = gen.activity('Deny promotion') # Explicitly model the denied path
+set_responsibilities = gen.activity('Set new responsibilities')
+adjust_compensation = gen.activity('Adjust compensation')
+transition_role = gen.activity('Transition into new role')
+
+
+skill_enhancement_loop = gen.loop(do=work_on_skills, redo=receive_feedback)
+
+promotion_approved_path = gen.partial_order(dependencies=[(set_responsibilities,), (adjust_compensation,)]) # Concurrent activities
+
+
+promotion_choice = gen.xor(approve_promotion, deny_promotion) # Model the choice after the review
+
+
+post_review_path = gen.partial_order(dependencies=[(promotion_choice, promotion_approved_path), (promotion_approved_path, transition_role) ])
+# Combine concurrent activities with transition_role
+
+
+main_process = gen.partial_order(
+    dependencies=[
+        (identify_needs, create_plan),
+        (create_plan, skill_enhancement_loop),
+        (skill_enhancement_loop, consider_promotion),
+        (consider_promotion, conduct_review),
+        (conduct_review, post_review_path)
+    ]
+)
+
+
+
+final_model = main_process

@@ -1,0 +1,41 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Initial complaint submission
+file_complaint = gen.activity('File complaint')
+
+# Investigation and validity decision
+review_complaint_details = gen.activity('Review complaint details')
+
+# Refund eligibility determination (implicitly modeled as part of the validity decision)
+
+# Customer notification and decision outcome
+approve_and_notify_customer = gen.activity('Approve and notify customer')
+reject_and_notify_customer = gen.activity('Reject and notify customer')
+validity_decision = gen.xor(approve_and_notify_customer, reject_and_notify_customer)
+
+
+# Complaint resolution and reimbursement (only if approved)
+resolve_complaint = gen.activity('Resolve complaint')
+process_reimbursement = gen.activity("Process reimbursement")
+resolution_and_reimbursement_approved = gen.partial_order(dependencies=[(resolve_complaint,process_reimbursement)])
+
+resolution_and_reimbursement_rejected = resolve_complaint.copy()
+
+resolution_and_reimbursement = gen.xor(resolution_and_reimbursement_approved, resolution_and_reimbursement_rejected)
+
+
+
+# Feedback or process end
+provide_feedback = gen.activity('Provide feedback')
+feedback_or_end = gen.xor(provide_feedback, None)
+
+
+# Combine all steps
+final_model = gen.partial_order(dependencies=[
+    (file_complaint, review_complaint_details),
+    (review_complaint_details, validity_decision),
+    (validity_decision, resolution_and_reimbursement),
+    (resolution_and_reimbursement, feedback_or_end)
+])

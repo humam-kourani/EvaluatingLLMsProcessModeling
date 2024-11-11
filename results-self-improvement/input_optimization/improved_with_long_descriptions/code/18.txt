@@ -1,0 +1,95 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator(True, True)
+
+# Initial steps
+submit_application = gen.activity('Submit application online')
+review_application = gen.activity('Review application and documents')
+notify_missing_docs = gen.activity('Notify applicant of missing documents')
+provide_missing_docs = gen.activity('Provide missing documents')
+missing_docs_loop = gen.loop(do=notify_missing_docs, redo=provide_missing_docs)
+evaluate_application = gen.activity('Evaluate application by admissions committee')
+process_fees = gen.activity('Process fees or waivers')
+
+# Acceptance/Rejection path
+send_acceptance = gen.activity('Send acceptance letter')
+send_rejection = gen.activity('Send rejection letter')
+acceptance_rejection_choice = gen.xor(send_acceptance, send_rejection)
+
+graduate = gen.activity('Graduate')
+withdraw = gen.activity('Withdraw')
+
+graduation_withdraw_choice = gen.xor(graduate, withdraw)
+
+
+def semester_process(gen):  # Pass gen as an argument
+    # Activities inside semester loop
+
+    confirm_enrollment = gen.activity('Confirm enrollment')
+    cancel_application = gen.activity('Cancel application')
+
+    # Post-acceptance setup (executed once before semester loop starts)
+
+    send_orientation = gen.activity('Send orientation materials')
+    setup_it = gen.activity('Set up IT accounts')
+    assist_visa = gen.activity('Assist with visa processing')
+    obtain_id = gen.activity('Obtain student ID card')
+    meet_advisor = gen.activity('Meet with academic advisor')
+    select_courses = gen.activity('Select courses')
+    resolve_conflicts = gen.activity('Resolve schedule conflicts')
+
+    study_plan = gen.partial_order(dependencies=[(meet_advisor, select_courses), (select_courses, resolve_conflicts)])
+
+    visa_setup = gen.xor(assist_visa, None)  # Optional visa processing
+    pre_semester = gen.partial_order(
+        dependencies=[(send_orientation, setup_it), (setup_it, visa_setup), (visa_setup, obtain_id),
+                      (obtain_id, study_plan)])
+
+    begin_classes = gen.activity('Begin attending classes')
+    add_drop_courses = gen.activity('Add/drop courses')
+    optional_add_drop = gen.xor(add_drop_courses, None)
+    post_grades = gen.activity('Post grades')
+    review_grades = gen.activity('Review grades online')
+    submit_appeal = gen.activity('Submit appeal form')
+    meet_appeals_committee = gen.activity('Meet with appeals committee')
+    await_decision = gen.activity('Await decision')
+    appeals_process = gen.partial_order(dependencies=[(submit_appeal, meet_appeals_committee),
+                                                      (meet_appeals_committee, await_decision)])
+    optional_appeals = gen.xor(appeals_process, None)
+
+    semester_partial_order = gen.partial_order(
+        dependencies=[
+            (begin_classes, optional_add_drop),
+            (optional_add_drop, post_grades),
+            (post_grades, review_grades),
+            (review_grades, optional_appeals)
+        ]
+    )
+
+
+
+    post_acceptance_enrollment = gen.partial_order(dependencies=[(confirm_enrollment, pre_semester), (pre_semester, begin_classes)])  # added begin_classes
+
+    confirm_cancel = gen.xor(post_acceptance_enrollment, cancel_application)  # Choice to cancel application
+
+
+
+    overall_semester = gen.partial_order(dependencies=[(confirm_cancel, semester_partial_order)])
+
+
+    return overall_semester  # semester activities combined with confirmation/cancellation
+
+
+
+initial_steps = gen.partial_order(dependencies=[(submit_application, review_application),
+                                               (review_application, missing_docs_loop),
+                                               (missing_docs_loop, evaluate_application)])
+
+concurrent_eval_fees = gen.partial_order(
+    dependencies=[(evaluate_application, acceptance_rejection_choice), (process_fees,)])
+
+semester_loop = gen.loop(do=semester_process(gen), redo=None)
+
+
+final_model = gen.partial_order(
+    dependencies=[(initial_steps, concurrent_eval_fees), (concurrent_eval_fees, acceptance_rejection_choice), (acceptance_rejection_choice, semester_loop), (semester_loop, graduation_withdraw_choice)])
