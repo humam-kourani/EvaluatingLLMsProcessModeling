@@ -1,0 +1,38 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+check_inventory = gen.activity('Check current inventory level')
+automated_alert = gen.activity('Send an automated alert')
+manual_alert = gen.activity('Send a manual alert')
+place_order = gen.activity('Place order with suppliers')
+update_inventory_system = gen.activity('Update inventory system with expected delivery dates')
+receive_stock = gen.activity('Receive stock')
+inspect_stock = gen.activity('Inspect stock for quality')
+record_stock = gen.activity('Record stock in system')
+place_stock_shelves = gen.activity('Place stock on shelves')
+place_stock_storage = gen.activity('Place stock in storage')
+update_inventory_levels = gen.activity('Update inventory levels')
+
+# Alert Choice
+alert_choice = gen.xor(automated_alert, manual_alert)
+
+# Post-Order Placement
+place_order_copy = place_order.copy()  # Create a copy to avoid reuse
+post_order_placement = gen.partial_order(dependencies=[(place_order_copy, update_inventory_system)])
+
+# Post-Receive Stock - Improved to reflect concurrency of shelving and storage
+receive_stock_copy = receive_stock.copy() #Create a copy to avoid reuse
+post_receive_stock = gen.partial_order(dependencies=[(receive_stock_copy, inspect_stock), (inspect_stock, record_stock), (record_stock, place_stock_shelves), (record_stock, place_stock_storage)])
+
+
+# Combine into main process -  Improved to be more explicit about dependencies
+final_model = gen.partial_order(dependencies=[
+    (check_inventory, alert_choice),
+    (alert_choice, place_order),
+    (place_order, post_order_placement), #More explicit dependency
+    (post_order_placement, receive_stock),
+    (receive_stock, post_receive_stock), #More explicit dependency
+    (post_receive_stock, update_inventory_levels)
+])

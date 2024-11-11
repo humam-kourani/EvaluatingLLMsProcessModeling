@@ -1,0 +1,40 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Activities
+send_auto_alert = gen.activity('Send an automated alert')
+send_manual_alert = gen.activity('Send a manual alert')
+check_inventory = gen.activity('Check current inventory level')
+place_order = gen.activity('Place order with suppliers')
+update_expected_delivery = gen.activity('Update inventory system with expected delivery dates')
+receive_stock = gen.activity('Receive stock')
+receive_stock_copy = receive_stock.copy()  # Create a copy for re-use
+inspect_quality = gen.activity('Inspect stock for quality')
+record_stock = gen.activity('Record stock in system')
+place_shelves = gen.activity('Place stock on shelves')
+place_storage = gen.activity('Place stock in storage')
+update_inventory_levels = gen.activity('Update inventory levels')
+
+# Initial choice between sending an automated or manual alert
+alert_choice = gen.xor(send_auto_alert, send_manual_alert)
+
+# Placing an order and updating the system with expected delivery dates
+procurement_process = gen.partial_order(dependencies=[(alert_choice, check_inventory),
+                                                      (check_inventory, place_order),
+                                                      (place_order, update_expected_delivery)])
+
+# Receiving stock, inspecting it, and recording it in the system
+inspection_process = gen.partial_order(dependencies=[(receive_stock, inspect_quality),
+                                                     (inspect_quality, record_stock)])
+
+# Choice between placing stock on shelves or in storage
+stock_placement_choice = gen.xor(place_shelves, place_storage)
+
+# Final order combining the complete process with a copy of 'Receive stock'
+final_process = gen.partial_order(dependencies=[(procurement_process, receive_stock_copy),
+                                                (receive_stock_copy, inspection_process),
+                                                (inspection_process, stock_placement_choice),
+                                                (stock_placement_choice, update_inventory_levels)])
+
+# Final model
+final_model = final_process

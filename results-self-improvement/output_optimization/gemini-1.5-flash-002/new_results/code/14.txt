@@ -1,0 +1,34 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+outline_objectives = gen.activity('Outline objectives')
+draft_plan = gen.activity('Draft plan')
+strategic_alignment_meeting = gen.activity('Conduct strategic alignment meeting')
+review_budget_feasibility = gen.activity('Review budget feasibility')
+adjust_plan = gen.activity('Adjust Plan')
+documented_approve_adjustment = gen.activity('Documented and approve adjustment')
+approve_final_budget = gen.activity('Approve final budget')
+distribute_budget = gen.activity('Distribute budget')
+implement_plan = gen.activity('Implement plan')
+provide_feedback = gen.activity('Provide feedback')
+
+# Create copies to avoid reuse of the same submodel
+strategic_alignment_meeting_copy = strategic_alignment_meeting.copy()
+documented_approve_adjustment_copy = documented_approve_adjustment.copy()
+
+
+# Subprocesses
+#The feedback activity is implicitly included in the review_budget_feasibility activity.
+#Therefore we remove it from the model for simplicity.  We also make the adjustment optional.
+plan_review_loop_do = gen.partial_order(dependencies=[(strategic_alignment_meeting_copy, adjust_plan), (adjust_plan, documented_approve_adjustment)])
+plan_review_loop_redo = gen.xor(gen.partial_order(dependencies=[(documented_approve_adjustment_copy, review_budget_feasibility)]), None) #Redo is now optional
+
+
+plan_review_loop = gen.loop(do=plan_review_loop_do, redo=plan_review_loop_redo)
+
+#Main process
+main_process = gen.partial_order(dependencies=[(outline_objectives, draft_plan), (draft_plan, strategic_alignment_meeting), (plan_review_loop, approve_final_budget), (approve_final_budget, distribute_budget), (distribute_budget, implement_plan)])
+
+final_model = main_process

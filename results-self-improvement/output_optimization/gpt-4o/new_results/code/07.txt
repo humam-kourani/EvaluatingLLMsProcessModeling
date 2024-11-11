@@ -1,0 +1,45 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Base activities
+search_ticket = gen.activity('Customer searches for ticket')
+select_route = gen.activity('Select route')
+select_date_time = gen.activity('Select date and time')
+provide_info = gen.activity('Provide personal information')
+provide_payment = gen.activity('Provide payment details')
+generate_ticket = gen.activity('Generate ticket')
+send_email_ticket = gen.activity('Send ticket via email')
+send_sms_ticket = gen.activity('Send ticket via SMS')
+update_seat_inventory = gen.activity('Update seat inventory')
+send_reminder = gen.activity('Send reminder')
+send_instructions = gen.activity('Send instructions')
+complete_journey = gen.activity('Customer completes journey')
+post_travel_feedback = gen.activity('Post-travel feedback or services')
+
+# Optional reminders or instructions before travel
+reminder_or_instructions = gen.xor(send_reminder, send_instructions, None)
+
+# Choice of ticket delivery method (email or SMS)
+send_ticket_choice = gen.xor(send_email_ticket, send_sms_ticket)
+
+# Concurrency between generating ticket and updating seat inventory
+ticket_and_seat_update = gen.partial_order(dependencies=[
+    (generate_ticket, send_ticket_choice),
+    (send_ticket_choice, update_seat_inventory)
+])
+
+# Partial order for booking phase (after selection of route, date, and payment), concurrent ticket and inventory update
+booking_process = gen.partial_order(dependencies=[
+    (select_route, select_date_time),
+    (select_date_time, provide_info),
+    (provide_info, provide_payment),
+    (provide_payment, ticket_and_seat_update)
+])
+
+# Partial order for the entire process including pre and post travel steps
+final_model = gen.partial_order(dependencies=[
+    (search_ticket, booking_process),
+    (update_seat_inventory.copy(), reminder_or_instructions),
+    (reminder_or_instructions, complete_journey),
+    (complete_journey, gen.xor(post_travel_feedback, None))  # optional post-travel feedback or services
+])

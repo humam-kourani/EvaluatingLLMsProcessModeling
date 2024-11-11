@@ -1,0 +1,47 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Step 1: Identify idea
+identify_idea = gen.activity('Identify idea for new product or improvement')
+
+# Step 2: Conduct initial research
+conduct_research = gen.activity('Conduct initial research')
+
+# Step 3: Conduct feasibility studies (concurrent with design drafting)
+feasibility_studies = gen.activity('Conduct feasibility studies')
+draft_design = gen.activity('Draft design concepts')
+feasibility_and_draft = gen.partial_order(dependencies=[(feasibility_studies,), (draft_design,)])
+
+# Step 4: Select a promising design
+select_design = gen.activity('Select promising design')
+
+# Step 5: Build the prototype
+build_prototype = gen.activity('Build prototype')
+
+# Step 6: Test the prototype (concurrent tests: functionality, safety, market potential)
+test_functionality = gen.activity('Test functionality')
+test_safety = gen.activity('Test safety')
+test_market = gen.activity('Test market potential')
+testing_phase = gen.partial_order(dependencies=[(test_functionality,), (test_safety,), (test_market,)])
+
+# Step 7: Collect feedback and refine if necessary (loop for refinement and re-testing)
+collect_feedback = gen.activity('Collect feedback from testing phase')
+refine_prototype = gen.activity('Refine prototype')
+refinement_loop = gen.loop(do=collect_feedback, redo=refine_prototype)
+
+# Step 8: Approval or discard decision
+approve_prototype = gen.activity('Approve prototype for further development')
+discard_prototype = gen.activity('Discard prototype')
+final_decision = gen.xor(approve_prototype, discard_prototype)
+
+# Combine testing, refinement, and decision process
+test_and_refine = gen.partial_order(dependencies=[(testing_phase, refinement_loop), (refinement_loop, final_decision)])
+
+# Full process
+final_model = gen.partial_order(
+    dependencies=[(identify_idea, conduct_research), 
+                  (conduct_research, feasibility_and_draft),
+                  (feasibility_and_draft, select_design),
+                  (select_design, build_prototype),
+                  (build_prototype, test_and_refine)])

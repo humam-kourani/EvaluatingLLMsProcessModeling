@@ -1,0 +1,41 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Activities
+schedule_audit = gen.activity('Schedule compliance audit')
+gather_evidence = gen.activity('Gather evidence')
+conduct_self_assessment = gen.activity('Conduct self-assessment')
+prepare_documentation = gen.activity('Prepare documentation')
+conduct_external_audit = gen.activity('Conduct external audit')
+identify_gaps = gen.activity('Identify gaps or issues')
+make_corrections = gen.activity('Make necessary corrections or improvements')
+conduct_final_audit = gen.activity('Conduct final audit')
+award_certification = gen.activity('Award certification')
+issue_documents = gen.activity('Issue official documents')
+
+# Sub-processes with dependencies
+preparation_poset = gen.partial_order(dependencies=[
+    (gather_evidence, conduct_self_assessment),
+    (conduct_self_assessment, prepare_documentation)
+])
+
+audit_poset = gen.partial_order(dependencies=[
+    (conduct_external_audit, identify_gaps)
+])
+
+# Exclusive choice: Either make corrections or directly proceed to final audit
+corrections_choice = gen.xor(make_corrections, None)
+
+# Final audit process, leading to certification and document issuance
+final_audit_poset = gen.partial_order(dependencies=[
+    (corrections_choice, conduct_final_audit),
+    (conduct_final_audit, award_certification),
+    (award_certification, issue_documents)
+])
+
+# Full process: Schedule audit, preparations, external audit, corrections if needed, final audit, certification
+final_model = gen.partial_order(dependencies=[
+    (schedule_audit, preparation_poset),
+    (preparation_poset, audit_poset),
+    (audit_poset, final_audit_poset)
+])

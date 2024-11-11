@@ -1,0 +1,29 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+receive_inquiry = gen.activity('Receive customer inquiry')
+collect_info = gen.activity('Collect customer information')
+address_concerns = gen.activity('Address customer concerns or questions')
+guide_customer = gen.activity('Guide customer in selecting product/service')
+provide_quote = gen.activity('Provide quote')
+place_order = gen.activity('Place order')
+record_order = gen.activity('Record order in system')
+send_confirmation = gen.activity('Send order confirmation to customer')
+
+
+# Improved:  Quote Approval Loop
+get_quote_approved = gen.loop(provide_quote, None) # Customer might ask for revisions
+
+
+# Main process flow - improved to include quote approval loop
+final_model = gen.partial_order(dependencies=[
+    (receive_inquiry, collect_info),
+    (collect_info, address_concerns),
+    (address_concerns, guide_customer),  # Guiding happens regardless of quote approval
+    (guide_customer, get_quote_approved),
+    (get_quote_approved, place_order), # Order placed *after* quote is approved
+    (place_order, record_order),
+    (record_order, send_confirmation)
+])

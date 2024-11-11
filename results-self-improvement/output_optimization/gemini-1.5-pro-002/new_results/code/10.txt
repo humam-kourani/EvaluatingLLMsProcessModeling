@@ -1,0 +1,34 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+submit_request = gen.activity('Submit IT solution request')
+assess_compatibility = gen.activity('Assess compatibility')
+evaluate_cost = gen.activity('Evaluate cost and resource needs')
+procure_tools = gen.activity('Procure necessary tools or licenses')
+install_solution = gen.activity('Install the solution')
+test_solution = gen.activity('Test solution')
+roll_out_solution = gen.activity('Roll out solution to requesting department')
+provide_training = gen.activity('Provide training')
+provide_support = gen.activity('Provide support for troubleshooting')
+
+optional_training = gen.xor(provide_training, None)
+
+# Partial order for assessment phase
+assessment_poset = gen.partial_order(dependencies=[(assess_compatibility, ), (evaluate_cost, )])
+
+# Implementation phase (after approval) - Note the key improvement here
+implementation_poset = gen.partial_order(dependencies=[
+    (procure_tools, install_solution),
+    (install_solution, test_solution),
+    (test_solution, roll_out_solution),
+    (roll_out_solution, optional_training)])  # Support is concurrent to training and rollout
+
+# Connect support to the end of the process, making it ongoing.
+support_loop = gen.loop(do=None, redo=provide_support)
+
+# Main process flow
+final_model = gen.partial_order(dependencies=[
+    (submit_request, assessment_poset),
+    (assessment_poset, implementation_poset),
+    (implementation_poset, support_loop)])  # Support starts after rollout

@@ -1,0 +1,29 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+identify_idea = gen.activity('Identify idea for new product or improvement')
+conduct_research = gen.activity('Conduct initial research')
+conduct_feasibility = gen.activity('Conduct feasibility studies')
+draft_concepts = gen.activity('Draft design concepts')
+select_design = gen.activity('Select promising design')
+build_prototype = gen.activity('Build prototype')
+test_functionality = gen.activity('Test functionality')
+test_safety = gen.activity('Test safety')
+test_market = gen.activity('Test market potential')
+collect_feedback = gen.activity('Collect feedback from testing phase')
+refine_prototype = gen.activity('Refine prototype')
+approve_prototype = gen.activity('Approve prototype for further development')
+discard_prototype = gen.activity('Discard prototype')
+
+
+# Subprocesses
+research_phase = gen.partial_order(dependencies=[(conduct_research, conduct_feasibility), (conduct_feasibility, draft_concepts)])
+design_and_prototype_phase = gen.partial_order(dependencies=[(draft_concepts.copy(), select_design.copy()), (select_design.copy(), build_prototype.copy())])
+testing_phase = gen.partial_order(dependencies=[(build_prototype.copy(), test_functionality), (build_prototype.copy(), test_safety), (build_prototype.copy(), test_market)])
+testing_and_feedback = gen.partial_order(dependencies=[(collect_feedback, refine_prototype), (refine_prototype, testing_phase.copy())])
+feedback_loop = gen.loop(do=testing_phase, redo=testing_and_feedback)
+
+# Final model
+final_model = gen.partial_order(dependencies=[(identify_idea, research_phase), (research_phase, design_and_prototype_phase), (design_and_prototype_phase, feedback_loop), (feedback_loop, gen.xor(approve_prototype, discard_prototype))])

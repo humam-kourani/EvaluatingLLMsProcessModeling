@@ -1,0 +1,76 @@
+from utils.model_generation import ModelGenerator
+gen = ModelGenerator()
+
+# Initial steps
+send_notification = gen.activity('Send notification')
+prepare_statements = gen.activity('Prepare financial statements')
+gather_documents = gen.activity('Gather necessary documents')
+check_regulatory_updates = gen.activity('Check regulatory updates')
+submit_documents = gen.activity('Submit documents')
+review_submission = gen.activity('Review submission')
+
+# Concurrent preparation
+prepare_documents = gen.partial_order(dependencies=[(prepare_statements,), (gather_documents,)])
+prepare_and_check = gen.partial_order(dependencies=[(prepare_documents,), (check_regulatory_updates,)])
+
+# Optional clarifications if needed
+request_clarifications = gen.activity('Request clarifications of discrepancies')
+receive_clarifications = gen.activity('Receive clarifications')
+clarification_process = gen.partial_order(dependencies=[(request_clarifications, receive_clarifications)])
+clarification_xor = gen.xor(clarification_process, None)
+
+# Risk assessment with concurrent evaluations
+evaluate_financial_risks = gen.activity('Evaluate financial risks')
+evaluate_operational_risks = gen.activity('Evaluate operational risks')
+evaluate_compliance_risks = gen.activity('Evaluate compliance risks')
+
+risk_assessment = gen.partial_order(
+    dependencies=[(evaluate_financial_risks,), (evaluate_operational_risks,), (evaluate_compliance_risks,)]
+)
+
+# Investigation if high risk is identified
+launch_investigation = gen.activity('Launch detailed investigation')
+conduct_data_analysis = gen.activity('Conduct data analysis')
+conduct_interviews = gen.activity('Conduct interviews')
+perform_site_visits = gen.activity('Perform site visits')
+
+investigation_process = gen.partial_order(
+    dependencies=[(conduct_data_analysis,), (conduct_interviews,), (perform_site_visits,)]
+)
+detailed_investigation = gen.partial_order(dependencies=[(launch_investigation, investigation_process)])
+
+# Risk assessment and investigation decision
+risk_assessment_copy = risk_assessment.copy()
+high_risk_investigation = gen.xor(risk_assessment_copy, detailed_investigation)
+
+# Report compilation and review
+compile_report = gen.activity('Compile audit report')
+review_by_director = gen.activity('Review report by audit director')
+approve_report = gen.activity('Approve report')
+send_for_revision = gen.activity('Send report for revision')
+update_resubmit_report = gen.activity('Update and resubmit report')
+
+revision_process = gen.loop(do=gen.partial_order(dependencies=[(send_for_revision, update_resubmit_report), (update_resubmit_report, review_by_director.copy())]), redo=None)
+
+review_process = gen.xor(approve_report, revision_process)
+
+# Final steps
+distribute_report = gen.activity('Distribute final report')
+archive_report = gen.activity('Archive report')
+close_audit = gen.activity('Close audit process')
+
+# Overall process
+final_model = gen.partial_order(
+    dependencies=[
+        (send_notification, prepare_and_check),
+        (prepare_and_check, submit_documents),
+        (submit_documents, review_submission),
+        (review_submission, gen.xor(clarification_xor, high_risk_investigation.copy())),
+        (high_risk_investigation.copy(), compile_report),
+        (compile_report, review_by_director),
+        (review_by_director, review_process),
+        (review_process, distribute_report),
+        (distribute_report, archive_report),
+        (archive_report, close_audit)
+    ]
+)

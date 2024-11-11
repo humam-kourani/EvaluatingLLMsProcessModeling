@@ -1,0 +1,53 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+send_notification = gen.activity('Send notification')
+prepare_financial_statements = gen.activity('Prepare financial statements')
+gather_necessary_documents = gen.activity('Gather necessary documents')
+check_regulatory_updates = gen.activity('Check regulatory updates')
+submit_documents = gen.activity('Submit documents')
+review_submission = gen.activity('Review submission')
+request_clarifications = gen.activity('Request clarifications of discrepancies')
+receive_clarifications = gen.activity('Receive clarifications')
+evaluate_financial_risks = gen.activity('Evaluate financial risks')
+evaluate_operational_risks = gen.activity('Evaluate operational risks')
+evaluate_compliance_risks = gen.activity('Evaluate compliance risks')
+conduct_data_analysis = gen.activity('Conduct data analysis')
+conduct_interviews = gen.activity('Conduct interviews')
+perform_site_visits = gen.activity('Perform site visits')
+compile_audit_report = gen.activity('Compile audit report')
+review_report = gen.activity('Review report by audit director')
+send_report_revision = gen.activity('Send report for revision')
+update_resubmit_report = gen.activity('Update and resubmit report')
+approve_report = gen.activity('Approve report')
+distribute_final_report = gen.activity('Distribute final report')
+archive_report = gen.activity('Archive report')
+close_audit_process = gen.activity('Close audit process')
+
+
+# Subprocesses
+regional_office_prep = gen.partial_order(dependencies=[(prepare_financial_statements, gather_necessary_documents)])
+risk_assessment = gen.partial_order(dependencies=[(evaluate_financial_risks,), (evaluate_operational_risks,), (evaluate_compliance_risks,)])
+investigation = gen.partial_order(dependencies=[(conduct_data_analysis,), (conduct_interviews,), (perform_site_visits,)])
+
+# Combining subprocesses
+clarification_loop = gen.loop(do=gen.partial_order(dependencies=[(review_submission, request_clarifications), (request_clarifications, receive_clarifications)]), redo=None)
+
+# Correcting the reuse of risk_assessment and review_report
+high_risk_path = gen.xor(gen.partial_order(dependencies=[(risk_assessment.copy(), investigation)]), None)  # Create a copy of risk_assessment
+post_risk_assessment = gen.xor(high_risk_path, risk_assessment.copy())  # Create another copy
+
+report_review_loop = gen.loop(do=gen.partial_order(dependencies=[(post_risk_assessment, compile_audit_report), (compile_audit_report, review_report.copy())]), # Create a copy of review_report
+                               redo=gen.partial_order(dependencies=[(review_report.copy(), send_report_revision), (send_report_revision, update_resubmit_report)])) # Create another copy of review_report
+
+#Improved concurrency handling
+intermediate_step = gen.partial_order(dependencies=[(regional_office_prep,), (check_regulatory_updates,)])
+final_process = gen.partial_order(dependencies=[(send_notification, intermediate_step), (intermediate_step, submit_documents), (submit_documents, clarification_loop), (clarification_loop, report_review_loop),
+                                                (report_review_loop, approve_report), (approve_report, distribute_final_report),
+                                                (approve_report, archive_report), (distribute_final_report, close_audit_process),
+                                                (archive_report, close_audit_process)])
+
+
+final_model = final_process

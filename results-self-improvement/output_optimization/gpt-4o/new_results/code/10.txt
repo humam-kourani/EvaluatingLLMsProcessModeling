@@ -1,0 +1,30 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Define activities
+submit_request = gen.activity('Submit IT solution request')
+assess_compatibility = gen.activity('Assess compatibility')
+evaluate_cost = gen.activity('Evaluate cost and resource needs')
+procure_tools = gen.activity('Procure necessary tools or licenses')
+install_solution = gen.activity('Install the solution')
+test_solution = gen.activity('Test solution')
+roll_out_solution = gen.activity('Roll out solution to requesting department')
+provide_training = gen.activity('Provide training')
+provide_support = gen.activity('Provide support for troubleshooting')
+
+# Model the sequential dependencies for the core process
+core_process = gen.partial_order(
+    dependencies=[(submit_request, assess_compatibility),
+                  (assess_compatibility, evaluate_cost),
+                  (evaluate_cost, procure_tools),
+                  (procure_tools, install_solution),
+                  (install_solution, test_solution),
+                  (test_solution, roll_out_solution)])
+
+# Combine core process with optional subprocesses (training and support)
+final_model = gen.partial_order(
+    dependencies=[(core_process, provide_training), 
+                  (core_process, provide_support)])
+
+final_model = gen.xor(final_model, None)

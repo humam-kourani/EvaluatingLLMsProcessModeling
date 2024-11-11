@@ -1,0 +1,67 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+submit_application = gen.activity('Submit application online')
+review_application = gen.activity('Review application and documents')
+notify_missing = gen.activity('Notify applicant of missing documents')
+provide_missing = gen.activity('Provide missing documents')
+evaluate_application = gen.activity('Evaluate application by admissions committee')
+process_fees = gen.activity('Process fees or waivers')
+send_acceptance = gen.activity('Send acceptance letter')
+send_rejection = gen.activity('Send rejection letter')
+cancel_application = gen.activity('Cancel application')
+confirm_enrollment = gen.activity('Confirm enrollment')
+send_orientation = gen.activity('Send orientation materials')
+setup_it_accounts = gen.activity('Set up IT accounts')
+assist_visa = gen.activity('Assist with visa processing')
+obtain_id = gen.activity('Obtain student ID card')
+meet_advisor = gen.activity('Meet with academic advisor')
+select_courses = gen.activity('Select courses')
+resolve_conflicts = gen.activity('Resolve schedule conflicts')
+begin_classes = gen.activity('Begin attending classes')
+add_drop_courses = gen.activity('Add/drop courses')
+post_grades = gen.activity('Post grades')
+review_grades = gen.activity('Review grades online')
+submit_appeal = gen.activity('Submit appeal form')
+meet_appeals = gen.activity('Meet with appeals committee')
+await_decision = gen.activity('Await decision')
+graduate = gen.activity('Graduate')
+withdraw = gen.activity('Withdraw')
+
+
+# Subprocesses
+missing_docs_subprocess = gen.partial_order(dependencies=[(notify_missing, provide_missing), (provide_missing, review_application)])
+review_application_copy = review_application.copy()  # Create a copy to avoid reuse
+application_evaluation = gen.partial_order(dependencies=[(review_application_copy, evaluate_application), (review_application_copy, process_fees)])
+acceptance_path = gen.partial_order(dependencies=[(application_evaluation, send_acceptance)])
+rejection_path = gen.activity('Send rejection letter')
+enrollment_choice = gen.xor(acceptance_path, rejection_path)
+
+send_acceptance_copy = send_acceptance.copy()  # Create a copy to avoid reuse
+confirm_enrollment_copy = confirm_enrollment.copy() # Create a copy to avoid reuse
+post_acceptance_process = gen.partial_order(dependencies=[(send_acceptance_copy, confirm_enrollment_copy)])
+
+confirm_enrollment_copy_2 = confirm_enrollment.copy() # Create a copy to avoid reuse
+begin_classes_copy = begin_classes.copy() # Create a copy to avoid reuse
+enrollment_confirmation_process = gen.xor(gen.partial_order(dependencies=[(confirm_enrollment_copy_2, send_orientation), (confirm_enrollment_copy_2, setup_it_accounts), (confirm_enrollment_copy_2, obtain_id), (send_orientation, begin_classes_copy), (setup_it_accounts, begin_classes_copy), (obtain_id, begin_classes_copy)]), cancel_application)
+
+obtain_id_copy = obtain_id.copy() # Create a copy to avoid reuse
+begin_classes_copy_2 = begin_classes.copy() # Create a copy to avoid reuse
+study_plan_process = gen.partial_order(dependencies=[(obtain_id_copy, meet_advisor), (obtain_id_copy, select_courses), (select_courses, resolve_conflicts), (meet_advisor, begin_classes_copy_2), (resolve_conflicts, begin_classes_copy_2)])
+
+begin_classes_copy_3 = begin_classes.copy() # Create a copy to avoid reuse
+international_student_process = gen.xor(assist_visa, None)
+
+semester_process = gen.partial_order(dependencies=[(begin_classes_copy_3, add_drop_courses), (add_drop_courses, post_grades), (post_grades, review_grades)])
+appeal_process = gen.partial_order(dependencies=[(submit_appeal, meet_appeals), (meet_appeals, await_decision)])
+
+optional_appeal = gen.xor(appeal_process, None)
+
+semester_loop = gen.loop(do=gen.partial_order(dependencies=[(semester_process, optional_appeal)]), redo=None)
+complete_study = gen.xor(semester_loop, graduate)
+final_process = gen.partial_order(dependencies=[(submit_application, missing_docs_subprocess), (missing_docs_subprocess, enrollment_choice), (enrollment_choice, post_acceptance_process), (post_acceptance_process, enrollment_confirmation_process), (enrollment_confirmation_process, study_plan_process), (enrollment_confirmation_process, international_student_process),(study_plan_process, complete_study), (international_student_process, complete_study),(complete_study, withdraw)])
+
+
+final_model = final_process

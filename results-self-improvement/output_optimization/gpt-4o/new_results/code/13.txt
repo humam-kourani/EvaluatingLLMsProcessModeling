@@ -1,0 +1,43 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Base activities
+file_complaint = gen.activity('File complaint')
+log_complaint = gen.activity('Log complaint')
+assign_department = gen.activity('Assign complaint to relevant department')
+review_details = gen.activity('Review complaint details')
+approve_notify = gen.activity('Approve and notify customer')
+reject_notify = gen.activity('Reject and notify customer')
+process_reimbursement = gen.activity('Process reimbursement')
+resolve_complaint = gen.activity('Resolve complaint')
+provide_feedback = gen.activity('Provide feedback')
+
+# Create copies of approve_notify, reject_notify, and resolve_complaint to use them uniquely in the process
+approve_notify_copy = approve_notify.copy()
+reject_notify_copy = reject_notify.copy()
+resolve_complaint_copy_approve = resolve_complaint.copy()
+resolve_complaint_copy_reject = resolve_complaint.copy()
+
+# Handling the refund process if approved, using the copy of approve_notify and resolve_complaint
+approve_process = gen.partial_order(
+    dependencies=[(approve_notify_copy, process_reimbursement), 
+                  (process_reimbursement, resolve_complaint_copy_approve),
+                  (resolve_complaint_copy_approve, gen.xor(provide_feedback.copy(), None))])
+
+# Skippable path in case the refund is rejected, using a copy of reject_notify and resolve_complaint
+reject_resolve = gen.partial_order(
+    dependencies=[(reject_notify_copy, resolve_complaint_copy_reject),
+                  (resolve_complaint_copy_reject, gen.xor(provide_feedback, None))])
+
+# XOR structure to handle both approval and rejection paths
+refund_or_reject = gen.xor(approve_process, reject_resolve)
+
+# Main process flow from complaint logging to resolution
+main_process = gen.partial_order(dependencies=[(file_complaint, log_complaint),
+                                               (log_complaint, assign_department),
+                                               (assign_department, review_details),
+                                               (review_details, refund_or_reject)])
+
+# Final model
+final_model = main_process

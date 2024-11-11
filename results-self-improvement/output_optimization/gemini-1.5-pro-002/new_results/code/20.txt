@@ -1,0 +1,45 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+guest_calls = gen.activity('Guest calls room service')
+manager_takes_order = gen.activity('Manager takes down the order')
+manager_submits_kitchen_order = gen.activity('Manager submits order ticket to kitchen')
+manager_gives_sommelier_order = gen.activity('Manager gives order to sommelier')
+manager_assigns_waiter = gen.activity('Manager assigns order to waiter')
+kitchen_prepares_food = gen.activity('Kitchen prepares food')
+sommelier_fetches_wine = gen.activity('Sommelier fetches wine and prepare alcoholic beverages')
+waiter_readies_cart = gen.activity('Waiter readies cart')
+waiter_prepares_drinks = gen.activity('Waiter prepares nonalcoholic drinks')
+waiter_delivers_order = gen.activity('Waiter delivers order to guest\'s room')
+waiter_returns = gen.activity('Waiter returns to room-service station')
+waiter_debits_account = gen.activity('Waiter debits guest\'s account')
+waiter_waits_debiting = gen.activity('Waiter waits/delays debiting')
+
+
+# Sommelier activities are optional (80% of cases)
+optional_sommelier = gen.xor(sommelier_fetches_wine, None)
+
+# Waiter's debiting can be delayed/repeated
+waiter_debiting_loop = gen.loop(do=waiter_debits_account, redo=waiter_waits_debiting)
+
+# Concurrent activities: kitchen, sommelier (optional), waiter prepares cart and drinks
+# ***KEY CHANGE: Combine all dependencies into a single partial order***
+# ***Further improvement: Model the cart and drinks preparation as happening after waiter assignment***
+final_model = gen.partial_order(
+    dependencies=[
+        (guest_calls, manager_takes_order),
+        (manager_takes_order, manager_submits_kitchen_order),
+        (manager_takes_order, manager_gives_sommelier_order),
+        (manager_takes_order, manager_assigns_waiter),
+        (manager_assigns_waiter, waiter_readies_cart), # this dependency is added
+        (waiter_readies_cart, waiter_prepares_drinks), # this dependency is added
+        (manager_submits_kitchen_order, kitchen_prepares_food),
+        (manager_gives_sommelier_order, optional_sommelier),
+        (kitchen_prepares_food, waiter_delivers_order),
+        (optional_sommelier, waiter_delivers_order),
+        (waiter_prepares_drinks, waiter_delivers_order),
+        (waiter_delivers_order, waiter_returns),
+        (waiter_returns, waiter_debiting_loop)
+    ])

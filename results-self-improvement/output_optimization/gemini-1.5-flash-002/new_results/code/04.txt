@@ -1,0 +1,31 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+define_objectives = gen.activity("Define campaign objectives")
+create_content = gen.activity("Create content")
+design_visuals = gen.activity("Design visuals")
+select_channels = gen.activity("Select promotion channels")
+launch_campaign = gen.activity("Launch campaign")
+track_performance = gen.activity("Track performance in real-time")
+collect_leads = gen.activity("Collect leads in CRM system")
+sales_followup = gen.activity("Sales teams follows up on leads")
+campaign_ends = gen.activity("Campaign period ends")
+analyze_performance = gen.activity("Analyze performance for future optimization")
+
+#Improved Partial Order for Content Creation and Channel Selection:  These are concurrent, not strictly sequential.
+content_creation_po = gen.partial_order(dependencies=[(create_content,), (design_visuals,), (select_channels,)])
+
+#Improved Partial Order for Post-Launch Activities:  Tracking and Lead Collection happen concurrently, but Sales Follow-up depends on Lead Collection.
+post_launch_po = gen.partial_order(dependencies=[(launch_campaign, track_performance), (launch_campaign, collect_leads), (collect_leads, sales_followup)])
+
+
+# Copying launch_campaign to avoid reuse
+launch_campaign_copy = launch_campaign.copy()
+
+# Combining sub-processes.  The overall flow is sequential.
+main_process = gen.partial_order(dependencies=[(define_objectives, content_creation_po), (content_creation_po, launch_campaign_copy), (launch_campaign_copy, post_launch_po), (post_launch_po, campaign_ends), (campaign_ends, analyze_performance)])
+
+
+final_model = main_process

@@ -1,0 +1,43 @@
+from utils.model_generation import ModelGenerator
+
+# Initialize generator
+gen = ModelGenerator()
+
+# Define activities
+identify_need = gen.activity('Identify need for new supplier or vendor')
+issue_rfp = gen.activity('Issue request for proposals (RFP)')
+receive_proposals = gen.activity('Receive supplier proposals')
+evaluate_proposal = gen.activity('Evaluate proposal')
+site_visit = gen.activity('Conduct site visit')
+interview = gen.activity('Conduct interview')
+select_supplier = gen.activity('Select supplier')
+negotiate_contract = gen.activity('Begin contract negotiations')
+sign_contract = gen.activity('Sign contract')
+onboard_supplier = gen.activity('Onboard supplier')
+execute_contract = gen.activity('Execute contract')
+
+# Define optional site visit and interview (can be concurrent with proposal evaluation)
+optional_visit = gen.xor(site_visit, None)
+optional_interview = gen.xor(interview, None)
+
+# Combine optional site visit and interview with proposal evaluation
+evaluation_process = gen.partial_order(
+    dependencies=[(evaluate_proposal, optional_visit), (evaluate_proposal, optional_interview)]
+)
+
+# Sequential dependencies for the main process
+main_process = gen.partial_order(
+    dependencies=[
+        (identify_need, issue_rfp),
+        (issue_rfp, receive_proposals),
+        (receive_proposals, evaluation_process),
+        (evaluation_process, select_supplier),
+        (select_supplier, negotiate_contract),
+        (negotiate_contract, sign_contract),
+        (sign_contract, onboard_supplier),
+        (onboard_supplier, execute_contract)
+    ]
+)
+
+# Final model
+final_model = main_process

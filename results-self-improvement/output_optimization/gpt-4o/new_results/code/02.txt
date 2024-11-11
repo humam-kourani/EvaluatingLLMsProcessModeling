@@ -1,0 +1,55 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Base activities
+identify_need = gen.activity('Identify need for new hire')
+create_job_description = gen.activity('Create job description')
+post_job_description = gen.activity('Post job description')
+collect_resumes = gen.activity('Collect resumes')
+collect_resumes_copy = collect_resumes.copy()  # Copy of Collect resumes
+screen_resumes = gen.activity('Screen resumes')
+screen_resumes_copy = screen_resumes.copy()  # Copy of Screen resumes for reuse
+conduct_phone_interviews = gen.activity('Conduct initial phone interviews')
+conduct_in_person_interview = gen.activity('Conduct an in-person interview')
+conduct_virtual_interview = gen.activity('Conduct a virtual interview')
+invite_candidates = gen.activity('Invite candidates for interviews')
+choose_candidate = gen.activity('Choose candidate')
+extend_offer = gen.activity('Extend offer')
+negotiate_salary = gen.xor(gen.activity('Negotiate salary'), None)  # Salary negotiation is optional
+begin_onboarding = gen.activity('Begin onboarding process')
+complete_paperwork = gen.activity('Complete paperwork')
+complete_orientation = gen.activity('Complete orientation')
+complete_training = gen.activity('Complete training')
+
+# Step 1: HR creates and posts the job description
+job_description_steps = gen.partial_order(
+    dependencies=[(create_job_description, post_job_description), (post_job_description, collect_resumes)])
+
+# Step 2: Resume collection and screening (using copy of collect_resumes)
+resume_handling_steps = gen.partial_order(dependencies=[(collect_resumes_copy, screen_resumes)])
+
+# Step 3: Conduct interviews
+interview_choice = gen.xor(conduct_in_person_interview, conduct_virtual_interview)
+
+# Step 4: Invite candidates for interviews after resume screening (using copy of screen_resumes)
+invite_and_interview = gen.partial_order(dependencies=[(screen_resumes_copy, invite_candidates), (invite_candidates, interview_choice)])
+
+# Step 5: Candidate selection and salary negotiation
+candidate_selection = gen.partial_order(dependencies=[(choose_candidate, extend_offer), (extend_offer, negotiate_salary)])
+
+# Step 6: Onboarding process, with potential concurrent steps
+onboarding_process = gen.partial_order(dependencies=[
+    (begin_onboarding, complete_paperwork), 
+    (complete_orientation,), 
+    (complete_training,)
+])
+
+# Full process
+final_model = gen.partial_order(dependencies=[
+    (identify_need, job_description_steps), 
+    (job_description_steps, resume_handling_steps), 
+    (resume_handling_steps, invite_and_interview), 
+    (invite_and_interview, candidate_selection), 
+    (candidate_selection, onboarding_process)
+])
