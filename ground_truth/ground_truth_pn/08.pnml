@@ -1,0 +1,166 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pnml>
+  <net id="imdf_net_1729009187.3311586" type="http://www.pnml.org/version-2009/grammar/pnmlcoremodel">
+    <name>
+      <text>imdf_net_1729009187.3311586</text>
+    </name>
+    <page id="n0">
+      <place id="p_10">
+        <name>
+          <text>p_10</text>
+        </name>
+      </place>
+      <place id="p_19">
+        <name>
+          <text>p_19</text>
+        </name>
+      </place>
+      <place id="sink">
+        <name>
+          <text>sink</text>
+        </name>
+      </place>
+      <place id="p_31">
+        <name>
+          <text>p_31</text>
+        </name>
+      </place>
+      <place id="source">
+        <name>
+          <text>source</text>
+        </name>
+        <initialMarking>
+          <text>1</text>
+        </initialMarking>
+      </place>
+      <place id="p_14">
+        <name>
+          <text>p_14</text>
+        </name>
+      </place>
+      <place id="p_22">
+        <name>
+          <text>p_22</text>
+        </name>
+      </place>
+      <place id="p_25">
+        <name>
+          <text>p_25</text>
+        </name>
+      </place>
+      <place id="p_18">
+        <name>
+          <text>p_18</text>
+        </name>
+      </place>
+      <place id="p_32">
+        <name>
+          <text>p_32</text>
+        </name>
+      </place>
+      <place id="p_12">
+        <name>
+          <text>p_12</text>
+        </name>
+      </place>
+      <place id="p_8">
+        <name>
+          <text>p_8</text>
+        </name>
+      </place>
+      <transition id="05f5802c-da0c-4103-b5de-5d978b0b1414">
+        <name>
+          <text>Report incident</text>
+        </name>
+      </transition>
+      <transition id="8489452b-34b8-455d-bccf-56aa1da85f5a">
+        <name>
+          <text>Close incident report</text>
+        </name>
+      </transition>
+      <transition id="0d7a76fa-a4d4-47b9-b218-7b4691ebd0aa">
+        <name>
+          <text>Identify cause of incident</text>
+        </name>
+      </transition>
+      <transition id="be9ecb1f-2b3f-40a7-a9ec-2e02126b7c87">
+        <name>
+          <text>Implement fix</text>
+        </name>
+      </transition>
+      <transition id="287a617b-6b95-47e1-b302-2b626621974d">
+        <name>
+          <text>Notify all stakeholders</text>
+        </name>
+      </transition>
+      <transition id="4d10a9be-437a-4368-b996-c79a8fa42173">
+        <name>
+          <text>Propose corrective actions</text>
+        </name>
+      </transition>
+      <transition id="0246dc32-8fbd-422e-a1e1-6b8f4a0e743b">
+        <name>
+          <text>Conduct follow-up</text>
+        </name>
+      </transition>
+      <transition id="c858234a-0044-4272-81eb-4dddc8d06de5">
+        <name>
+          <text>Change policy</text>
+        </name>
+      </transition>
+      <transition id="ab38d64b-7876-499c-afd9-4bee35e135d7">
+        <name>
+          <text>Gather necessary information</text>
+        </name>
+      </transition>
+      <transition id="769d7682-7ea3-4422-81fc-5188f8275a89">
+        <name>
+          <text>Log report into tracking system</text>
+        </name>
+      </transition>
+      <transition id="7b0e6198-b33e-441f-8954-412a50759789">
+        <name>
+          <text>Assign report to appropriate team</text>
+        </name>
+      </transition>
+      <transition id="f0d2a3b1-1572-4bfa-aa9c-0a0accd509ca">
+        <name>
+          <text>Conduct training</text>
+        </name>
+      </transition>
+      <arc id="2271987038336" source="4d10a9be-437a-4368-b996-c79a8fa42173" target="p_18"/>
+      <arc id="2271979507280" source="p_22" target="8489452b-34b8-455d-bccf-56aa1da85f5a"/>
+      <arc id="2271979334544" source="p_10" target="7b0e6198-b33e-441f-8954-412a50759789"/>
+      <arc id="2271979511696" source="c858234a-0044-4272-81eb-4dddc8d06de5" target="p_19"/>
+      <arc id="2271979518368" source="p_18" target="be9ecb1f-2b3f-40a7-a9ec-2e02126b7c87"/>
+      <arc id="2271987038240" source="769d7682-7ea3-4422-81fc-5188f8275a89" target="p_10"/>
+      <arc id="2271987038864" source="287a617b-6b95-47e1-b302-2b626621974d" target="sink"/>
+      <arc id="2271979326000" source="p_12" target="ab38d64b-7876-499c-afd9-4bee35e135d7"/>
+      <arc id="2271979338672" source="p_14" target="0d7a76fa-a4d4-47b9-b218-7b4691ebd0aa"/>
+      <arc id="2271979519664" source="p_18" target="f0d2a3b1-1572-4bfa-aa9c-0a0accd509ca"/>
+      <arc id="2271987039248" source="p_19" target="0246dc32-8fbd-422e-a1e1-6b8f4a0e743b"/>
+      <arc id="2271987039152" source="p_32" target="4d10a9be-437a-4368-b996-c79a8fa42173"/>
+      <arc id="2271977036944" source="7b0e6198-b33e-441f-8954-412a50759789" target="p_12"/>
+      <arc id="2271977038912" source="7b0e6198-b33e-441f-8954-412a50759789" target="p_14"/>
+      <arc id="2271987038912" source="source" target="05f5802c-da0c-4103-b5de-5d978b0b1414"/>
+      <arc id="2271987038528" source="8489452b-34b8-455d-bccf-56aa1da85f5a" target="p_25"/>
+      <arc id="2271979509584" source="be9ecb1f-2b3f-40a7-a9ec-2e02126b7c87" target="p_19"/>
+      <arc id="2271977038672" source="ab38d64b-7876-499c-afd9-4bee35e135d7" target="p_31"/>
+      <arc id="2271987039056" source="p_31" target="4d10a9be-437a-4368-b996-c79a8fa42173"/>
+      <arc id="2271979514192" source="p_25" target="287a617b-6b95-47e1-b302-2b626621974d"/>
+      <arc id="2271979337568" source="p_8" target="769d7682-7ea3-4422-81fc-5188f8275a89"/>
+      <arc id="2271979517024" source="f0d2a3b1-1572-4bfa-aa9c-0a0accd509ca" target="p_19"/>
+      <arc id="2271979508960" source="p_18" target="c858234a-0044-4272-81eb-4dddc8d06de5"/>
+      <arc id="2271987036656" source="05f5802c-da0c-4103-b5de-5d978b0b1414" target="p_8"/>
+      <arc id="2271987038576" source="0d7a76fa-a4d4-47b9-b218-7b4691ebd0aa" target="p_32"/>
+      <arc id="2271977037424" source="0246dc32-8fbd-422e-a1e1-6b8f4a0e743b" target="p_22"/>
+    </page>
+    <finalmarkings>
+      <marking>
+        <place idref="sink">
+          <text>1</text>
+        </place>
+      </marking>
+    </finalmarkings>
+  </net>
+</pnml>

@@ -1,0 +1,643 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<log xes.version="1849-2016" xes.features="nested-attributes" xmlns="http://www.xes-standard.org/">
+	<trace>
+		<string key="concept:name" value="0" />
+		<string key="case:concept:name" value="0" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Pay" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="1" />
+		<string key="case:concept:name" value="1" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Complete installment agreement" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Return items" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="2" />
+		<string key="case:concept:name" value="2" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Pay" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Return items" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="3" />
+		<string key="case:concept:name" value="3" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Pay" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="5" />
+		<string key="case:concept:name" value="4" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Complete installment agreement" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Return items" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="6" />
+		<string key="case:concept:name" value="5" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Complete installment agreement" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="7" />
+		<string key="case:concept:name" value="6" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Complete installment agreement" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="10" />
+		<string key="case:concept:name" value="7" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Complete installment agreement" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Return items" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="13" />
+		<string key="case:concept:name" value="8" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Pay" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="15" />
+		<string key="case:concept:name" value="9" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Pay" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Return items" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="16" />
+		<string key="case:concept:name" value="10" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Complete installment agreement" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="18" />
+		<string key="case:concept:name" value="11" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Pay" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Return items" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="28" />
+		<string key="case:concept:name" value="12" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Complete installment agreement" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="30" />
+		<string key="case:concept:name" value="13" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Pay" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Return items" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="33" />
+		<string key="case:concept:name" value="14" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Pay" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="36" />
+		<string key="case:concept:name" value="15" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Complete installment agreement" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Return items" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="38" />
+		<string key="case:concept:name" value="16" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Complete installment agreement" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="45" />
+		<string key="case:concept:name" value="17" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Complete installment agreement" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Return items" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="59" />
+		<string key="case:concept:name" value="18" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Pay" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="concept:name" value="106" />
+		<string key="case:concept:name" value="19" />
+		<event>
+			<string key="concept:name" value="Login" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Set payment method" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select items" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Pay" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Select free reward" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Return items" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Deliver items" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+	</trace>
+</log>

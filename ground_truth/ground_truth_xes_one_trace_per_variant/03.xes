@@ -1,0 +1,987 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<log xes.version="1849-2016" xes.features="nested-attributes" xmlns="http://www.xes-standard.org/">
+	<trace>
+		<string key="case:concept:name" value="0" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send a manual alert" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock in storage" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-05T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="1" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send a manual alert" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock in storage" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-05T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="2" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send an automated alert" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock in storage" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-05T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="3" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send a manual alert" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock on shelves" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="4" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send a manual alert" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock in storage" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-05T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="5" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send a manual alert" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock on shelves" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="6" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send an automated alert" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock on shelves" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-05T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="7" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send a manual alert" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock in storage" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="8" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send an automated alert" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock in storage" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="9" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send an automated alert" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock in storage" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-05T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="10" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send a manual alert" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock on shelves" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="11" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send a manual alert" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock on shelves" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-05T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="12" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send an automated alert" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock in storage" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-05T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="13" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send an automated alert" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock on shelves" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="14" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send a manual alert" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock on shelves" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-05T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="15" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send a manual alert" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock on shelves" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-05T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="16" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send an automated alert" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock on shelves" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="17" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send an automated alert" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock on shelves" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-05T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="18" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send an automated alert" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock on shelves" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="19" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send an automated alert" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock on shelves" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-05T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="20" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send a manual alert" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock in storage" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="21" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send a manual alert" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock in storage" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="22" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send an automated alert" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock in storage" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+	</trace>
+	<trace>
+		<string key="case:concept:name" value="23" />
+		<event>
+			<string key="concept:name" value="Check current inventory level" />
+			<date key="time:timestamp" value="2015-03-27T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Send an automated alert" />
+			<date key="time:timestamp" value="2015-03-28T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place order with suppliers" />
+			<date key="time:timestamp" value="2015-03-29T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory system with expected delivery dates" />
+			<date key="time:timestamp" value="2015-03-30T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Receive stock" />
+			<date key="time:timestamp" value="2015-03-31T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Record stock in system" />
+			<date key="time:timestamp" value="2015-04-01T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Inspect stock for quality" />
+			<date key="time:timestamp" value="2015-04-02T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Place stock in storage" />
+			<date key="time:timestamp" value="2015-04-03T11:45:02.304541" />
+		</event>
+		<event>
+			<string key="concept:name" value="Update inventory levels" />
+			<date key="time:timestamp" value="2015-04-04T11:45:02.304541" />
+		</event>
+	</trace>
+</log>
