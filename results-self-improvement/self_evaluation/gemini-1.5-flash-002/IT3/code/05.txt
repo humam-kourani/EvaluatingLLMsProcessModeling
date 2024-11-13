@@ -1,0 +1,40 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+identify_need = gen.activity('Identify need for new supplier or vendor')
+issue_rfp = gen.activity('Issue request for proposals (RFP)')
+receive_proposals = gen.activity('Receive supplier proposals')
+evaluate_proposal = gen.activity('Evaluate proposal')
+conduct_site_visit = gen.activity('Conduct site visit')
+conduct_interview = gen.activity('Conduct interview')
+select_supplier = gen.activity('Select supplier')
+begin_negotiations = gen.activity('Begin contract negotiations')
+sign_contract = gen.activity('Sign contract')
+onboard_supplier = gen.activity('Onboard supplier')
+execute_contract = gen.activity('Execute contract')
+
+
+# Partial order for proposal evaluation (site visit and interview are optional)
+proposal_evaluation = gen.partial_order(dependencies=[
+    (receive_proposals, evaluate_proposal),
+    (evaluate_proposal, select_supplier.copy()), # Create a copy of select_supplier
+    (receive_proposals, conduct_site_visit),
+    (receive_proposals, conduct_interview)
+])
+
+#Sequential steps after supplier selection
+post_selection = gen.partial_order(dependencies=[
+    (select_supplier, begin_negotiations),
+    (begin_negotiations, sign_contract),
+    (sign_contract, onboard_supplier),
+    (onboard_supplier, execute_contract)
+])
+
+#Combine all the steps
+final_model = gen.partial_order(dependencies=[
+    (identify_need, issue_rfp),
+    (issue_rfp, proposal_evaluation),
+    (proposal_evaluation, post_selection)
+])

@@ -1,0 +1,37 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+identify_need = gen.activity('Identify need for new supplier or vendor')
+issue_rfp = gen.activity('Issue request for proposals (RFP)')
+receive_proposals = gen.activity('Receive supplier proposals')
+evaluate_proposal = gen.activity('Evaluate proposal')
+conduct_site_visit = gen.activity('Conduct site visit')
+conduct_interview = gen.activity('Conduct interview')
+select_supplier = gen.activity('Select supplier')
+begin_negotiations = gen.activity('Begin contract negotiations')
+sign_contract = gen.activity('Sign contract')
+onboard_supplier = gen.activity('Onboard supplier')
+execute_contract = gen.activity('Execute contract')
+
+#Optional Activities (site visit or interview)
+optional_site_visit = gen.xor(conduct_site_visit, None)
+optional_interview = gen.xor(conduct_interview, None)
+
+#Partial Order for proposal evaluation (site visit or interview can happen concurrently or be skipped)
+evaluation_poset = gen.partial_order(dependencies=[(evaluate_proposal.copy(), optional_site_visit), (evaluate_proposal.copy(), optional_interview)])
+
+
+#Sequential steps after proposal evaluation
+# Create copies to avoid reuse
+select_supplier_activity = gen.activity('Select supplier')
+begin_negotiations_activity = gen.activity('Begin contract negotiations')
+sign_contract_activity = gen.activity('Sign contract')
+onboard_supplier_activity = gen.activity('Onboard supplier')
+execute_contract_activity = gen.activity('Execute contract')
+
+post_evaluation_poset = gen.partial_order(dependencies=[(evaluation_poset, select_supplier_activity), (select_supplier_activity, begin_negotiations_activity), (begin_negotiations_activity, sign_contract_activity)])
+
+#Final Partial Order combining all steps
+final_model = gen.partial_order(dependencies=[(identify_need, issue_rfp), (issue_rfp, receive_proposals), (receive_proposals, evaluate_proposal.copy()), (evaluate_proposal.copy(), post_evaluation_poset), (post_evaluation_poset, onboard_supplier_activity), (onboard_supplier_activity, execute_contract_activity)])

@@ -1,0 +1,38 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+schedule_audit = gen.activity('Schedule compliance audit')
+prepare_docs = gen.activity('Prepare documentation')
+gather_evidence = gen.activity('Gather evidence')
+self_assessment = gen.activity('Conduct self-assessment')
+external_audit = gen.activity('Conduct external audit')
+identify_gaps = gen.activity('Identify gaps or issues')
+make_corrections = gen.activity('Make necessary corrections or improvements')
+final_audit = gen.activity('Conduct final audit')
+award_cert = gen.activity('Award certification')
+issue_docs = gen.activity('Issue official documents')
+
+# Partial Order for Pre-Audit Phase
+pre_audit_poset = gen.partial_order(dependencies=[(prepare_docs, self_assessment), (gather_evidence, self_assessment)])
+
+# Partial Order for Audit Phase. Creating copies to avoid reuse.
+self_assessment_copy = self_assessment.copy()
+final_audit_copy1 = final_audit.copy() 
+final_audit_copy2 = final_audit.copy() # Added a second copy for post-audit
+audit_phase = gen.partial_order(dependencies=[(self_assessment_copy, external_audit), (external_audit, identify_gaps), (identify_gaps, make_corrections), (make_corrections, final_audit_copy1)])
+
+
+# Partial Order for Post-Audit Phase. Creating copies to avoid reuse.
+award_cert_copy = award_cert.copy()
+post_audit_poset = gen.partial_order(dependencies=[(final_audit_copy2, award_cert_copy), (award_cert_copy, issue_docs)])
+
+
+# Combining sub-processes
+initial_phase = gen.partial_order(dependencies=[(schedule_audit, pre_audit_poset)])
+
+# Combining the pre and post-audit phases
+combined_poset = gen.partial_order(dependencies=[(initial_phase, audit_phase), (audit_phase, post_audit_poset)])
+
+final_model = combined_poset

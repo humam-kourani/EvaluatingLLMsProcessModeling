@@ -1,0 +1,29 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+submit_request = gen.activity("Submit IT solution request")
+assess_compatibility = gen.activity("Assess compatibility")
+evaluate_cost = gen.activity("Evaluate cost and resource needs")
+procure_tools = gen.activity("Procure necessary tools or licenses")
+install_solution = gen.activity("Install the solution")
+test_solution = gen.activity("Test solution")
+rollout_solution = gen.activity("Roll out solution to requesting department")
+provide_training = gen.activity("Provide training")
+provide_support = gen.activity("Provide support for troubleshooting")
+
+# Assessment Phase (Partial Order)
+assessment_poset = gen.partial_order(dependencies=[(assess_compatibility, evaluate_cost)])
+
+# Approval and Implementation (Sequential)
+approval_implementation = gen.partial_order(dependencies=[(assessment_poset, procure_tools), (procure_tools, install_solution), (install_solution, test_solution)])
+
+# Post-Implementation (Partial Order) - Corrected to avoid reuse
+test_solution_copy = test_solution.copy()  # Create a copy to avoid reuse
+post_implementation_poset = gen.partial_order(dependencies=[(test_solution_copy, rollout_solution), (rollout_solution, provide_training), (rollout_solution, provide_support)])
+
+# Combine all phases - Corrected to avoid reuse of intermediate partial orders
+assessment_copy = assessment_poset.copy()
+approval_implementation_copy = approval_implementation.copy()
+final_model = gen.partial_order(dependencies=[(submit_request, assessment_copy), (assessment_copy, approval_implementation_copy), (approval_implementation_copy, post_implementation_poset)])

@@ -1,0 +1,43 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+customer_places_order_online = gen.activity('Customer places order online')
+customer_places_order_phone = gen.activity('Customer places order over the phone')
+generate_and_send_confirmation = gen.activity('Generate and send order confirmation')
+pick_and_pack_items = gen.activity('Pick and pack items')
+generate_shipping_label = gen.activity('Generate shipping label')
+hand_over_to_logistics = gen.activity('Hand over order to logistics provider')
+send_tracking_info = gen.activity('Send tracking information to customer')
+monitor_shipment = gen.activity('Monitor shipment')
+successful_delivery = gen.activity('Successful delivery')
+process_feedback_returns = gen.activity('Process customer feedback or returns')
+
+
+# Order placement (xor)
+order_placement = gen.xor(customer_places_order_online, customer_places_order_phone)
+
+# Initial sequence
+initial_sequence = gen.partial_order(dependencies=[(order_placement, generate_and_send_confirmation),
+                                                  (generate_and_send_confirmation, pick_and_pack_items),
+                                                  (pick_and_pack_items, generate_shipping_label),
+                                                  (generate_shipping_label, hand_over_to_logistics)])
+
+# Shipping and tracking
+hand_over_to_logistics_copy = hand_over_to_logistics.copy()  # create a copy to avoid reuse
+successful_delivery_copy = successful_delivery.copy()  # create a copy to avoid reuse
+monitor_shipment_copy = monitor_shipment.copy() #create a copy to avoid reuse
+send_tracking_info_copy = send_tracking_info.copy() # create a copy to avoid reuse
+
+shipping_and_tracking = gen.partial_order(dependencies=[(hand_over_to_logistics_copy, send_tracking_info_copy),
+                                                      (send_tracking_info_copy, monitor_shipment_copy),
+                                                      (monitor_shipment_copy, successful_delivery_copy)])
+
+#Combine initial and shipping
+combined_process = gen.partial_order(dependencies=[(initial_sequence,shipping_and_tracking)])
+
+# Final model with optional feedback/returns
+successful_delivery_copy_2 = successful_delivery.copy() #Another copy to avoid reuse
+final_model = gen.partial_order(dependencies=[(combined_process, successful_delivery_copy_2),
+                                              (successful_delivery_copy_2, process_feedback_returns)])

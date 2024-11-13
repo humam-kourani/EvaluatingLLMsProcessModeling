@@ -1,0 +1,30 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+receive_customer_inquiry = gen.activity('Receive customer inquiry')
+collect_customer_information = gen.activity('Collect customer information')
+address_customer_concerns_or_questions = gen.activity('Address customer concerns or questions')
+guide_customer_in_selecting_product_service = gen.activity('Guide customer in selecting product/service')
+provide_quote = gen.activity('Provide quote')
+customer_approval = gen.activity('Customer approves quote') # Implicit activity, customer can either approve or reject
+place_order = gen.activity('Place order')
+record_order_in_system = gen.activity('Record order in system')
+send_order_confirmation_to_customer = gen.activity('Send order confirmation to customer')
+
+
+#Sequential dependencies for the main path
+poset_main_path = gen.partial_order(dependencies=[
+    (receive_customer_inquiry, collect_customer_information),
+    (collect_customer_information, address_customer_concerns_or_questions),
+    (address_customer_concerns_or_questions, guide_customer_in_selecting_product_service),
+    (guide_customer_in_selecting_product_service, provide_quote),
+    (provide_quote, customer_approval),
+    (customer_approval, place_order),
+    (place_order, record_order_in_system),
+    (record_order_in_system, send_order_confirmation_to_customer)
+
+])
+
+#The entire process is not optional, therefore no XOR is needed at the top level.
+final_model = poset_main_path

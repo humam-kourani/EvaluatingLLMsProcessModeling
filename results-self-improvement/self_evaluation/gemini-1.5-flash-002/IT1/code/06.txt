@@ -1,0 +1,42 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+customer_places_order_online = gen.activity('Customer places order online')
+customer_places_order_over_phone = gen.activity('Customer places order over the phone')
+generate_and_send_order_confirmation = gen.activity('Generate and send order confirmation')
+pick_and_pack_items = gen.activity('Pick and pack items')
+generate_shipping_label = gen.activity('Generate shipping label')
+hand_over_order_to_logistics_provider = gen.activity('Hand over order to logistics provider')
+send_tracking_information_to_customer = gen.activity('Send tracking information to customer')
+monitor_shipment = gen.activity('Monitor shipment')
+successful_delivery = gen.activity('Successful delivery')
+process_customer_feedback_or_returns = gen.activity('Process customer feedback or returns')
+
+# Order Placement (XOR)
+order_placement = gen.xor(customer_places_order_online, customer_places_order_over_phone)
+
+# Initial Steps (Partial Order)
+initial_steps = gen.partial_order(dependencies=[(order_placement, generate_and_send_order_confirmation),
+                                                (generate_and_send_order_confirmation, pick_and_pack_items),
+                                                (pick_and_pack_items, generate_shipping_label)])
+
+#Shipping Label Copy for Core Fulfillment
+generate_shipping_label_copy = generate_shipping_label.copy()
+
+# Core Fulfillment (Partial Order)
+core_fulfillment = gen.partial_order(dependencies=[(generate_shipping_label_copy, hand_over_order_to_logistics_provider),
+                                                  (hand_over_order_to_logistics_provider, send_tracking_information_to_customer),
+                                                  (send_tracking_information_to_customer, monitor_shipment),
+                                                  (monitor_shipment, successful_delivery)])
+
+# Successful Delivery Copy for Final Steps
+successful_delivery_copy = successful_delivery.copy()
+
+# Final Steps (Partial Order) - allows for optional feedback/returns processing
+final_steps = gen.partial_order(dependencies=[(successful_delivery_copy, process_customer_feedback_or_returns)])
+
+
+# Combine into a final model (Sequential)
+final_model = gen.partial_order(dependencies=[(initial_steps, core_fulfillment), (core_fulfillment, final_steps)])

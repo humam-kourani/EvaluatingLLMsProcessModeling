@@ -1,0 +1,36 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+guest_calls = gen.activity("Guest calls room service")
+manager_takes_order = gen.activity("Manager takes down the order")
+manager_submits_ticket = gen.activity("Manager submits order ticket to kitchen")
+manager_gives_order_sommelier = gen.activity("Manager gives order to sommelier")
+sommelier_fetches = gen.activity("Sommelier fetches wine and prepare alcoholic beverages")
+manager_assigns_waiter = gen.activity("Manager assigns order to waiter")
+waiter_readies_cart = gen.activity("Waiter readies cart")
+waiter_prepares_drinks = gen.activity("Waiter prepares nonalcoholic drinks")
+kitchen_prepares = gen.activity("Kitchen prepares food")
+waiter_delivers = gen.activity("Waiter delivers order to guest's room")
+waiter_returns = gen.activity("Waiter returns to room-service station")
+waiter_debits = gen.activity("Waiter debits guest's account")
+waiter_waits_copy = gen.activity("Waiter waits/delays debiting") # Created a copy to avoid reuse
+
+
+# Sub-processes
+sommelier_process = gen.xor(sommelier_fetches, None)  # 80% chance of sommelier involvement
+
+waiter_process = gen.partial_order(dependencies=[(waiter_readies_cart,), (waiter_prepares_drinks,)])
+
+# Main process
+initial_phase = gen.partial_order(dependencies=[(manager_takes_order, manager_submits_ticket), (manager_takes_order, manager_gives_order_sommelier), (manager_takes_order, manager_assigns_waiter)])
+
+main_process = gen.partial_order(dependencies=[(initial_phase, kitchen_prepares), (initial_phase, sommelier_process), (initial_phase, waiter_process), (kitchen_prepares, waiter_delivers), (sommelier_process, waiter_delivers), (waiter_process, waiter_delivers), (waiter_delivers, waiter_returns)])
+
+
+#Corrected Loop to avoid reuse of waiter_returns
+final_process = gen.loop(do=gen.partial_order(dependencies=[(guest_calls, main_process), (main_process, waiter_debits)]), redo=gen.xor(None, gen.partial_order(dependencies=[(waiter_returns.copy(), waiter_waits_copy)])))
+
+
+final_model = final_process

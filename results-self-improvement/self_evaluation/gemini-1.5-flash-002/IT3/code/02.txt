@@ -1,0 +1,49 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+identify_need = gen.activity('Identify need for new hire')
+create_jd = gen.activity('Create job description')
+post_jd = gen.activity('Post job description')
+collect_resumes = gen.activity('Collect resumes')
+screen_resumes = gen.activity('Screen resumes')
+initial_phone_interviews = gen.activity('Conduct initial phone interviews')
+invite_candidates = gen.activity('Invite candidates for interviews')
+in_person_interview = gen.activity('Conduct an in-person interview')
+virtual_interview = gen.activity('Conduct a virtual interview')
+choose_candidate = gen.activity('Choose candidate')
+extend_offer = gen.activity('Extend offer')
+negotiate_salary = gen.activity('Negotiate salary')
+begin_onboarding = gen.activity('Begin onboarding process')
+complete_paperwork = gen.activity('Complete paperwork')
+complete_orientation = gen.activity('Complete orientation')
+complete_training = gen.activity('Complete training')
+
+
+# Interview Choice (XOR)
+interview_choice = gen.xor(in_person_interview, virtual_interview)
+
+# Onboarding subprocess (using a copy of begin_onboarding to avoid reuse)
+begin_onboarding_copy = begin_onboarding.copy()
+onboarding_process = gen.partial_order(dependencies=[(begin_onboarding_copy, complete_paperwork), (begin_onboarding_copy, complete_orientation), (begin_onboarding_copy, complete_training)])
+
+# Main process partial order
+main_po = gen.partial_order(dependencies=[
+    (identify_need, create_jd),
+    (create_jd, post_jd),
+    (post_jd, collect_resumes),
+    (collect_resumes, screen_resumes),
+    (screen_resumes, initial_phone_interviews),
+    (initial_phone_interviews, invite_candidates),
+    (invite_candidates, interview_choice),
+    (interview_choice, choose_candidate),
+    (choose_candidate, extend_offer),
+    (extend_offer, negotiate_salary),  # Optional negotiation
+    (extend_offer, begin_onboarding),
+    (negotiate_salary, begin_onboarding)  # Added dependency
+])
+
+
+# Combining the partial orders
+final_model = gen.partial_order(dependencies=[(main_po, onboarding_process)])

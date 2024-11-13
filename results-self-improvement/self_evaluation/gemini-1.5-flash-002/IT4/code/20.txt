@@ -1,0 +1,50 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+guest_calls = gen.activity("Guest calls room service")
+manager_takes_order = gen.activity("Manager takes down the order")
+manager_submits_kitchen = gen.activity("Manager submits order ticket to kitchen")
+manager_gives_sommelier = gen.activity("Manager gives order to sommelier")
+manager_assigns_waiter = gen.activity("Manager assigns order to waiter")
+sommelier_fetches = gen.activity("Sommelier fetches wine and prepare alcoholic beverages")
+waiter_readies_cart = gen.activity("Waiter readies cart")
+waiter_prepares_drinks = gen.activity("Waiter prepares nonalcoholic drinks")
+kitchen_prepares_food_copy1 = gen.activity("Kitchen prepares food")
+kitchen_prepares_food_copy2 = gen.activity("Kitchen prepares food")
+waiter_delivers_copy1 = gen.activity("Waiter delivers order to guest's room")
+waiter_delivers_copy2 = gen.activity("Waiter delivers order to guest's room")
+waiter_returns = gen.activity("Waiter returns to room-service station")
+waiter_debits_copy1 = gen.activity("Waiter debits guest's account")
+waiter_debits_copy2 = gen.activity("Waiter debits guest's account")
+waiter_waits = gen.activity("Waiter waits/delays debiting")
+
+
+# Subprocesses
+sommelier_process = gen.xor(sommelier_fetches, None) 
+
+waiter_process = gen.partial_order(dependencies=[(waiter_readies_cart,), (waiter_prepares_drinks,)])
+
+#Corrected to use copies of kitchen_prepares_food and sommelier_process
+post_preparation_process = gen.partial_order(dependencies=[(kitchen_prepares_food_copy1, waiter_delivers_copy1), (sommelier_process.copy(), waiter_delivers_copy1), (waiter_process.copy(), waiter_delivers_copy1)])
+
+#Corrected billing process to avoid reuse of waiter_debits
+billing_process = gen.xor(waiter_debits_copy1, gen.partial_order(dependencies=[(waiter_waits, waiter_debits_copy2)]))
+
+
+# Main process
+main_process = gen.partial_order(dependencies=[
+    (guest_calls, manager_takes_order),
+    (manager_takes_order, manager_submits_kitchen),
+    (manager_takes_order, manager_gives_sommelier),
+    (manager_takes_order, manager_assigns_waiter),
+    (manager_submits_kitchen, kitchen_prepares_food_copy2), 
+    (manager_gives_sommelier, sommelier_process.copy()), 
+    (manager_assigns_waiter, waiter_process.copy()), 
+    (post_preparation_process.copy(), waiter_delivers_copy2), 
+    (waiter_delivers_copy2, waiter_returns),
+    (waiter_returns, billing_process)
+])
+
+final_model = main_process

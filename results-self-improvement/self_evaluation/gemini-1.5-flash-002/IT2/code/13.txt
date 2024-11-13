@@ -1,0 +1,54 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator(True, True)
+
+# Activities
+file_complaint = gen.activity("File complaint")
+log_complaint = gen.activity("Log complaint")
+assign_complaint = gen.activity("Assign complaint to relevant department")
+review_complaint = gen.activity("Review complaint details")
+approve_notify = gen.activity("Approve and notify customer")
+reject_notify = gen.activity("Reject and notify customer")
+process_reimbursement = gen.activity("Process reimbursement")
+resolve_complaint = gen.activity("Resolve complaint")
+provide_feedback = gen.activity("Provide feedback")
+
+# Create copies to avoid reuse
+assign_complaint_copy1 = assign_complaint.copy()
+assign_complaint_copy2 = assign_complaint.copy()
+review_complaint_copy1 = review_complaint.copy()
+review_complaint_copy2 = review_complaint.copy()
+approve_notify_copy = approve_notify.copy()
+reject_notify_copy = reject_notify.copy()
+resolve_complaint_copy1 = resolve_complaint.copy()
+resolve_complaint_copy2 = resolve_complaint.copy()
+process_reimbursement_copy = process_reimbursement.copy()
+provide_feedback_copy1 = provide_feedback.copy()
+provide_feedback_copy2 = provide_feedback.copy()
+
+
+# Partial Orders for initial steps
+initial_poset = gen.partial_order(dependencies=[(file_complaint, log_complaint), (log_complaint, assign_complaint_copy1)])
+
+# Partial Orders for Review and Resolution, separating the paths to avoid reuse
+review_poset_refund = gen.partial_order(dependencies=[(assign_complaint_copy2, review_complaint_copy1)])
+refund_path = gen.partial_order(dependencies=[(review_complaint_copy1, approve_notify_copy), (approve_notify_copy, process_reimbursement_copy), (process_reimbursement_copy, resolve_complaint_copy1)])
+
+review_poset_norefund = gen.partial_order(dependencies=[(assign_complaint_copy2, review_complaint_copy2)])
+no_refund_path = gen.partial_order(dependencies=[(review_complaint_copy2, reject_notify_copy), (reject_notify_copy, resolve_complaint_copy2)])
+
+
+# Choice between refund and no refund paths
+resolution_choice = gen.xor(refund_path, no_refund_path)
+
+# Feedback path
+feedback_path_refund = gen.partial_order(dependencies = [(resolve_complaint_copy1, provide_feedback_copy1)])
+feedback_path_norefund = gen.partial_order(dependencies = [(resolve_complaint_copy2, provide_feedback_copy2)])
+
+final_feedback_path = gen.partial_order(dependencies = [(feedback_path_refund,), (feedback_path_norefund,)])
+
+
+# Final Partial Order combining all subprocesses.  Note that resolve_complaint and provide_feedback are used twice, once for each path.
+final_poset = gen.partial_order(dependencies=[(initial_poset, review_poset_refund), (initial_poset, review_poset_norefund), (review_poset_refund, resolution_choice), (review_poset_norefund, resolution_choice), (resolution_choice, final_feedback_path)])
+
+final_model = final_poset

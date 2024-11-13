@@ -1,0 +1,71 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator(True, True)
+
+# Activities
+customer_signs_up = gen.activity('Customer signs up')
+enter_info = gen.activity('Enter personal and payment information')
+generate_account = gen.activity('Generate account')
+assign_access = gen.activity('Assign access')
+set_auto_triggers = gen.activity('Set automatic triggers for billing cycles')
+send_regular_updates = gen.activity('Send regular updates')
+send_product_enhancements = gen.activity('Send product enhancements')
+send_renewal_notifications = gen.activity('Send renewal notifications')
+customer_submits_cancellation_request = gen.activity('Customer submits cancellation request')
+support_processes_cancellation = gen.activity('Support team processes cancellation')
+apply_refund = gen.activity('apply refund')
+apply_charges = gen.activity('apply charges')
+deactivate_subscription = gen.activity('Deactivate subscription')
+settle_final_balance = gen.activity('Settle final account balance')
+
+
+# Create copies to avoid reuse
+customer_submits_cancellation_request_copy = customer_submits_cancellation_request.copy()
+deactivate_subscription_copy = deactivate_subscription.copy()
+settle_final_balance_copy = settle_final_balance.copy()
+send_regular_updates_copy = send_regular_updates.copy()
+send_product_enhancements_copy = send_product_enhancements.copy()
+send_renewal_notifications_copy = send_renewal_notifications.copy()
+generate_account_copy = generate_account.copy()
+assign_access_copy = assign_access.copy()
+set_auto_triggers_copy = set_auto_triggers.copy()
+enter_info_copy = enter_info.copy()
+support_processes_cancellation_copy = support_processes_cancellation.copy()
+apply_refund_copy = apply_refund.copy()
+apply_charges_copy = apply_charges.copy()
+
+
+# Partial order for initial setup
+initial_setup = gen.partial_order(dependencies=[
+    (customer_signs_up, enter_info_copy),
+    (enter_info_copy, generate_account_copy),
+    (generate_account_copy, assign_access_copy),
+    (generate_account_copy, set_auto_triggers_copy)
+])
+
+# Partial order for ongoing updates (concurrent)
+ongoing_updates = gen.partial_order(dependencies=[
+    (send_regular_updates_copy,),
+    (send_product_enhancements_copy,),
+    (send_renewal_notifications_copy,)
+])
+
+# Partial order for cancellation process
+cancellation_process = gen.partial_order(dependencies=[
+    (customer_submits_cancellation_request_copy, support_processes_cancellation_copy),
+    (support_processes_cancellation_copy, apply_refund_copy),
+    (support_processes_cancellation_copy, apply_charges_copy),
+    (support_processes_cancellation_copy, deactivate_subscription_copy)
+])
+
+# XOR to handle cancellation or not
+main_process_choice = gen.xor(ongoing_updates, cancellation_process)
+
+# Final partial order combining all parts
+final_partial_order = gen.partial_order(dependencies=[
+    (initial_setup, main_process_choice),
+    (main_process_choice, deactivate_subscription_copy),
+    (deactivate_subscription_copy, settle_final_balance_copy)
+])
+
+final_model = final_partial_order

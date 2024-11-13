@@ -1,0 +1,24 @@
+```python
+score_dictionary = {
+    'IT1': 0.95,
+    'IT2': 0.80,
+    'IT3': 0.90,
+    'IT4': 0.85
+}
+```
+
+**Evaluation Rationale:**
+
+The evaluation scores reflect the following observations:
+
+* **IT1:** This model is very good. It correctly models the main subscription flow and the cancellation path as separate branches of an exclusive choice. The use of partial orders effectively captures the sequential and concurrent aspects of each path. The creation of copies of 'Deactivate subscription' activity to avoid reuse  is done correctly. The only slight drawback is the way the final account balance settlement is integrated, which could be slightly more elegant.
+
+* **IT2:** This model has some issues.  The initial setup and updates are reasonably represented, but the integration of the cancellation process is problematic. The model incorrectly implies that the cancellation process is always executed after the updates, and that the cancellation process is only entered after updates happen.  The cancellation path should be an alternative to the main subscription flow.
+
+* **IT3:** This model demonstrates a good understanding of the process. It effectively uses partial orders to represent concurrency (ongoing updates) and sequential dependencies within subprocesses. It successfully handles the optional cancellation path and has a correct structure for including this path. The extensive copying of activities to avoid reuse is appropriate and shows a deep understanding of the concepts.
+
+* **IT4:** This model exhibits a similar strength to IT3  in terms of the proper representation of concurrency and dependencies. However, the finalization step is somewhat separated, making the flow less clear and direct.  The optional cancellation path is handled correctly.
+
+
+
+The scores are subjective interpretations balancing the strengths and weaknesses of each model.  A more formal evaluation might involve a detailed comparison to a reference model or a more rigorous metric based on process conformance.

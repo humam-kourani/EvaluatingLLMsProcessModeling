@@ -1,0 +1,77 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+place_order = gen.activity("Place order")
+record_order_details = gen.activity("Record order details")
+process_payment = gen.activity("Process payment")
+notify_failed_payment = gen.activity("Notify about failed payment")
+check_stock_availability = gen.activity("Check stock availability")
+initiate_back_order = gen.activity("Initiate back-order")
+inform_customer_delay = gen.activity("Inform customer about delay")
+receive_back_order = gen.activity("Receive back-order")
+pick_items_warehouse = gen.activity("Pick items from warehouse")
+perform_quality_control_checks = gen.activity("Perform quality control checks")
+package_items = gen.activity("Package items")
+gift_wrap_items = gen.activity("Gift wrap items")
+prepare_shipping_documents = gen.activity("Prepare shipping documents and labels")
+prepare_international_docs = gen.activity("Prepare documentation for international orders")
+dispatch_order = gen.activity("Dispatch order")
+send_shipping_confirmation = gen.activity("Send shipping confirmation to customer")
+update_inventory_levels = gen.activity("Update inventory levels")
+send_follow_up_email = gen.activity("Send follow-up email")
+customer_reports_issue = gen.activity("Customer reports issue")
+send_return_shipping_label = gen.activity("Send return shipping label")
+receive_returned_items = gen.activity("Receive returned items")
+inspect_returned_items = gen.activity("Inspect returned items")
+process_refund = gen.activity("Process refund")
+process_replacement = gen.activity("Process replacement")
+
+
+# Subprocesses
+payment_success = gen.xor(process_payment, notify_failed_payment) #Payment success or failure
+
+#Corrected Stock Check Path:  Creating copies to avoid reuse.
+check_stock_availability_copy1 = check_stock_availability.copy()
+check_stock_availability_copy2 = check_stock_availability.copy()
+pick_items_warehouse_copy1 = pick_items_warehouse.copy() 
+pick_items_warehouse_copy2 = pick_items_warehouse.copy() 
+
+in_stock_path = gen.partial_order(dependencies=[(check_stock_availability_copy1, pick_items_warehouse_copy1)])
+backorder_path = gen.partial_order(dependencies=[(check_stock_availability_copy2, initiate_back_order), (initiate_back_order, inform_customer_delay), (inform_customer_delay, receive_back_order), (receive_back_order, pick_items_warehouse_copy2)])
+stock_check_path = gen.xor(in_stock_path, backorder_path)
+
+
+packaging_path = gen.partial_order(dependencies=[(package_items, None), (package_items, gift_wrap_items)])
+
+#Corrected Shipping Path: Creating copies to avoid reuse
+prepare_shipping_documents_copy1 = prepare_shipping_documents.copy()
+prepare_shipping_documents_copy2 = prepare_shipping_documents.copy()
+
+shipping_path_domestic = prepare_shipping_documents_copy1
+shipping_path_international = gen.partial_order(dependencies=[(prepare_shipping_documents_copy2, prepare_international_docs)])
+shipping_path = gen.xor(shipping_path_domestic, shipping_path_international)
+
+
+returns_process = gen.partial_order(dependencies=[(send_return_shipping_label, receive_returned_items), (receive_returned_items, inspect_returned_items), (inspect_returned_items, gen.xor(process_refund, process_replacement))])
+
+
+# Main process
+main_process = gen.partial_order(dependencies=[
+    (place_order, record_order_details),
+    (record_order_details, payment_success),
+    (payment_success, stock_check_path),
+    (stock_check_path, perform_quality_control_checks),
+    (perform_quality_control_checks, packaging_path),
+    (packaging_path, shipping_path),
+    (shipping_path, dispatch_order),
+    (dispatch_order, send_shipping_confirmation),
+    (send_shipping_confirmation, update_inventory_levels),
+    (send_shipping_confirmation, send_follow_up_email),
+    (send_shipping_confirmation, customer_reports_issue),
+    (customer_reports_issue, returns_process)
+
+])
+
+final_model = main_process

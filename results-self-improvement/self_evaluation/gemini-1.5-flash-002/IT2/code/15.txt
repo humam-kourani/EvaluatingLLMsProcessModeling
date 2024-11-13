@@ -1,0 +1,49 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+schedule_audit = gen.activity('Schedule compliance audit')
+prepare_documentation = gen.activity('Prepare documentation')
+gather_evidence = gen.activity('Gather evidence')
+conduct_self_assessment = gen.activity('Conduct self-assessment')
+conduct_external_audit = gen.activity('Conduct external audit')
+identify_gaps_issues = gen.activity('Identify gaps or issues')
+make_corrections = gen.activity('Make necessary corrections or improvements')
+conduct_final_audit = gen.activity('Conduct final audit')
+award_certification = gen.activity('Award certification')
+issue_documents = gen.activity('Issue official documents')
+
+# Partial Order for Internal Preparation
+internal_preparation = gen.partial_order(dependencies=[
+    (prepare_documentation,),
+    (gather_evidence,),
+    (conduct_self_assessment,)
+])
+
+# Partial Order for External Audit Phase
+external_audit_phase = gen.partial_order(dependencies=[
+    (conduct_external_audit, identify_gaps_issues),
+    (identify_gaps_issues, make_corrections)
+])
+
+# Combine internal preparation and external audit
+main_process = gen.partial_order(dependencies=[
+    (schedule_audit, internal_preparation),
+    (internal_preparation, external_audit_phase),
+    (external_audit_phase, conduct_final_audit) #conduct_final_audit is used here.
+])
+
+
+# Create a copy of conduct_final_audit for reuse
+conduct_final_audit_copy = conduct_final_audit.copy()
+
+# Final process with certification and document issuance
+final_process = gen.partial_order(dependencies=[
+    (conduct_final_audit_copy, award_certification), #Using the copy here.
+    (award_certification, issue_documents)
+])
+
+
+#Combine main process and final process
+final_model = gen.partial_order(dependencies=[(main_process, final_process)])

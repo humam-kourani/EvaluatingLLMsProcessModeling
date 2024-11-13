@@ -1,0 +1,47 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+customer_searches_for_ticket = gen.activity('Customer searches for ticket')
+select_route = gen.activity('Select route')
+select_date_and_time = gen.activity('Select date and time')
+provide_personal_information = gen.activity('Provide personal information')
+provide_payment_details = gen.activity('Provide payment details')
+generate_ticket = gen.activity('Generate ticket')
+send_ticket_via_email = gen.activity('Send ticket via email')
+send_ticket_via_sms = gen.activity('Send ticket via SMS')
+update_seat_inventory = gen.activity('Update seat inventory')
+send_reminder = gen.activity('Send reminder')
+send_instructions = gen.activity('Send instructions')
+customer_completes_journey = gen.activity('Customer completes journey')
+post_travel_feedback_or_services = gen.activity('Post-travel feedback or services')
+
+
+# Combining activities into a sequential flow
+initial_steps = gen.partial_order(dependencies=[
+    (customer_searches_for_ticket, select_route),
+    (select_route, select_date_and_time),
+    (select_date_and_time, provide_personal_information),
+    (provide_personal_information, provide_payment_details),
+    (provide_payment_details, generate_ticket)
+])
+
+ticket_delivery = gen.xor(send_ticket_via_email, send_ticket_via_sms)
+
+# Create a copy of generate_ticket to avoid reuse
+generate_ticket_copy = generate_ticket.copy()
+
+post_booking = gen.partial_order(dependencies=[
+    (generate_ticket_copy, ticket_delivery),
+    (generate_ticket_copy, update_seat_inventory)
+])
+
+pre_travel = gen.xor(send_reminder, send_instructions)
+
+final_model = gen.partial_order(dependencies=[
+    (initial_steps, post_booking),
+    (post_booking, pre_travel),
+    (pre_travel, customer_completes_journey),
+    (customer_completes_journey, post_travel_feedback_or_services)
+])

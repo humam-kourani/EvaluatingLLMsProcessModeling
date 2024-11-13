@@ -1,0 +1,40 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+login = gen.activity('Login')
+select_items = gen.activity('Select items')
+set_payment_method = gen.activity('Set payment method')
+pay = gen.activity('Pay')
+complete_installment_agreement = gen.activity('Complete installment agreement')
+select_free_reward = gen.activity('Select free reward')
+deliver_items = gen.activity('Deliver items')
+return_items = gen.activity('Return items')
+deliver_items_copy = deliver_items.copy() #Create a copy to avoid reuse
+
+
+# Payment Method Choice
+payment_choice = gen.xor(pay, complete_installment_agreement)
+
+# Parallel Selection of Items and Payment Method
+parallel_selection_payment = gen.partial_order(dependencies=[(select_items,), (set_payment_method,)])
+
+# Reward Selection (independent of payment)
+reward_selection = gen.activity('Select free reward')
+
+# Main process sequence
+main_sequence = gen.partial_order(dependencies=[
+    (login, parallel_selection_payment),
+    (parallel_selection_payment, payment_choice),
+    (select_items.copy(), reward_selection), #Use a copy of select_items
+    (payment_choice, deliver_items)
+])
+
+
+# Return items loop
+return_loop = gen.loop(do=deliver_items_copy, redo=return_items) #Use the copy of deliver_items
+
+
+#Final Model combining main sequence and return loop.  The return loop is optional.
+final_model = gen.xor(main_sequence, return_loop)

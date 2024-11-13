@@ -1,0 +1,56 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator(True, True)
+
+# Activities
+submit_application = gen.activity('Submit application online')
+review_application = gen.activity('Review application and documents')
+notify_missing = gen.activity('Notify applicant of missing documents')
+provide_missing = gen.activity('Provide missing documents')
+evaluate_application = gen.activity('Evaluate application by admissions committee')
+process_fees = gen.activity('Process fees or waivers')
+send_acceptance = gen.activity('Send acceptance letter')
+send_rejection = gen.activity('Send rejection letter')
+confirm_enrollment = gen.activity('Confirm enrollment')
+cancel_application = gen.activity('Cancel application')
+send_orientation = gen.activity('Send orientation materials')
+setup_it_accounts = gen.activity('Set up IT accounts')
+assist_visa = gen.activity('Assist with visa processing')
+obtain_id = gen.activity('Obtain student ID card')
+meet_advisor = gen.activity('Meet with academic advisor')
+select_courses = gen.activity('Select courses')
+resolve_conflicts = gen.activity('Resolve schedule conflicts')
+begin_attending = gen.activity('Begin attending classes')
+add_drop = gen.activity('Add/drop courses')
+post_grades = gen.activity('Post grades')
+review_grades = gen.activity('Review grades online')
+file_appeal = gen.activity('Submit appeal form')
+meet_appeals = gen.activity('Meet with appeals committee')
+await_decision = gen.activity('Await decision')
+graduate = gen.activity('Graduate')
+withdraw = gen.activity('Withdraw')
+
+
+# Subprocesses
+missing_documents_handling = gen.loop(do=notify_missing, redo=provide_missing)
+application_evaluation = gen.partial_order(dependencies=[(review_application, missing_documents_handling), (missing_documents_handling, evaluate_application.copy()), (review_application, evaluate_application.copy()), (review_application, process_fees.copy())])
+
+acceptance_path = gen.partial_order(dependencies=[(evaluate_application.copy(), send_acceptance), (process_fees.copy(), send_acceptance), (send_acceptance, confirm_enrollment.copy())])
+rejection_path = gen.activity('Send rejection letter')
+application_outcome = gen.xor(acceptance_path, rejection_path)
+
+enrollment_confirmation = gen.xor(gen.partial_order(dependencies=[(confirm_enrollment.copy(), send_orientation), (confirm_enrollment.copy(), setup_it_accounts), (confirm_enrollment.copy(), obtain_id.copy()), (send_orientation, obtain_id.copy()), (setup_it_accounts, obtain_id.copy())]), cancel_application)
+
+international_student_support = gen.xor(assist_visa, None) #Optional
+post_enrollment = gen.partial_order(dependencies=[(enrollment_confirmation, obtain_id.copy()), (enrollment_confirmation, international_student_support), (obtain_id.copy(), meet_advisor.copy()), (obtain_id.copy(), select_courses.copy()), (obtain_id.copy(), resolve_conflicts.copy())])
+
+study_plan = gen.partial_order(dependencies=[(obtain_id.copy(), meet_advisor.copy()), (obtain_id.copy(), select_courses.copy()), (obtain_id.copy(), resolve_conflicts.copy()), (meet_advisor.copy(), begin_attending.copy()), (select_courses.copy(), begin_attending.copy()), (resolve_conflicts.copy(), begin_attending.copy())])
+
+semester_process = gen.partial_order(dependencies=[(begin_attending.copy(), add_drop), (begin_attending.copy(), post_grades), (post_grades, review_grades)])
+
+appeal_process = gen.partial_order(dependencies=[(file_appeal, meet_appeals), (meet_appeals, await_decision)])
+semester_loop = gen.loop(do=semester_process, redo=gen.xor(appeal_process, None))
+
+main_process = gen.partial_order(dependencies=[(submit_application, application_evaluation), (application_evaluation, application_outcome.copy()), (application_outcome.copy(), enrollment_confirmation), (enrollment_confirmation, post_enrollment), (post_enrollment, semester_loop.copy()), (semester_loop.copy(), gen.xor(graduate, withdraw).copy())])
+
+final_model = main_process

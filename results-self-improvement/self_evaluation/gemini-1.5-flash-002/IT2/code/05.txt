@@ -1,0 +1,42 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+identify_need = gen.activity('Identify need for new supplier or vendor')
+issue_rfp = gen.activity('Issue request for proposals (RFP)')
+receive_proposals = gen.activity('Receive supplier proposals')
+evaluate_proposal = gen.activity('Evaluate proposal')
+conduct_site_visit = gen.activity('Conduct site visit')
+conduct_interview = gen.activity('Conduct interview')
+select_supplier = gen.activity('Select supplier')
+begin_negotiations = gen.activity('Begin contract negotiations')
+sign_contract = gen.activity('Sign contract')
+onboard_supplier = gen.activity('Onboard supplier')
+execute_contract = gen.activity('Execute contract')
+
+# Optional site visit and interview
+optional_site_visit = gen.xor(conduct_site_visit, None)
+optional_interview = gen.xor(conduct_interview, None)
+
+# Proposal evaluation (handling multiple proposals with a loop)
+receive_proposals_copy1 = receive_proposals.copy()
+receive_proposals_copy2 = receive_proposals.copy() #We need two copies because evaluate_proposal is used twice inside the partial order
+evaluate_single_proposal = gen.partial_order(dependencies=[(evaluate_proposal.copy(), optional_site_visit.copy()), (evaluate_proposal.copy(), optional_interview.copy())])
+proposal_evaluation_loop = gen.loop(do=evaluate_single_proposal, redo=None)
+
+# Entire Proposal Evaluation process
+proposal_evaluation_process = gen.partial_order(dependencies=[(receive_proposals_copy1, proposal_evaluation_loop)])
+
+# Main process sequence
+main_poset = gen.partial_order(dependencies=[
+    (identify_need, issue_rfp),
+    (issue_rfp, receive_proposals_copy2), #Use the second copy here
+    (proposal_evaluation_process, select_supplier),
+    (select_supplier, begin_negotiations),
+    (begin_negotiations, sign_contract),
+    (sign_contract, onboard_supplier),
+    (onboard_supplier, execute_contract)
+])
+
+final_model = main_poset

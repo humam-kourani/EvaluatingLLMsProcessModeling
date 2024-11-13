@@ -1,0 +1,33 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+receive_inquiry = gen.activity('Receive customer inquiry')
+collect_info = gen.activity('Collect customer information')
+address_concerns = gen.activity('Address customer concerns or questions')
+guide_customer = gen.activity('Guide customer in selecting product/service')
+provide_quote = gen.activity('Provide quote')
+customer_approval = gen.activity('Customer approval') # Implicit activity, customer either approves or rejects.  We'll handle rejection later.
+place_order = gen.activity('Place order')
+record_order = gen.activity('Record order in system')
+send_confirmation = gen.activity('Send order confirmation to customer')
+reject_order = gen.activity('Reject order') #Added activity to handle rejection
+
+
+#Model the initial information gathering phase
+info_gathering = gen.partial_order(dependencies=[(receive_inquiry, collect_info), (collect_info, address_concerns)])
+
+#Model the customer selection and quote process.  Rejection is handled as an XOR.
+#The key change is to create copies of address_concerns and guide_customer to avoid reuse.
+address_concerns_copy = address_concerns.copy()
+guide_customer_copy = guide_customer.copy()
+selection_and_quote = gen.partial_order(dependencies=[(address_concerns_copy, guide_customer_copy), (guide_customer_copy, provide_quote)])
+
+choice_after_quote = gen.xor(selection_and_quote, reject_order)
+
+#Model the order placement and confirmation.
+order_placement = gen.partial_order(dependencies=[(choice_after_quote, place_order), (place_order, record_order), (record_order, send_confirmation)])
+
+
+#Combine everything into a single sequence
+final_model = gen.partial_order(dependencies=[(info_gathering, order_placement)])

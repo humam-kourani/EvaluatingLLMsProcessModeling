@@ -1,0 +1,26 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+define_objectives = gen.activity('Define campaign objectives')
+create_content = gen.activity('Create content')
+design_visuals = gen.activity('Design visuals')
+select_channels = gen.activity('Select promotion channels')
+launch_campaign = gen.activity('Launch campaign')
+track_performance = gen.activity('Track performance in real-time')
+collect_leads = gen.activity('Collect leads in CRM system')
+sales_followup = gen.activity('Sales teams follows up on leads')
+campaign_ends = gen.activity('Campaign period ends')
+analyze_performance = gen.activity('Analyze performance for future optimization')
+
+# Partial Order for Content Creation and Channel Selection (concurrent)
+poset_content_channels = gen.partial_order(dependencies=[(create_content,), (design_visuals,), (select_channels,)])
+
+# Partial Order for Post-Launch Activities (sequential and concurrent)
+launch_campaign_copy = launch_campaign.copy() # Create a copy to avoid reuse
+poset_post_launch = gen.partial_order(dependencies=[(launch_campaign_copy, track_performance), (launch_campaign_copy, collect_leads), (track_performance, campaign_ends), (collect_leads, sales_followup), (campaign_ends, analyze_performance)])
+
+
+# Combining the initial phase with the post-launch phase
+final_model = gen.partial_order(dependencies=[(define_objectives, poset_content_channels), (poset_content_channels, launch_campaign), (launch_campaign, poset_post_launch)])

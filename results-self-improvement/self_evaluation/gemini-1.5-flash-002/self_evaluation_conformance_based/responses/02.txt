@@ -1,0 +1,23 @@
+```python
+score_dictionary = {
+    'IT1': 0.95,
+    'IT2': 0.80,
+    'IT3': 0.85,
+    'IT4': 0.90
+}
+```
+
+**Evaluation Rationale:**
+
+All models attempt to represent the hiring process, but differ in their accuracy and structure.  Here's a breakdown:
+
+* **IT1:** This model effectively captures the sequential nature of the process and uses a partial order to correctly model the concurrent nature of onboarding activities.  The use of `xor` for optional salary negotiation is also appropriate. The overall structure is clean and well-organized. The slight deduction is due to the potential for slight ambiguity in the handling of the optional salary negotiation.
+
+* **IT2:** This model attempts to break down the process into smaller partial orders. However, this leads to excessive use of partial orders and copies of activities, making it less readable and potentially harder to understand. The use of multiple partial orders complicates the model and makes it less clear.  The score reflects this structural complexity.
+
+* **IT3:** Similar to IT2, this model uses multiple nested partial orders unnecessarily complicating the model and leading to potential confusion.  The score is slightly better than IT2 due to clearer representation of some subprocesses, but the nested partial order structure is still a significant drawback. It also incorrectly represents the negotiation as potentially occurring before the offer is extended.
+
+* **IT4:**  This model is reasonably well-structured but the use of separate partial orders for the interview and onboarding processes, while technically correct, makes the model slightly less concise and less intuitive than IT1.  The use of copies is necessary to avoid reuse and is done correctly.
+
+
+The overall scores reflect the balance between accuracy in representing the process steps and the clarity and efficiency of the model's structure.  IT1 is deemed superior due to its clarity, conciseness, and accurate representation of the process flow.

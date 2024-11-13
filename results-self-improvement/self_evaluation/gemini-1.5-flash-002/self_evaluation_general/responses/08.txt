@@ -1,0 +1,21 @@
+The process description outlines a sequential process with a choice in the corrective actions phase.  Let's evaluate each model:
+
+* **IT1:** This model uses a partial order for corrective actions, allowing for concurrency. This is a reasonable interpretation if multiple actions might be performed concurrently. The sequential flow of the rest of the process is correctly captured.  The only slight inaccuracy is the implicit assumption of concurrency in corrective actions, which might not always be the case.
+
+* **IT2:** This model uses an exclusive choice (`xor`) for solution implementation. This is less accurate than IT1 because it assumes only *one* corrective action is taken, whereas the description implies multiple might be needed.  The sequential flow is otherwise correct.
+
+* **IT3:** Similar to IT2, this uses an `xor` for corrective actions, implying only one action is taken, reducing accuracy.
+
+* **IT4:** This model also uses an `xor` for corrective actions, which is inaccurate for the same reason as IT2 and IT3. It also incorrectly places `notify_stakeholders` after `close_report` – notification should ideally happen concurrently or before the report is closed.
+
+
+Considering the above, here's the scoring:
+
+```python
+score_dictionary = {
+    'IT1': 0.95,  # Most accurate due to allowing concurrent corrective actions
+    'IT2': 0.80,  # Inaccurate assumption of a single corrective action
+    'IT3': 0.80,  # Inaccurate assumption of a single corrective action
+    'IT4': 0.75   # Inaccurate assumption of a single corrective action and incorrect ordering of notification and report closure
+}
+```

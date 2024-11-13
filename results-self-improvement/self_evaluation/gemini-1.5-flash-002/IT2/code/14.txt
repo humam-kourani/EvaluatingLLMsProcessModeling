@@ -1,0 +1,30 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+outline_objectives = gen.activity('Outline objectives')
+draft_plan = gen.activity('Draft plan')
+strategic_alignment_meeting = gen.activity('Conduct strategic alignment meeting')
+review_budget_feasibility = gen.activity('Review budget feasibility')
+provide_feedback = gen.activity('Provide feedback')
+adjust_plan = gen.activity('Adjust Plan')
+documented_approve_adjustment = gen.activity('Documented and approve adjustment')
+approve_final_budget = gen.activity('Approve final budget')
+distribute_budget = gen.activity('Distribute budget')
+implement_plan = gen.activity('Implement plan')
+
+
+# Sub-processes
+# Create copies to avoid reusing activities and partial orders.
+review_round_1 = gen.partial_order(dependencies=[(strategic_alignment_meeting.copy(), provide_feedback.copy()), (provide_feedback.copy(), adjust_plan.copy()), (adjust_plan.copy(), documented_approve_adjustment.copy())])
+review_round_2 = gen.partial_order(dependencies=[(strategic_alignment_meeting.copy(), provide_feedback.copy()), (provide_feedback.copy(), adjust_plan.copy()), (adjust_plan.copy(), documented_approve_adjustment.copy())])
+
+plan_review_loop = gen.loop(do=review_round_1, redo=gen.xor(review_round_2, None))
+
+initial_steps = gen.partial_order(dependencies=[(outline_objectives, draft_plan), (draft_plan, strategic_alignment_meeting)])
+feasibility_review = gen.partial_order(dependencies=[(plan_review_loop, review_budget_feasibility)])
+final_approval = gen.partial_order(dependencies=[(feasibility_review, approve_final_budget)])
+
+#To avoid reusing partial orders, create copies for the final model.
+final_model = gen.partial_order(dependencies=[(initial_steps.copy(), feasibility_review.copy()), (final_approval.copy(), distribute_budget), (distribute_budget, implement_plan)])

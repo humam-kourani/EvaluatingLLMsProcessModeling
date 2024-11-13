@@ -1,0 +1,28 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+identify_needs = gen.activity('Identify development needs or career aspirations')
+create_pdp = gen.activity('Create personal development plan')
+work_on_skills = gen.activity('Work on skill enhancement')
+receive_feedback = gen.activity('Receive feedback and evaluation from supervisors')
+consider_promotion = gen.activity('Consider employee for promotion or new role')
+conduct_review = gen.activity('Conducts formal performance review')
+approve_promotion = gen.activity('Approve promotion')
+set_responsibilities = gen.activity('Set new responsibilities')
+adjust_compensation = gen.activity('Adjust compensation')
+transition_role = gen.activity('Transition into new role')
+
+
+# Partial Order for PDP creation and initial skill enhancement
+poset_pdp = gen.partial_order(dependencies=[(identify_needs, create_pdp), (create_pdp, work_on_skills.copy()), (create_pdp, receive_feedback.copy())])
+
+# Partial Order for promotion process
+poset_promotion = gen.partial_order(dependencies=[(consider_promotion.copy(), conduct_review), (conduct_review, approve_promotion), (approve_promotion, set_responsibilities), (approve_promotion, adjust_compensation), (approve_promotion, transition_role)])
+
+# Combining the initial skill development and the promotion process. Feedback continues until promotion is considered.
+# Multiple copies are used to ensure uniqueness.
+poset_combined = gen.partial_order(dependencies=[(poset_pdp, consider_promotion.copy()), (work_on_skills.copy(), consider_promotion.copy()), (receive_feedback.copy(), consider_promotion.copy()), (consider_promotion.copy(), poset_promotion)])
+
+final_model = poset_combined

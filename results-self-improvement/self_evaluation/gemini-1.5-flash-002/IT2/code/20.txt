@@ -1,0 +1,35 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+guest_calls = gen.activity("Guest calls room service")
+manager_takes_order = gen.activity("Manager takes down the order")
+manager_submits_order = gen.activity("Manager submits order ticket to kitchen")
+manager_gives_sommelier_order = gen.activity("Manager gives order to sommelier")
+sommelier_fetches = gen.activity("Sommelier fetches wine and prepare alcoholic beverages")
+manager_assigns_waiter = gen.activity("Manager assigns order to waiter")
+waiter_readies_cart = gen.activity("Waiter readies cart")
+waiter_prepares_drinks = gen.activity("Waiter prepares nonalcoholic drinks")
+kitchen_prepares_food = gen.activity("Kitchen prepares food")
+waiter_delivers_order = gen.activity("Waiter delivers order to guest's room")
+waiter_returns = gen.activity("Waiter returns to room-service station")
+waiter_debits = gen.activity("Waiter debits guest's account")
+waiter_waits = gen.activity("Waiter waits/delays debiting")
+
+
+# Sub-processes
+sommelier_process = sommelier_fetches
+kitchen_process = kitchen_prepares_food
+waiter_process_no_alcohol = gen.partial_order(dependencies=[(waiter_readies_cart,), (waiter_prepares_drinks,)])
+
+
+# Optional Sommelier Process
+optional_sommelier = gen.xor(sommelier_process, None)
+
+# Main process
+initial_process = gen.partial_order(dependencies=[(guest_calls, manager_takes_order), (manager_takes_order, manager_submits_order), (manager_takes_order, manager_gives_sommelier_order), (manager_takes_order, manager_assigns_waiter)])
+
+main_process = gen.partial_order(dependencies=[(initial_process, optional_sommelier), (initial_process, kitchen_process), (initial_process, waiter_process_no_alcohol), (optional_sommelier, waiter_delivers_order), (kitchen_process, waiter_delivers_order), (waiter_process_no_alcohol, waiter_delivers_order), (waiter_delivers_order, waiter_returns)])
+
+final_model = gen.loop(do=main_process, redo=gen.xor(waiter_waits, None))

@@ -1,0 +1,24 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+identify_needs = gen.activity("Identify development needs or career aspirations")
+create_plan = gen.activity("Create personal development plan")
+work_on_skills = gen.activity("Work on skill enhancement")
+receive_feedback = gen.activity("Receive feedback and evaluation from supervisors")
+consider_promotion = gen.activity("Consider employee for promotion or new role")
+hr_review = gen.activity("Conducts formal performance review")
+approve_promotion = gen.activity("Approve promotion")
+set_responsibilities = gen.activity("Set new responsibilities")
+adjust_compensation = gen.activity("Adjust compensation")
+transition_role = gen.activity("Transition into new role")
+
+
+# Partial Orders and Loops
+poset_initial = gen.partial_order(dependencies=[(identify_needs, create_plan)])
+poset_skill_enhancement = gen.partial_order(dependencies=[(work_on_skills, receive_feedback)])
+poset_promotion = gen.partial_order(dependencies=[(consider_promotion, hr_review), (hr_review, approve_promotion), (approve_promotion, set_responsibilities), (approve_promotion, adjust_compensation), (set_responsibilities, transition_role), (adjust_compensation, transition_role)])
+
+#Combining Partial Orders into a single sequence
+final_model = gen.partial_order(dependencies=[(poset_initial, poset_skill_enhancement), (poset_skill_enhancement, poset_promotion)])

@@ -1,0 +1,27 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+login = gen.activity('Login')
+select_items = gen.activity('Select items')
+set_payment_method = gen.activity('Set payment method')
+pay = gen.activity('Pay')
+complete_installment_agreement = gen.activity('Complete installment agreement')
+select_free_reward = gen.activity('Select free reward')
+deliver_items = gen.activity('Deliver items')
+return_items = gen.activity('Return items')
+
+# Payment Choice
+payment_choice = gen.xor(pay, complete_installment_agreement)
+
+# Parallel Selection and Payment
+select_items_copy = select_items.copy() # Create a copy to avoid reuse
+parallel_selection_payment = gen.partial_order(dependencies=[(select_items,), (set_payment_method,)])
+
+
+#Delivery Loop
+delivery_loop = gen.loop(do=deliver_items, redo=return_items)
+
+#Final Partial Order
+final_model = gen.partial_order(dependencies=[(login, parallel_selection_payment), (parallel_selection_payment, payment_choice), (select_items_copy, select_free_reward), (payment_choice, delivery_loop)])

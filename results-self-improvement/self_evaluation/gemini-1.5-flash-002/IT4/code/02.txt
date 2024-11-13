@@ -1,0 +1,55 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+identify_need = gen.activity('Identify need for new hire')
+create_jd = gen.activity('Create job description')
+post_jd = gen.activity('Post job description')
+collect_resumes = gen.activity('Collect resumes')
+screen_resumes = gen.activity('Screen resumes')
+initial_phone_interviews = gen.activity('Conduct initial phone interviews')
+invite_interviews = gen.activity('Invite candidates for interviews')
+in_person_interview = gen.activity('Conduct an in-person interview')
+virtual_interview = gen.activity('Conduct a virtual interview')
+choose_candidate = gen.activity('Choose candidate')
+extend_offer = gen.activity('Extend offer')
+negotiate_salary = gen.activity('Negotiate salary')
+begin_onboarding = gen.activity('Begin onboarding process')
+complete_paperwork = gen.activity('Complete paperwork')
+complete_orientation = gen.activity('Complete orientation')
+complete_training = gen.activity('Complete training')
+
+
+# Partial order for interview process
+interview_process = gen.partial_order(dependencies=[
+    (invite_interviews, in_person_interview),
+    (invite_interviews, virtual_interview)
+])
+
+# Partial order for onboarding process
+onboarding_process = gen.partial_order(dependencies=[
+    (begin_onboarding, complete_paperwork),
+    (begin_onboarding, complete_orientation),
+    (begin_onboarding, complete_training)
+])
+
+# Create a copy of begin_onboarding for use in the main process
+begin_onboarding_copy = begin_onboarding.copy()
+
+# Combining sub-processes
+main_process = gen.partial_order(dependencies=[
+    (identify_need, create_jd),
+    (create_jd, post_jd),
+    (post_jd, collect_resumes),
+    (collect_resumes, screen_resumes),
+    (screen_resumes, initial_phone_interviews),
+    (initial_phone_interviews, interview_process),
+    (interview_process, choose_candidate),
+    (choose_candidate, extend_offer),
+    (extend_offer, negotiate_salary),
+    (negotiate_salary, begin_onboarding_copy), # Use the copy here
+    (begin_onboarding_copy, onboarding_process) # Use the copy here
+])
+
+final_model = main_process

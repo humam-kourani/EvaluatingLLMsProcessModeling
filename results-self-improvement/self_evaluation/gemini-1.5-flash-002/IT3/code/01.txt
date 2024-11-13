@@ -1,0 +1,43 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+receive_inquiry = gen.activity('Receive customer inquiry')
+collect_info = gen.activity('Collect customer information')
+address_concerns = gen.activity('Address customer concerns or questions')
+guide_selection = gen.activity('Guide customer in selecting product/service')
+provide_quote = gen.activity('Provide quote')
+customer_approval = gen.activity('Customer approves quote') 
+place_order = gen.activity('Place order')
+record_order = gen.activity('Record order in system')
+send_confirmation = gen.activity('Send order confirmation to customer')
+
+
+# Create copies of ALL activities to ensure uniqueness.  This is crucial.
+receive_inquiry_copy = receive_inquiry.copy()
+collect_info_copy = collect_info.copy()
+address_concerns_copy1 = address_concerns.copy()
+address_concerns_copy2 = address_concerns.copy() 
+guide_selection_copy = guide_selection.copy()
+provide_quote_copy = provide_quote.copy()
+customer_approval_copy1 = customer_approval.copy()
+customer_approval_copy2 = customer_approval.copy() #Added a second copy because customer_approval is used twice later
+place_order_copy = place_order.copy()
+record_order_copy = record_order.copy()
+send_confirmation_copy = send_confirmation.copy()
+
+
+#Combine initial information gathering steps
+poset_initial = gen.partial_order(dependencies=[(receive_inquiry_copy, collect_info_copy), (collect_info_copy, address_concerns_copy1)])
+
+#Combine steps after initial inquiry
+poset_post_inquiry = gen.partial_order(dependencies=[(address_concerns_copy2, guide_selection_copy), (guide_selection_copy, provide_quote_copy), (provide_quote_copy, customer_approval_copy1)])
+
+#Combine order placement and confirmation
+poset_order = gen.partial_order(dependencies=[(customer_approval_copy2, place_order_copy), (place_order_copy, record_order_copy), (record_order_copy, send_confirmation_copy)])
+
+#Combine all into a single sequential process.  More copies to prevent reuse.
+poset_initial_copy = poset_initial.copy()
+poset_post_inquiry_copy = poset_post_inquiry.copy()
+
+final_model = gen.partial_order(dependencies=[(poset_initial_copy, poset_post_inquiry_copy), (poset_post_inquiry_copy, poset_order)])

@@ -1,0 +1,31 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+receive_inquiry = gen.activity('Receive customer inquiry')
+collect_info = gen.activity('Collect customer information')
+address_concerns = gen.activity('Address customer concerns or questions')
+guide_customer = gen.activity('Guide customer in selecting product/service')
+provide_quote = gen.activity('Provide quote')
+customer_approval = gen.activity('Customer approves quote') #Implicit activity based on context.
+place_order = gen.activity('Place order')
+record_order = gen.activity('Record order in system')
+send_confirmation = gen.activity('Send order confirmation to customer')
+
+#Combine initial information gathering steps
+initial_info = gen.partial_order(dependencies=[(receive_inquiry, collect_info), (collect_info, address_concerns)])
+
+#Sequence post-inquiry steps.  Creating copies to avoid reuse.
+address_concerns_copy = address_concerns.copy()
+guide_customer_copy = guide_customer.copy()
+provide_quote_copy = provide_quote.copy()
+post_inquiry = gen.partial_order(dependencies=[(address_concerns_copy, guide_customer_copy), (guide_customer_copy, provide_quote_copy), (provide_quote_copy, customer_approval.copy())])
+
+#Sequence post-approval steps. Creating copies to avoid reuse.
+customer_approval_copy = customer_approval.copy()
+place_order_copy = place_order.copy()
+record_order_copy = record_order.copy()
+post_approval = gen.partial_order(dependencies=[(customer_approval_copy, place_order_copy), (place_order_copy, record_order_copy), (record_order_copy, send_confirmation)])
+
+#Combine all stages
+final_model = gen.partial_order(dependencies=[(initial_info, post_inquiry), (post_inquiry, post_approval)])

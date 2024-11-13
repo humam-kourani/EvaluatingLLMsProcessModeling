@@ -1,0 +1,31 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+submit_request = gen.activity('Submit IT solution request')
+assess_request = gen.activity('Assess compatibility')
+evaluate_cost = gen.activity('Evaluate cost and resource needs')
+procure_tools = gen.activity('Procure necessary tools or licenses')
+install_solution = gen.activity('Install the solution')
+test_solution = gen.activity('Test solution')
+rollout_solution = gen.activity('Roll out solution to requesting department')
+provide_training = gen.activity('Provide training')
+provide_support = gen.activity('Provide support for troubleshooting')
+
+# Partial order for the main process.  Note the use of copies to avoid reuse.
+poset_main = gen.partial_order(dependencies=[
+    (submit_request, assess_request),
+    (assess_request, evaluate_cost),
+    (assess_request, procure_tools), # Assuming assessment happens before procurement
+    (evaluate_cost, procure_tools), # Consider cost evaluation before procurement
+    (procure_tools, install_solution),
+    (install_solution, test_solution),
+    (test_solution, rollout_solution),
+    (rollout_solution, provide_training.copy()), # Use a copy to avoid reuse
+    (rollout_solution, provide_support) # Support can happen concurrently with training.
+])
+
+
+# Optional training is handled within the main partial order using xor. No separate xor needed.
+final_model = poset_main

@@ -1,0 +1,43 @@
+The provided process description outlines an online shopping process with the following key characteristics:
+
+1. **Sequential Start:** The process begins with the user logging in.
+2. **Concurrency:** Selecting items and setting the payment method happen concurrently after login.
+3. **Independent Reward Selection:** Selecting a free reward is independent of payment but happens after selecting items.
+4. **Payment Choice:** The user chooses between paying directly or using an installment plan.
+5. **Delivery and Return:** Items are delivered, and the user can return items for re-delivery (loop).
+
+
+Let's evaluate each POWL model:
+
+* **IT1:** This model correctly captures the sequential start, concurrency of item selection and payment method setting, and the payment choice. The free reward selection is also correctly placed after item selection. The return loop is appropriately modeled.  However, it incorrectly combines the free reward selection into the parallel selection and payment partial order.  The free reward should be independent of the payment method selection.
+
+* **IT2:** This model is similar to IT1 but it separates the reward selection making it independent as required. It also avoids reusing the same activity within the model. However, the return loop is only applied to `deliver_items`, ignoring the rest of the process after the reward and payment.
+
+
+* **IT3:** This model separates the reward selection correctly. However, it uses an unnecessary delivery loop, which is incorrectly placed within the main partial order as a direct consequence of the payment choice. The  return of items should cause a repeat of the delivery *after* the payment choice and reward selection.
+
+
+* **IT4:** This model attempts to incorporate the return loop within a larger loop that encompasses all activities after login. However, this approach inappropriately places the payment choice within the concurrent selection. This model also makes `select_free_reward`  sequentially dependent on payment choice. The return loop should only affect the delivery.
+
+
+**Scoring:**
+
+Based on the above analysis:
+
+* IT1: The concurrency and the order of operations is good, but the free reward is incorrectly included in the concurrency.  Score: 0.75
+
+* IT2: The concurrency and the independent reward are accurately modeled. The loop is however wrong. Score: 0.8
+
+* IT3: The reward selection is independent, but the loop is wrongly placed. Score: 0.7
+
+* IT4: Payment is incorrectly concurrent with selection and reward selection is incorrectly dependent on payment. Score: 0.6
+
+
+```python
+score_dictionary = {
+    'IT1': 0.75,
+    'IT2': 0.8,
+    'IT3': 0.7,
+    'IT4': 0.6
+}
+```

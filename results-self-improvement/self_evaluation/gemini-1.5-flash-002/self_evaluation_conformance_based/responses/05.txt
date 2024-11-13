@@ -1,0 +1,21 @@
+The provided process description outlines a sequential process with optional parallel steps. Let's evaluate each model:
+
+* **IT1:** This model is quite good. It correctly represents the sequential flow and the optional nature of site visits and interviews using `xor`. The use of multiple copies of `select_supplier` is a bit clunky but necessary to avoid the reuse issue.  The overall structure is clear and accurate.
+
+* **IT2:** This model attempts to handle multiple proposals using a loop, which is a good idea. However, it introduces unnecessary complexity and copies of `receive_proposals`. The optional site visits and interviews are handled correctly. The main sequential flow is also correct.  The loop for evaluating multiple proposals adds complexity, but it's a reasonable approach.
+
+* **IT3:** This model is less precise. It combines proposal evaluation steps and post-selection steps inappropriately into a single large partial order.  The optional nature of site visits and interviews is not explicitly modeled, and the model lacks the clarity of IT1.
+
+* **IT4:**  Similar to IT3, this model lumps together steps that should be more clearly separated. The use of multiple partial orders makes the model harder to understand and potentially less precise. The optional nature of site visits and interviews is better handled than in IT3, but the overall structure is less elegant than IT1.
+
+
+Based on this analysis:
+
+```python
+score_dictionary = {
+    'IT1': 0.95,
+    'IT2': 0.85,
+    'IT3': 0.70,
+    'IT4': 0.75
+}
+```

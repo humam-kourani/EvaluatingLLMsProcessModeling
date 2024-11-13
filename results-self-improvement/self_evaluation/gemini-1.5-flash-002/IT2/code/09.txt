@@ -1,0 +1,44 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+identify_idea = gen.activity('Identify idea for new product or improvement')
+conduct_initial_research = gen.activity('Conduct initial research')
+conduct_feasibility_studies = gen.activity('Conduct feasibility studies')
+draft_design_concepts = gen.activity('Draft design concepts')
+select_promising_design = gen.activity('Select promising design')
+build_prototype = gen.activity('Build prototype')
+test_functionality = gen.activity('Test functionality')
+test_safety = gen.activity('Test safety')
+test_market_potential = gen.activity('Test market potential')
+collect_feedback = gen.activity('Collect feedback from testing phase')
+refine_prototype = gen.activity('Refine prototype')
+approve_prototype = gen.activity('Approve prototype for further development')
+discard_prototype = gen.activity('Discard prototype')
+
+# Partial Order for Initial Research and Feasibility Studies
+poset_initial_research = gen.partial_order(dependencies=[(conduct_initial_research, conduct_feasibility_studies)])
+
+# Partial Order for Design Phase
+poset_design = gen.partial_order(dependencies=[(poset_initial_research, draft_design_concepts), (draft_design_concepts, select_promising_design)])
+
+# Partial Order for Testing Phase
+test_functionality_copy1 = test_functionality.copy()
+test_safety_copy1 = test_safety.copy()
+test_market_potential_copy1 = test_market_potential.copy()
+test_phase_activities1 = [test_functionality_copy1, test_safety_copy1, test_market_potential_copy1]
+test_phase_poset1 = gen.partial_order(dependencies=[(activity,) for activity in test_phase_activities1])
+
+test_functionality_copy2 = test_functionality.copy()
+test_safety_copy2 = test_safety.copy()
+test_market_potential_copy2 = test_market_potential.copy()
+test_phase_activities2 = [test_functionality_copy2, test_safety_copy2, test_market_potential_copy2]
+test_phase_poset2 = gen.partial_order(dependencies=[(activity,) for activity in test_phase_activities2])
+
+
+# Loop for Prototype Refinement and Retesting
+refine_and_retest = gen.loop(do=test_phase_poset1, redo=gen.partial_order(dependencies=[(collect_feedback, refine_prototype), (refine_prototype, test_phase_poset2)]))
+
+# Combine all into a single partial order
+final_model = gen.partial_order(dependencies=[(identify_idea, poset_design), (poset_design, build_prototype), (build_prototype, refine_and_retest), (refine_and_retest, gen.xor(approve_prototype, discard_prototype))])

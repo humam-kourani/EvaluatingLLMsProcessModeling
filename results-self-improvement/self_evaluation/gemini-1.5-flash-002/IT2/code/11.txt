@@ -1,0 +1,33 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+customer_signs_up = gen.activity('Customer signs up')
+generate_account = gen.activity('Generate account')
+assign_access = gen.activity('Assign access')
+set_automatic_triggers = gen.activity('Set automatic triggers for billing cycles')
+send_regular_updates = gen.activity('Send regular updates')
+send_product_enhancements = gen.activity('Send product enhancements')
+send_renewal_notifications = gen.activity('Send renewal notifications')
+customer_submits_cancellation_request = gen.activity('Customer submits cancellation request')
+apply_refund = gen.activity('apply refund')
+apply_charges = gen.activity('apply charges')
+deactivate_subscription = gen.activity('Deactivate subscription')
+settle_final_account_balance = gen.activity('Settle final account balance')
+
+# Subprocesses
+initial_setup = gen.partial_order(dependencies=[(customer_signs_up, generate_account), (generate_account, assign_access), (assign_access, set_automatic_triggers)])
+updates = gen.partial_order(dependencies=[(send_regular_updates,), (send_product_enhancements,), (send_renewal_notifications,)])
+cancellation_process = gen.partial_order(dependencies=[(customer_submits_cancellation_request, apply_refund), (customer_submits_cancellation_request, apply_charges), (apply_refund, deactivate_subscription), (apply_charges, deactivate_subscription), (deactivate_subscription, settle_final_account_balance)])
+
+# Combining subprocesses
+main_process = gen.partial_order(dependencies=[(initial_setup, updates), (updates, cancellation_process)])
+
+
+# optional cancellation path.  The error was caused by reusing cancellation_process.  We create a copy.
+cancellation_process_copy = cancellation_process.copy()
+optional_cancellation = gen.xor(main_process, cancellation_process_copy)
+
+
+final_model = optional_cancellation

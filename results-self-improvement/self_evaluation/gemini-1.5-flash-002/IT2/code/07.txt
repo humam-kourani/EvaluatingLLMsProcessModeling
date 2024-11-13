@@ -1,0 +1,52 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+customer_searches_for_ticket = gen.activity('Customer searches for ticket')
+select_route = gen.activity('Select route')
+select_date_and_time = gen.activity('Select date and time')
+provide_personal_information = gen.activity('Provide personal information')
+provide_payment_details = gen.activity('Provide payment details')
+generate_ticket = gen.activity('Generate ticket')
+send_ticket_via_email = gen.activity('Send ticket via email')
+send_ticket_via_sms = gen.activity('Send ticket via SMS')
+update_seat_inventory = gen.activity('Update seat inventory')
+send_reminder = gen.activity('Send reminder')
+send_instructions = gen.activity('Send instructions')
+customer_completes_journey = gen.activity('Customer completes journey')
+post_travel_feedback = gen.activity('Post-travel feedback or services')
+
+
+# Partial Order for initial steps
+initial_steps = gen.partial_order(dependencies=[
+    (customer_searches_for_ticket, select_route),
+    (customer_searches_for_ticket, select_date_and_time),
+    (select_route, provide_personal_information),
+    (select_date_and_time, provide_personal_information),
+    (provide_personal_information, provide_payment_details),
+    (provide_payment_details, generate_ticket.copy()) # Create a copy to avoid reuse
+])
+
+# XOR for ticket delivery method
+ticket_delivery = gen.xor(send_ticket_via_email, send_ticket_via_sms)
+
+#Partial Order after ticket generation.  Using copies to avoid reuse.
+generate_ticket_copy_1 = generate_ticket.copy()
+generate_ticket_copy_2 = generate_ticket.copy()
+post_ticket_generation = gen.partial_order(dependencies=[
+    (generate_ticket_copy_1, ticket_delivery),
+    (generate_ticket_copy_2, update_seat_inventory)
+])
+
+#Optional reminders and instructions
+optional_pre_travel_communication = gen.xor(gen.partial_order(dependencies=[(post_ticket_generation, send_reminder), (send_reminder, send_instructions)]), None)
+
+# Final Partial Order combining all steps
+final_poset = gen.partial_order(dependencies=[
+    (initial_steps, optional_pre_travel_communication),
+    (optional_pre_travel_communication, customer_completes_journey),
+    (customer_completes_journey, post_travel_feedback)
+])
+
+final_model = final_poset

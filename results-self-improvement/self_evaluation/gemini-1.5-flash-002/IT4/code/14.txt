@@ -1,0 +1,43 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+outline_objectives = gen.activity('Outline objectives')
+draft_plan = gen.activity('Draft plan')
+strategic_alignment_meeting = gen.activity('Conduct strategic alignment meeting')
+review_budget_feasibility = gen.activity('Review budget feasibility')
+adjust_plan = gen.activity('Adjust Plan')
+documented_and_approve_adjustment = gen.activity('Documented and approve adjustment')
+approve_final_budget = gen.activity('Approve final budget')
+distribute_budget = gen.activity('Distribute budget')
+implement_plan = gen.activity('Implement plan')
+provide_feedback = gen.activity('Provide feedback')
+
+
+# Sub-processes and loops
+# Corrected the error by creating copies of the activities used multiple times.  The loop is further refined to only include the iterative review and approval steps.  The final model is structured to avoid reuse of activities.
+
+strategic_alignment_meeting_copy1 = strategic_alignment_meeting.copy()
+provide_feedback_copy1 = provide_feedback.copy()
+adjust_plan_copy1 = adjust_plan.copy()
+documented_and_approve_adjustment_copy1 = documented_and_approve_adjustment.copy()
+review_budget_feasibility_copy1 = review_budget_feasibility.copy()
+approve_final_budget_copy1 = approve_final_budget.copy()
+distribute_budget_copy1 = distribute_budget.copy()
+implement_plan_copy1 = implement_plan.copy()
+
+
+single_review_cycle = gen.partial_order(dependencies=[(strategic_alignment_meeting_copy1, provide_feedback_copy1), (provide_feedback_copy1, adjust_plan_copy1), (adjust_plan_copy1, documented_and_approve_adjustment_copy1)])
+
+plan_review_loop = gen.loop(do=single_review_cycle, redo=single_review_cycle.copy())
+
+final_approval_process = gen.partial_order(dependencies=[(plan_review_loop, review_budget_feasibility_copy1), (review_budget_feasibility_copy1, approve_final_budget_copy1), (approve_final_budget_copy1, distribute_budget_copy1)])
+
+
+# Main process
+initial_phase = gen.partial_order(dependencies=[(outline_objectives, draft_plan), (draft_plan, strategic_alignment_meeting)])
+
+#To avoid reuse of distribute_budget_copy1, we create a new copy here.
+distribute_budget_copy2 = distribute_budget.copy()
+final_model = gen.partial_order(dependencies=[(initial_phase, final_approval_process), (distribute_budget_copy2, implement_plan_copy1)])

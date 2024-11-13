@@ -1,0 +1,32 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator(True, True)
+
+# Activities
+file_complaint = gen.activity('File complaint')
+log_complaint = gen.activity('Log complaint')
+assign_complaint = gen.activity('Assign complaint to relevant department')
+review_complaint = gen.activity('Review complaint details')
+approve_notify = gen.activity('Approve and notify customer')
+reject_notify = gen.activity('Reject and notify customer')
+process_reimbursement = gen.activity('Process reimbursement')
+resolve_complaint_approve = gen.activity('Resolve complaint')
+resolve_complaint_reject = gen.activity('Resolve complaint')
+provide_feedback_approve = gen.activity('Provide feedback')
+provide_feedback_reject = gen.activity('Provide feedback')
+
+
+# Subprocesses
+approve_path = gen.partial_order(dependencies=[(approve_notify, process_reimbursement), (process_reimbursement, resolve_complaint_approve)])
+reject_path = gen.partial_order(dependencies=[(reject_notify, resolve_complaint_reject)])
+decision_point = gen.xor(approve_path, reject_path)
+
+# Main process
+initial_steps = gen.partial_order(dependencies=[(file_complaint, log_complaint), (log_complaint, assign_complaint), (assign_complaint, review_complaint), (review_complaint, decision_point)])
+
+#Combine resolve complaint activities and feedback into a single partial order.  Avoid direct reuse of resolve_complaint
+final_resolution = gen.partial_order(dependencies=[(resolve_complaint_approve, provide_feedback_approve), (resolve_complaint_reject, provide_feedback_reject)])
+
+# Correctly combine all subprocesses into a single partial order.  The crucial change is combining all into one partial order.  We also avoid reusing activities by creating distinct instances for each path.  We create a single final partial order to encompass all steps.
+
+final_model = gen.partial_order(dependencies=[(file_complaint, initial_steps), (initial_steps, decision_point), (decision_point, final_resolution)])

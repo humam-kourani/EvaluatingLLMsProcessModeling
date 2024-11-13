@@ -1,0 +1,28 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+outline_objectives = gen.activity('Outline objectives')
+draft_plan = gen.activity('Draft plan')
+strategic_alignment_meeting = gen.activity('Conduct strategic alignment meeting')
+review_budget_feasibility = gen.activity('Review budget feasibility')
+adjust_plan = gen.activity('Adjust Plan')
+documented_approve_adjustment = gen.activity('Documented and approve adjustment')
+approve_final_budget = gen.activity('Approve final budget')
+distribute_budget = gen.activity('Distribute budget')
+implement_plan = gen.activity('Implement plan')
+
+
+# Subprocesses
+initial_phase = gen.partial_order(dependencies=[(outline_objectives, draft_plan)])
+strategic_alignment_meeting_copy = strategic_alignment_meeting.copy() # Create a copy to avoid reuse
+review_loop_body = gen.partial_order(dependencies=[(strategic_alignment_meeting_copy, review_budget_feasibility), (review_budget_feasibility, adjust_plan), (adjust_plan, documented_approve_adjustment)])
+review_loop = gen.loop(do=review_loop_body, redo=None) #This models the iterative review process.
+
+
+# Combining sub-processes
+main_process = gen.partial_order(dependencies=[(initial_phase, strategic_alignment_meeting), (review_loop, approve_final_budget), (approve_final_budget, distribute_budget), (distribute_budget, implement_plan)])
+
+
+final_model = main_process

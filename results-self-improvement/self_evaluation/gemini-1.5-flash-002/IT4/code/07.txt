@@ -1,0 +1,41 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+customer_searches_for_ticket = gen.activity('Customer searches for ticket')
+select_route = gen.activity('Select route')
+select_date_and_time = gen.activity('Select date and time')
+provide_personal_information = gen.activity('Provide personal information')
+provide_payment_details = gen.activity('Provide payment details')
+generate_ticket = gen.activity('Generate ticket')
+send_ticket_via_email = gen.activity('Send ticket via email')
+send_ticket_via_sms = gen.activity('Send ticket via SMS')
+update_seat_inventory = gen.activity('Update seat inventory')
+send_reminder = gen.activity('Send reminder')
+send_instructions = gen.activity('Send instructions')
+customer_completes_journey = gen.activity('Customer completes journey')
+post_travel_feedback_or_services = gen.activity('Post-travel feedback or services')
+
+
+# Combining activities into sub-processes
+
+# initial selection
+initial_selection = gen.partial_order(dependencies=[(customer_searches_for_ticket, select_route), (select_route, select_date_and_time.copy())])
+
+# Personal and payment info
+personal_payment_info = gen.partial_order(dependencies=[(select_date_and_time.copy(), provide_personal_information), (provide_personal_information, provide_payment_details.copy())])
+
+# Ticket generation and sending
+ticket_generation = gen.partial_order(dependencies=[(provide_payment_details.copy(), generate_ticket), (generate_ticket, update_seat_inventory)])
+ticket_sending = gen.xor(send_ticket_via_email, send_ticket_via_sms)
+ticket_process = gen.partial_order(dependencies=[(ticket_generation, ticket_sending.copy())])
+
+
+# Reminders and instructions (optional)
+reminders_instructions = gen.partial_order(dependencies=[(ticket_sending.copy(), send_reminder), (send_reminder, send_instructions)])
+optional_reminders_instructions = gen.xor(reminders_instructions, None)
+
+
+# Final partial order combining all subprocesses
+final_model = gen.partial_order(dependencies=[(initial_selection, personal_payment_info), (personal_payment_info, ticket_process), (ticket_process, optional_reminders_instructions), (optional_reminders_instructions, customer_completes_journey), (customer_completes_journey, post_travel_feedback_or_services)])

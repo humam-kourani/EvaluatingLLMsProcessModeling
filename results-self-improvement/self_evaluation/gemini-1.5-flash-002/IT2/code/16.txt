@@ -1,0 +1,77 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator(True, True)
+
+# Activities
+send_notification = gen.activity('Send notification')
+prepare_statements = gen.activity('Prepare financial statements')
+gather_documents = gen.activity('Gather necessary documents')
+check_updates = gen.activity('Check regulatory updates')
+submit_documents = gen.activity('Submit documents')
+review_submission = gen.activity('Review submission')
+request_clarifications = gen.activity('Request clarifications of discrepancies')
+receive_clarifications = gen.activity('Receive clarifications')
+complete_risk_assessment = gen.activity('Complete risk assessment/mitigation')
+evaluate_financial_risks = gen.activity('Evaluate financial risks')
+evaluate_operational_risks = gen.activity('Evaluate operational risks')
+evaluate_compliance_risks = gen.activity('Evaluate compliance risks')
+launch_investigation = gen.activity('Launch detailed investigation')
+conduct_data_analysis = gen.activity('Conduct data analysis')
+conduct_interviews = gen.activity('Conduct interviews')
+perform_site_visits = gen.activity('Perform site visits')
+compile_report = gen.activity('Compile audit report')
+review_report = gen.activity('Review report by audit director')
+approve_report = gen.activity('Approve report')
+send_report_revision = gen.activity('Send report for revision')
+update_resubmit_report = gen.activity('Update and resubmit report')
+distribute_report = gen.activity('Distribute final report')
+archive_report = gen.activity('Archive report')
+close_audit = gen.activity('Close audit process')
+
+
+# Subprocesses
+regional_office_prep = gen.partial_order(dependencies=[(prepare_statements,), (gather_documents,)])
+risk_assessment = gen.partial_order(dependencies=[(evaluate_financial_risks,), (evaluate_operational_risks,), (evaluate_compliance_risks,)])
+investigation = gen.partial_order(dependencies=[(conduct_data_analysis,), (conduct_interviews,), (perform_site_visits,)])
+
+# Create copies to avoid reuse
+request_clarifications_copy = request_clarifications.copy()
+receive_clarifications_copy = receive_clarifications.copy()
+complete_risk_assessment_copy1 = complete_risk_assessment.copy()
+complete_risk_assessment_copy2 = complete_risk_assessment.copy()  # Added copy for the xor
+complete_risk_assessment_copy3 = complete_risk_assessment.copy()  # Added copy for the main process
+complete_risk_assessment_copy4 = complete_risk_assessment.copy() #Added another copy for clarification subprocess
+compile_report_copy = compile_report.copy()
+review_submission_copy = review_submission.copy()
+approve_report_copy = approve_report.copy()
+review_report_copy = review_report.copy()  # Added copy for the loop
+launch_investigation_copy = launch_investigation.copy()
+submit_documents_copy = submit_documents.copy()
+send_notification_copy = send_notification.copy()
+check_updates_copy = check_updates.copy()
+
+
+# Clarification sub process
+clarification_subprocess = gen.partial_order(dependencies=[(request_clarifications_copy, receive_clarifications_copy), (receive_clarifications_copy, complete_risk_assessment_copy4)])
+
+# Loops and Choices
+director_review_loop = gen.loop(do=gen.partial_order(dependencies=[(review_report_copy, gen.xor(approve_report_copy, send_report_revision))]), redo=gen.xor(None, update_resubmit_report))
+
+# Main Process
+final_model = gen.partial_order(dependencies=[
+    (send_notification_copy, regional_office_prep),
+    (send_notification_copy, check_updates_copy),
+    (regional_office_prep, submit_documents_copy),
+    (check_updates_copy, submit_documents_copy),
+    (submit_documents_copy, review_submission_copy),
+    (review_submission_copy, gen.xor(clarification_subprocess, complete_risk_assessment_copy3)),
+    (complete_risk_assessment_copy3, gen.xor(launch_investigation_copy, compile_report_copy)),
+    (launch_investigation_copy, investigation),
+    (investigation, compile_report_copy),
+    (compile_report_copy, director_review_loop),
+    (approve_report_copy, distribute_report),
+    (approve_report_copy, archive_report),
+    (distribute_report, close_audit),
+    (archive_report, close_audit)
+
+])

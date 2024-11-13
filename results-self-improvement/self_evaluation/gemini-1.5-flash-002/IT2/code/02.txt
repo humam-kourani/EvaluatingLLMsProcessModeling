@@ -1,0 +1,40 @@
+from utils.model_generation import ModelGenerator
+
+gen = ModelGenerator()
+
+# Activities
+identify_need = gen.activity('Identify need for new hire')
+create_jd = gen.activity('Create job description')
+post_jd = gen.activity('Post job description')
+collect_resumes = gen.activity('Collect resumes')
+screen_resumes = gen.activity('Screen resumes')
+initial_phone_interviews = gen.activity('Conduct initial phone interviews')
+invite_interviews = gen.activity('Invite candidates for interviews')
+in_person_interview = gen.activity('Conduct an in-person interview')
+virtual_interview = gen.activity('Conduct a virtual interview')
+choose_candidate = gen.activity('Choose candidate')
+extend_offer = gen.activity('Extend offer')
+negotiate_salary = gen.activity('Negotiate salary')
+begin_onboarding = gen.activity('Begin onboarding process')
+complete_paperwork = gen.activity('Complete paperwork')
+complete_orientation = gen.activity('Complete orientation')
+complete_training = gen.activity('Complete training')
+
+
+# Subprocesses and choices
+interview_type_choice = gen.xor(in_person_interview, virtual_interview)
+onboarding_poset = gen.partial_order(dependencies=[(complete_paperwork, complete_orientation), (complete_orientation, complete_training)])
+offer_process_poset = gen.partial_order(dependencies=[(extend_offer, negotiate_salary), (negotiate_salary, begin_onboarding.copy())]) #Fixed: Created a copy of begin_onboarding
+
+
+# Combining subprocesses
+hr_actions_poset = gen.partial_order(dependencies=[(create_jd, post_jd), (post_jd, collect_resumes.copy())]) 
+screening_poset = gen.partial_order(dependencies=[(collect_resumes.copy(), screen_resumes), (screen_resumes, initial_phone_interviews.copy())]) 
+
+interviewing_poset = gen.partial_order(dependencies=[(initial_phone_interviews.copy(), invite_interviews), (invite_interviews, interview_type_choice)])
+
+
+# Main process flow
+main_poset = gen.partial_order(dependencies=[(identify_need, hr_actions_poset), (hr_actions_poset, screening_poset), (screening_poset, interviewing_poset), (interviewing_poset, choose_candidate), (choose_candidate, offer_process_poset), (offer_process_poset, begin_onboarding.copy()), (begin_onboarding.copy(), onboarding_poset)]) #Fixed: Created a copy of begin_onboarding
+
+final_model = main_poset
