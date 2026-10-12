@@ -1,0 +1,15 @@
+```python
+rule1 = NotCoExistence("Customer places order online", "Customer places order over the phone")
+rule2 = Response("Customer places order online", "Generate and send order confirmation")
+rule3 = Response("Customer places order over the phone", "Generate and send order confirmation")
+rule4 = Response("Generate and send order confirmation", "Pick and pack items")
+rule5 = CoExistence("Pick and pack items", "Generate shipping label")
+rule6 = Precedence("Generate and send order confirmation", "Pick and pack items")
+rule7 = Precedence("Generate and send order confirmation", "Generate shipping label")
+rule8 = Precedence("Pick and pack items", "Hand over order to logistics provider")
+rule9 = Precedence("Generate shipping label", "Hand over order to logistics provider")
+rule10 = Response("Hand over order to logistics provider", "Send tracking information to customer")
+rule11 = Response("Send tracking information to customer", "Monitor shipment")
+rule12 = Response("Monitor shipment", "Successful delivery")
+rule13 = Precedence("Successful delivery", "Process customer feedback or returns")
+```

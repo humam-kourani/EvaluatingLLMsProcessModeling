@@ -1,0 +1,16 @@
+```python
+rule1 = Init("Customer signs up")
+rule2 = Response("Customer signs up", "Generate account")
+rule3 = Response("Generate account", "Assign access")
+rule4 = Response("Generate account", "Set automatic triggers for billing cycles")
+rule5 = CoExistence("Assign access", "Set automatic triggers for billing cycles")
+rule6 = Precedence("Generate account", "Send regular updates")
+rule7 = Precedence("Generate account", "Send product enhancements")
+rule8 = Precedence("Generate account", "Send renewal notifications")
+rule9 = Response("Customer submits cancellation request", "Deactivate subscription")
+rule10 = Response("Customer submits cancellation request", "Settle final account balance")
+rule11 = Precedence("Customer submits cancellation request", "Apply refund")
+rule12 = Precedence("Customer submits cancellation request", "Apply charges")
+rule13 = NotCoExistence("Apply refund", "Apply charges")
+rule14 = CoExistence("Deactivate subscription", "Settle final account balance")
+```

@@ -1,0 +1,17 @@
+```python
+rule1 = Init('File complaint')
+rule2 = Response('File complaint', 'Log complaint')
+rule3 = Precedence('File complaint', 'Log complaint')
+rule4 = Response('Log complaint', 'Assign complaint to relevant department')
+rule5 = Precedence('Log complaint', 'Assign complaint to relevant department')
+rule6 = Response('Assign complaint to relevant department', 'Review complaint details')
+rule7 = Precedence('Assign complaint to relevant department', 'Review complaint details')
+rule8 = Precedence('Review complaint details', 'Reject and notify customer')
+rule9 = Precedence('Review complaint details', 'Approve and notify customer')
+rule10 = NotCoExistence('Reject and notify customer', 'Approve and notify customer')
+rule11 = Response('Approve and notify customer', 'Process reimbursement')
+rule12 = Precedence('Approve and notify customer', 'Process reimbursement')
+rule13 = Response('Process reimbursement', 'Resolve complaint')
+rule14 = ChainResponse('Reject and notify customer', 'Resolve complaint')
+rule15 = Precedence('Resolve complaint', 'Provide feedback')
+```

@@ -1,0 +1,14 @@
+```python
+rule1 = Init("Schedule compliance audit")
+rule2 = Response("Schedule compliance audit", "Prepare documentation")
+rule3 = Response("Schedule compliance audit", "Gather evidence")
+rule4 = Response("Schedule compliance audit", "Conduct self-assessment")
+rule5 = Precedence("Prepare documentation", "Conduct external audit")
+rule6 = Precedence("Gather evidence", "Conduct external audit")
+rule7 = Precedence("Conduct self-assessment", "Conduct external audit")
+rule8 = Response("Conduct external audit", "Identify gaps or issues")
+rule9 = Response("Identify gaps or issues", "Make necessary corrections or improvements")
+rule10 = Response("Make necessary corrections or improvements", "Conduct final audit")
+rule11 = Precedence("Conduct final audit", "Award certification")
+rule12 = Response("Award certification", "Issue official documents")
+```

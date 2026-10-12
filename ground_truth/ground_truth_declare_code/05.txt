@@ -1,0 +1,14 @@
+```python
+rule1 = Init("Identify need for new supplier or vendor")
+rule2 = Response("Identify need for new supplier or vendor", "Issue request for proposals (RFP)")
+rule3 = Response("Issue request for proposals (RFP)", "Receive supplier proposals")
+rule4 = Response("Receive supplier proposals", "Evaluate proposal")
+rule5 = Precedence("Evaluate proposal", "Conduct site visit")
+rule6 = Precedence("Evaluate proposal", "Conduct interview")
+rule7 = Precedence("Evaluate proposal", "Select supplier")
+rule8 = Response("Select supplier", "Begin contract negotiations")
+rule9 = Response("Begin contract negotiations", "Sign contract")
+rule10 = Response("Sign contract", "Onboard supplier")
+rule11 = Response("Sign contract", "Execute contract")
+rule12 = CoExistence("Onboard supplier", "Execute contract")
+```

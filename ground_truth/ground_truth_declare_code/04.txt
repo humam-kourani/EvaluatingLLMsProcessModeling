@@ -1,0 +1,15 @@
+```python
+rule1 = Init("Define campaign objectives")
+rule2 = Precedence("Define campaign objectives", "Create content")
+rule3 = Precedence("Define campaign objectives", "Design visuals")
+rule4 = Precedence("Define campaign objectives", "Select promotion channels")
+rule5 = Precedence("Create content", "Launch campaign")
+rule6 = Precedence("Design visuals", "Launch campaign")
+rule7 = Precedence("Select promotion channels", "Launch campaign")
+rule8 = Response("Launch campaign", "Track performance in real-time")
+rule9 = Precedence("Launch campaign", "Collect leads in CRM system")
+rule10 = Precedence("Collect leads in CRM system", "Sales teams follows up on leads")
+rule11 = Precedence("Launch campaign", "Campaign period ends")
+rule12 = Precedence("Launch campaign", "Analyze performance for future optimization")
+rule13 = CoExistence("Campaign period ends", "Analyze performance for future optimization")
+```
