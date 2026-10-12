@@ -1,0 +1,17 @@
+```python
+rule1 = Init('Outline objectives')
+rule2 = Precedence('Outline objectives', 'Draft plan')
+rule3 = Response('Outline objectives', 'Draft plan')
+rule4 = Precedence('Draft plan', 'Conduct strategic alignment meeting')
+rule5 = Response('Draft plan', 'Conduct strategic alignment meeting')
+rule6 = Precedence('Conduct strategic alignment meeting', 'Review budget feasibility')
+rule7 = Response('Conduct strategic alignment meeting', 'Review budget feasibility')
+rule8 = Precedence('Provide feedback', 'Adjust Plan')
+rule9 = Precedence('Adjust Plan', 'Documented and approve adjustment')
+rule10 = Response('Adjust Plan', 'Documented and approve adjustment')
+rule11 = Precedence('Approve final budget', 'Distribute budget')
+rule12 = Response('Approve final budget', 'Distribute budget')
+rule13 = Precedence('Distribute budget', 'Implement plan')
+rule14 = Response('Distribute budget', 'Implement plan')
+rule15 = End('Implement plan')
+```

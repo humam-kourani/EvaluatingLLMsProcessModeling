@@ -33,7 +33,7 @@ subscription_loop = gen.loop(do=subscription_activities, redo=None)
 
 # Cancellation process
 submit_cancellation = gen.activity('Customer submits cancellation request')
-apply_refunds_charges = gen.xor('apply refund', 'apply charges', None)
+apply_refunds_charges = gen.xor('Apply refund', 'Apply charges', None)
 deactivate_subscription = gen.activity('Deactivate subscription')
 settle_balance = gen.activity('Settle final account balance')
 

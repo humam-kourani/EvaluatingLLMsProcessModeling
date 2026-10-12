@@ -1,0 +1,16 @@
+```python
+rule1 = Init("Identify development needs or career aspirations")
+rule2 = Response("Identify development needs or career aspirations", "Create personal development plan")
+rule3 = Response("Create personal development plan", "Work on skill enhancement")
+rule4 = CoExistence("Work on skill enhancement", "Receive feedback and evaluation from supervisors")
+rule5 = Precedence("Create personal development plan", "Receive feedback and evaluation from supervisors")
+rule6 = Precedence("Work on skill enhancement", "Consider employee for promotion or new role")
+rule7 = Precedence("Receive feedback and evaluation from supervisors", "Consider employee for promotion or new role")
+rule8 = Response("Consider employee for promotion or new role", "Conducts formal performance review")
+rule9 = Precedence("Conducts formal performance review", "Approve promotion")
+rule10 = Response("Approve promotion", "Set new responsibilities")
+rule11 = Response("Approve promotion", "Adjust compensation")
+rule12 = Response("Approve promotion", "Transition into new role")
+rule13 = Precedence("Set new responsibilities", "Transition into new role")
+rule14 = Precedence("Adjust compensation", "Transition into new role")
+```

@@ -1,0 +1,17 @@
+```python
+rule1 = Init('Identify need for new hire')
+rule2 = Response('Identify need for new hire', 'Create job description')
+rule3 = Response('Create job description', 'Post job description')
+rule4 = Response('Post job description', 'Collect resumes')
+rule5 = Response('Collect resumes', 'Screen resumes')
+rule6 = Response('Screen resumes', 'Conduct initial phone interviews')
+rule7 = Response('Conduct initial phone interviews', 'Invite candidates for interviews')
+rule8 = Precedence('Invite candidates for interviews', 'Conduct an in-person interview')
+rule9 = Precedence('Invite candidates for interviews', 'Conduct a virtual interview')
+rule10 = Response('Choose candidate', 'Extend offer')
+rule11 = Precedence('Extend offer', 'Negotiate salary')
+rule12 = Response('Extend offer', 'Begin onboarding process')
+rule13 = Response('Begin onboarding process', 'Complete paperwork')
+rule14 = Response('Begin onboarding process', 'Complete orientation')
+rule15 = Response('Begin onboarding process', 'Complete training')
+```

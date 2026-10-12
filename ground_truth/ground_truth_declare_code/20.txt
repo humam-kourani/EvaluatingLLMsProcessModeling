@@ -1,0 +1,18 @@
+```python
+rule1 = Init("Guest calls room service")
+rule2 = Response("Guest calls room service", "Manager takes down the order")
+rule3 = Response("Manager takes down the order", "Manager submits order ticket to kitchen")
+rule4 = Response("Manager takes down the order", "Manager assigns order to waiter")
+rule5 = Response("Manager submits order ticket to kitchen", "Kitchen prepares food")
+rule6 = Response("Manager gives order to sommelier", "Sommelier fetches wine and prepare alcoholic beverages")
+rule7 = Response("Manager assigns order to waiter", "Waiter readies cart")
+rule8 = Precedence("Manager assigns order to waiter", "Waiter prepares nonalcoholic drinks")
+rule9 = Precedence("Kitchen prepares food", "Waiter delivers order to guest's room")
+rule10 = Precedence("Waiter readies cart", "Waiter delivers order to guest's room")
+rule11 = Response("Sommelier fetches wine and prepare alcoholic beverages", "Waiter delivers order to guest's room")
+rule12 = Response("Waiter delivers order to guest's room", "Waiter returns to room-service station")
+rule13 = Response("Waiter returns to room-service station", "Waiter debits guest's account")
+rule14 = Precedence("Waiter returns to room-service station", "Waiter waits/delays debiting")
+rule15 = Response("Waiter waits/delays debiting", "Waiter debits guest's account")
+rule16 = End("Waiter debits guest's account")
+```

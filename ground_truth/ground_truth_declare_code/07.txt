@@ -1,0 +1,17 @@
+```python
+rule1 = Init('Customer searches for ticket')
+rule2 = Response('Customer searches for ticket', 'Select route')
+rule3 = Response('Customer searches for ticket', 'Select date and time')
+rule4 = Response('Select route', 'Provide personal information')
+rule5 = Response('Select route', 'Provide payment details')
+rule6 = Response('Select date and time', 'Provide personal information')
+rule7 = Response('Select date and time', 'Provide payment details')
+rule8 = Response('Provide personal information', 'Generate ticket')
+rule9 = Response('Provide payment details', 'Generate ticket')
+rule10 = Precedence('Generate ticket', 'Send ticket via email')
+rule11 = Precedence('Generate ticket', 'Send ticket via SMS')
+rule12 = Response('Generate ticket', 'Update seat inventory')
+rule13 = Response('Send reminder', 'Customer completes journey')
+rule14 = Response('Send instructions', 'Customer completes journey')
+rule15 = Precedence('Customer completes journey', 'Post-travel feedback or services')
+```

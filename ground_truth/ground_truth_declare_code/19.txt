@@ -1,0 +1,12 @@
+```python
+rule1 = Init("Login")
+rule2 = Response("Login", "Select items")
+rule3 = Response("Login", "Set payment method")
+rule4 = Precedence("Set payment method", "Pay")
+rule5 = Precedence("Set payment method", "Complete installment agreement")
+rule6 = NotCoExistence("Pay", "Complete installment agreement")
+rule7 = Precedence("Select items", "Select free reward")
+rule8 = Response("Pay", "Deliver items")
+rule9 = Response("Complete installment agreement", "Deliver items")
+rule10 = Response("Return items", "Deliver items")
+```

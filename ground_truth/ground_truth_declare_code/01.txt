@@ -1,0 +1,10 @@
+```python
+rule1 = Init("Receive customer inquiry")
+rule2 = Precedence("Receive customer inquiry", "Guide customer in selecting product/service")
+rule3 = Precedence("Guide customer in selecting product/service", "Provide quote")
+rule4 = Precedence("Provide quote", "Place order")
+rule5 = Precedence("Place order", "Record order in system")
+rule6 = Precedence("Record order in system", "Send order confirmation to customer")
+rule7 = Response("Place order", "Record order in system")
+rule8 = Response("Record order in system", "Send order confirmation to customer")
+```
